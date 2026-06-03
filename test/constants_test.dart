@@ -3,16 +3,23 @@ import 'package:music_player_flutter/constants.dart';
 
 void main() {
   group('AppConstants.fixUrl', () {
-    test('replaces http://localhost with configured host', () {
+    test('replaces http://localhost/backend with production baseUrl', () {
       expect(
-        AppConstants.fixUrl('http://localhost/muziek/uploads/song.mp3'),
+        AppConstants.fixUrl('http://localhost/backend/uploads/song.mp3'),
         'https://api.hiddebalestra.nl/muziek/uploads/song.mp3',
       );
     });
 
-    test('replaces http://127.0.0.1 with configured host', () {
+    test('replaces http://127.0.0.1/backend with production baseUrl', () {
       expect(
-        AppConstants.fixUrl('http://127.0.0.1/muziek/uploads/song.mp3'),
+        AppConstants.fixUrl('http://127.0.0.1/backend/uploads/song.mp3'),
+        'https://api.hiddebalestra.nl/muziek/uploads/song.mp3',
+      );
+    });
+
+    test('replaces http://10.0.2.2/backend with production baseUrl', () {
+      expect(
+        AppConstants.fixUrl('http://10.0.2.2/backend/uploads/song.mp3'),
         'https://api.hiddebalestra.nl/muziek/uploads/song.mp3',
       );
     });
@@ -31,9 +38,11 @@ void main() {
       expect(AppConstants.fixUrl(url), url);
     });
 
-    test('only replaces the first occurrence', () {
-      final result = AppConstants.fixUrl('http://localhost/muziek/localhost/file.mp3');
-      expect(result, 'https://api.hiddebalestra.nl/muziek/localhost/file.mp3');
+    test('preserves the path after /backend', () {
+      expect(
+        AppConstants.fixUrl('http://localhost/backend/uploads/sub/file.mp3'),
+        'https://api.hiddebalestra.nl/muziek/uploads/sub/file.mp3',
+      );
     });
 
     test('apiUrl is built from baseUrl', () {

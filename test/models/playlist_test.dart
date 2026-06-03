@@ -94,7 +94,7 @@ void main() {
             'language': '',
             'year': 0,
             'duration': 0,
-            'audio_url': 'http://localhost/muziek/uploads/song.mp3',
+            'audio_url': 'http://localhost/backend/uploads/song.mp3',
           },
         ],
       });

@@ -2,12 +2,20 @@ class AppConstants {
   static const String baseUrl = 'https://api.hiddebalestra.nl/muziek';
   static const String apiUrl = '$baseUrl/api';
 
-  // Rewrite legacy localhost/127.0.0.1 URLs to the production host
+  // Rewrite legacy local dev URLs to the production server.
+  // Replaces the full old base (host + /backend path) so the uploads path resolves correctly.
   static String fixUrl(String url) {
     if (url.isEmpty) return url;
-    final origin = Uri.parse(baseUrl).origin; // 'https://api.hiddebalestra.nl'
-    return url
-        .replaceFirst('http://localhost', origin)
-        .replaceFirst('http://127.0.0.1', origin);
+    const oldBases = [
+      'http://localhost/backend',
+      'http://127.0.0.1/backend',
+      'http://10.0.2.2/backend',
+    ];
+    for (final old in oldBases) {
+      if (url.startsWith(old)) {
+        return baseUrl + url.substring(old.length);
+      }
+    }
+    return url;
   }
 }

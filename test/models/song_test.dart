@@ -30,19 +30,24 @@ void main() {
     });
 
     test('rewrites localhost audio_url to production host', () {
-      final song = Song.fromJson(_minimal({'audio_url': 'http://localhost/muziek/uploads/song.mp3'}));
+      final song = Song.fromJson(_minimal({'audio_url': 'http://localhost/backend/uploads/song.mp3'}));
       expect(song.audioUrl, 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3');
     });
 
     test('rewrites 127.0.0.1 audio_url to production host', () {
-      final song = Song.fromJson(_minimal({'audio_url': 'http://127.0.0.1/muziek/uploads/song.mp3'}));
+      final song = Song.fromJson(_minimal({'audio_url': 'http://127.0.0.1/backend/uploads/song.mp3'}));
+      expect(song.audioUrl, 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3');
+    });
+
+    test('rewrites 10.0.2.2 audio_url to production host', () {
+      final song = Song.fromJson(_minimal({'audio_url': 'http://10.0.2.2/backend/uploads/song.mp3'}));
       expect(song.audioUrl, 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3');
     });
 
     test('rewrites localhost image_url to production host', () {
       final song = Song.fromJson(_minimal({
         'audio_url': '',
-        'image_url': 'http://localhost/muziek/uploads/cover.jpg',
+        'image_url': 'http://localhost/backend/uploads/cover.jpg',
       }));
       expect(song.imageUrl, 'https://api.hiddebalestra.nl/muziek/uploads/cover.jpg');
     });
