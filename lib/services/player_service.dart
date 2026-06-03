@@ -1,14 +1,17 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song.dart';
 import 'audio_handler.dart';
+import 'download_service.dart';
 
 const _shuffleKey = 'shuffle_mode';
 
 class PlayerService extends ChangeNotifier {
   final MusicAudioHandler _handler;
+  final DownloadService? _downloadService;
   final _rng = Random();
 
   AudioPlayer get _player => _handler.player;
@@ -26,8 +29,9 @@ class PlayerService extends ChangeNotifier {
   Duration get position => _player.position;
   Duration? get duration => _player.duration;
 
-  PlayerService({MusicAudioHandler? handler})
-      : _handler = handler ?? MusicAudioHandler() {
+  PlayerService({MusicAudioHandler? handler, DownloadService? downloadService})
+      : _handler = handler ?? MusicAudioHandler(),
+        _downloadService = downloadService {
     _handler.onSkipToNext = () => playNext();
     _handler.onSkipToPrevious = () => playPrevious();
     _player.playerStateStream.listen((state) {
@@ -65,7 +69,12 @@ class PlayerService extends ChangeNotifier {
     _handler.setMediaItem(song);
     notifyListeners();
     try {
-      await _player.setUrl(song.audioUrl);
+      final localPath = _downloadService?.getLocalPath(song.id);
+      if (localPath != null && File(localPath).existsSync()) {
+        await _player.setFilePath(localPath);
+      } else {
+        await _player.setUrl(song.audioUrl);
+      }
       await _player.play();
     } catch (_) {}
     notifyListeners();

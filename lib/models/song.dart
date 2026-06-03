@@ -40,6 +40,19 @@ class Song {
     lyrics: j['lyrics'] as String?,
   );
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'artist': artist,
+    'genre': genre,
+    'language': language,
+    'year': year,
+    'duration': duration,
+    'audio_url': audioUrl,
+    'image_url': imageUrl,
+    'lyrics': lyrics,
+  };
+
   String get formattedDuration {
     final m = duration ~/ 60;
     final s = duration % 60;

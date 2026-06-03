@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/audio_handler.dart';
+import 'services/download_service.dart';
 import 'services/player_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/songs_screen.dart';
@@ -14,6 +15,10 @@ import 'widgets/player_bar.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Permission.notification.request();
+
+  final downloadService = DownloadService();
+  await downloadService.init();
+
   final handler = await AudioService.init(
     builder: () => MusicAudioHandler(),
     config: const AudioServiceConfig(
@@ -25,24 +30,34 @@ void main() async {
       notificationColor: Color(0xFF1DB954),
     ),
   );
-  runApp(MusicPlayerApp(audioHandler: handler));
+  runApp(MusicPlayerApp(audioHandler: handler, downloadService: downloadService));
 }
 
 class MusicPlayerApp extends StatelessWidget {
   final MusicAudioHandler audioHandler;
-  const MusicPlayerApp({super.key, required this.audioHandler});
+  final DownloadService downloadService;
+
+  const MusicPlayerApp({
+    super.key,
+    required this.audioHandler,
+    required this.downloadService,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<DownloadService>.value(value: downloadService),
         Provider<ApiService>(create: (_) => ApiService()),
         ChangeNotifierProxyProvider<ApiService, AuthService>(
           create: (ctx) => AuthService(ctx.read<ApiService>()),
           update: (_, api, prev) => prev ?? AuthService(api),
         ),
         ChangeNotifierProvider<PlayerService>(
-          create: (_) => PlayerService(handler: audioHandler),
+          create: (_) => PlayerService(
+            handler: audioHandler,
+            downloadService: downloadService,
+          ),
         ),
       ],
       child: MaterialApp(
@@ -136,7 +151,6 @@ class _MainShellState extends State<_MainShell> {
       body: Stack(
         children: [
           _pages[_index],
-          // Logout button top-right
           Positioned(
             top: 0,
             right: 0,

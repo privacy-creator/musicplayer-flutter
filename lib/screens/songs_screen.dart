@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/song.dart';
@@ -6,7 +7,8 @@ import '../services/player_service.dart';
 import 'song_detail_screen.dart';
 
 class SongsScreen extends StatefulWidget {
-  const SongsScreen({super.key});
+  final Future<bool> Function()? connectivityChecker;
+  const SongsScreen({super.key, this.connectivityChecker});
 
   @override
   State<SongsScreen> createState() => _SongsScreenState();
@@ -15,6 +17,7 @@ class SongsScreen extends StatefulWidget {
 class _SongsScreenState extends State<SongsScreen> {
   List<Song> _songs = [];
   bool _loading = true;
+  bool _offline = false;
   final _searchCtrl = TextEditingController();
   String _language = '';
   String _genre = '';
@@ -36,8 +39,22 @@ class _SongsScreenState extends State<SongsScreen> {
     super.dispose();
   }
 
+  Future<bool> _hasInternet() async {
+    if (widget.connectivityChecker != null) {
+      return widget.connectivityChecker!();
+    }
+    try {
+      final results = await Connectivity().checkConnectivity();
+      return results.isNotEmpty &&
+          results.any((r) => r != ConnectivityResult.none);
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _load() async {
-    setState(() => _loading = true);
+    setState(() { _loading = true; _offline = false; });
+    final online = await _hasInternet();
     try {
       final songs = await context.read<ApiService>().getSongs(
         search: _searchCtrl.text,
@@ -45,15 +62,37 @@ class _SongsScreenState extends State<SongsScreen> {
         genre: _genre,
       );
       if (!mounted) return;
-      final genreSet = songs.map((s) => s.genre).where((g) => g.isNotEmpty).toSet().toList()..sort();
+      final genreSet = songs
+          .map((s) => s.genre)
+          .where((g) => g.isNotEmpty)
+          .toSet()
+          .toList()
+        ..sort();
       setState(() {
         _songs = songs;
         _genres = ['', ...genreSet];
         _loading = false;
+        _offline = !online;
       });
     } catch (_) {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() { _loading = false; _offline = true; });
     }
+  }
+
+  Future<void> _refreshOnline() async {
+    final online = await _hasInternet();
+    if (!online) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Geen internetverbinding'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+    await _load();
   }
 
   @override
@@ -65,7 +104,7 @@ class _SongsScreenState extends State<SongsScreen> {
           IconButton(
             tooltip: 'Refresh',
             icon: const Icon(Icons.refresh),
-            onPressed: _load,
+            onPressed: _refreshOnline,
           ),
           IconButton(
             tooltip: 'Shuffle all',
@@ -78,6 +117,21 @@ class _SongsScreenState extends State<SongsScreen> {
       ),
       body: Column(
         children: [
+          if (_offline)
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              color: const Color(0xFF7B5300),
+              child: const Row(
+                children: [
+                  Icon(Icons.wifi_off, color: Colors.white, size: 14),
+                  SizedBox(width: 6),
+                  Text('Offline — gecachede nummers',
+                      style: TextStyle(color: Colors.white, fontSize: 12)),
+                ],
+              ),
+            ),
           _Filters(
             searchCtrl: _searchCtrl,
             language: _language,
@@ -97,7 +151,8 @@ class _SongsScreenState extends State<SongsScreen> {
                             style: TextStyle(color: Color(0xFFB3B3B3))))
                     : GridView.builder(
                         padding: const EdgeInsets.all(12),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
@@ -265,7 +320,6 @@ class _SongCard extends StatelessWidget {
                         ? Image.network(song.imageUrl!, fit: BoxFit.cover,
                             errorBuilder: (_, _, _) => _placeholder())
                         : _placeholder(),
-                    // Playing indicator
                     if (isCurrent)
                       Container(
                         color: Colors.black45,
@@ -275,7 +329,6 @@ class _SongCard extends StatelessWidget {
                           size: 48,
                         ),
                       ),
-                    // Info button
                     Positioned(
                       bottom: 6,
                       right: 6,
