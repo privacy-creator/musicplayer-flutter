@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
@@ -16,6 +17,8 @@ class PlayerService extends ChangeNotifier {
 
   AudioPlayer get _player => _handler.player;
 
+  final _errorController = StreamController<String>.broadcast();
+
   Song? _currentSong;
   List<Song> _playlist = [];
   int _currentIndex = 0;
@@ -28,6 +31,7 @@ class PlayerService extends ChangeNotifier {
   Stream<Duration?> get durationStream => _player.durationStream;
   Duration get position => _player.position;
   Duration? get duration => _player.duration;
+  Stream<String> get errorStream => _errorController.stream;
 
   PlayerService({MusicAudioHandler? handler, DownloadService? downloadService})
       : _handler = handler ?? MusicAudioHandler(),
@@ -76,7 +80,9 @@ class PlayerService extends ChangeNotifier {
         await _player.setUrl(song.audioUrl);
       }
       await _player.play();
-    } catch (_) {}
+    } catch (_) {
+      _errorController.add('Nummer kan niet worden geladen');
+    }
     notifyListeners();
   }
 
@@ -129,6 +135,7 @@ class PlayerService extends ChangeNotifier {
 
   @override
   void dispose() {
+    _errorController.close();
     _player.dispose();
     super.dispose();
   }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/api_service.dart';
+import '../services/download_service.dart';
 import '../services/player_service.dart';
+import '../models/song.dart';
 
 class PlayerDetailScreen extends StatelessWidget {
   const PlayerDetailScreen({super.key});
@@ -20,6 +23,8 @@ class PlayerDetailScreen extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final downloads = context.watch<DownloadService>();
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
@@ -33,6 +38,7 @@ class PlayerDetailScreen extends StatelessWidget {
         title: const Text('Nu aan het afspelen',
             style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 13)),
         centerTitle: true,
+        actions: [_DownloadButton(song: song, downloads: downloads)],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -232,4 +238,43 @@ class PlayerDetailScreen extends StatelessWidget {
 
   Widget _placeholder() => const Center(
       child: Icon(Icons.music_note, color: Color(0xFF1DB954), size: 80));
+}
+
+class _DownloadButton extends StatelessWidget {
+  final Song song;
+  final DownloadService downloads;
+
+  const _DownloadButton({required this.song, required this.downloads});
+
+  @override
+  Widget build(BuildContext context) {
+    if (downloads.isDownloading(song.id)) {
+      return Padding(
+        padding: const EdgeInsets.all(14),
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(
+            value: downloads.getProgress(song.id),
+            strokeWidth: 2.5,
+            color: const Color(0xFF1DB954),
+          ),
+        ),
+      );
+    }
+
+    if (downloads.isDownloaded(song.id)) {
+      return IconButton(
+        tooltip: 'Download verwijderen',
+        icon: const Icon(Icons.download_done, color: Color(0xFF1DB954)),
+        onPressed: () => downloads.delete(song.id),
+      );
+    }
+
+    return IconButton(
+      tooltip: 'Offline opslaan',
+      icon: const Icon(Icons.download_outlined),
+      onPressed: () => downloads.download(song, context.read<ApiService>().dio),
+    );
+  }
 }
