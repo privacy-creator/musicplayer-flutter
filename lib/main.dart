@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
@@ -12,14 +13,15 @@ import 'widgets/player_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Permission.notification.request();
   final handler = await AudioService.init(
     builder: () => MusicAudioHandler(),
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.example.music_player_flutter.audio',
       androidNotificationChannelName: 'Muziek',
       androidNotificationIcon: 'mipmap/ic_launcher',
-      androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
+      androidNotificationOngoing: false,
+      androidStopForegroundOnPause: false,
       notificationColor: Color(0xFF1DB954),
     ),
   );
