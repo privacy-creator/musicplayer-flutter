@@ -5,7 +5,7 @@ import 'package:audio_session/audio_session.dart';
 import '../models/song.dart';
 
 class PlayerService extends ChangeNotifier {
-  final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _player;
   final _rng = Random();
 
   Song? _currentSong;
@@ -21,7 +21,7 @@ class PlayerService extends ChangeNotifier {
   Duration get position => _player.position;
   Duration? get duration => _player.duration;
 
-  PlayerService() {
+  PlayerService({AudioPlayer? player}) : _player = player ?? AudioPlayer() {
     _setup();
     _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
@@ -33,8 +33,10 @@ class PlayerService extends ChangeNotifier {
   }
 
   Future<void> _setup() async {
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.music());
+    try {
+      final session = await AudioSession.instance;
+      await session.configure(const AudioSessionConfiguration.music());
+    } catch (_) {}
   }
 
   Future<void> playSong(Song song, List<Song> playlist, int index) async {
