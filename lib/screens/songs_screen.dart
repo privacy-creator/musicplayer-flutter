@@ -63,6 +63,11 @@ class _SongsScreenState extends State<SongsScreen> {
         title: const Text('Songs'),
         actions: [
           IconButton(
+            tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh),
+            onPressed: _load,
+          ),
+          IconButton(
             tooltip: 'Shuffle all',
             icon: const Icon(Icons.shuffle, color: Color(0xFF1DB954)),
             onPressed: _songs.isEmpty

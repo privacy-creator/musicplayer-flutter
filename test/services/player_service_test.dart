@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:music_player_flutter/models/song.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/player_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAudioPlayer extends Mock implements AudioPlayer {}
 
@@ -24,6 +25,7 @@ void main() {
   late PlayerService service;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     mockPlayer = MockAudioPlayer();
 
     when(() => mockPlayer.playerStateStream)
@@ -236,6 +238,55 @@ void main() {
       const pos = Duration(seconds: 30);
       await service.seek(pos);
       verify(() => mockPlayer.seek(pos)).called(1);
+    });
+  });
+
+  group('shuffle persistentie', () {
+    test('toggleShuffle slaat true op in SharedPreferences', () async {
+      service.toggleShuffle();
+      await Future.delayed(Duration.zero);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('shuffle_mode'), true);
+    });
+
+    test('toggleShuffle slaat false op na twee keer omschakelen', () async {
+      service.toggleShuffle();
+      service.toggleShuffle();
+      await Future.delayed(Duration.zero);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('shuffle_mode'), false);
+    });
+
+    test('shufflePlay slaat shuffle aan op in SharedPreferences', () async {
+      final songs = [makeSong(1), makeSong(2)];
+      await service.shufflePlay(songs);
+      await Future.delayed(Duration.zero);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('shuffle_mode'), true);
+    });
+
+    test('nieuwe PlayerService laadt opgeslagen shuffle staat', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('shuffle_mode', true);
+
+      final newHandler = MusicAudioHandler(player: mockPlayer);
+      final newService = PlayerService(handler: newHandler);
+      await Future.delayed(Duration.zero);
+
+      expect(newService.shuffleMode, true);
+      newService.dispose();
+    });
+
+    test('nieuwe PlayerService begint met false als niets opgeslagen', () async {
+      final newHandler = MusicAudioHandler(player: mockPlayer);
+      final newService = PlayerService(handler: newHandler);
+      await Future.delayed(Duration.zero);
+
+      expect(newService.shuffleMode, false);
+      newService.dispose();
     });
   });
 }

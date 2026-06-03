@@ -1,8 +1,11 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song.dart';
 import 'audio_handler.dart';
+
+const _shuffleKey = 'shuffle_mode';
 
 class PlayerService extends ChangeNotifier {
   final MusicAudioHandler _handler;
@@ -34,6 +37,21 @@ class PlayerService extends ChangeNotifier {
       notifyListeners();
     });
     _player.positionStream.listen((_) => notifyListeners());
+    _loadShuffleMode();
+  }
+
+  Future<void> _loadShuffleMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getBool(_shuffleKey);
+    if (saved != null && saved != _shuffleMode) {
+      _shuffleMode = saved;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveShuffleMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_shuffleKey, _shuffleMode);
   }
 
   Future<void> playSong(Song song, List<Song> playlist, int index) async {
@@ -84,6 +102,7 @@ class PlayerService extends ChangeNotifier {
 
   void toggleShuffle() {
     _shuffleMode = !_shuffleMode;
+    _saveShuffleMode();
     notifyListeners();
   }
 
@@ -91,6 +110,7 @@ class PlayerService extends ChangeNotifier {
     if (playlist.isEmpty) return;
     final shuffled = List<Song>.from(playlist)..shuffle(_rng);
     _shuffleMode = true;
+    _saveShuffleMode();
     await playSong(shuffled[0], shuffled, 0);
   }
 
