@@ -14,7 +14,7 @@ Song makeSong(int id) => Song(
       language: 'Dutch',
       year: 2024,
       duration: 180,
-      audioUrl: 'http://10.0.2.2/backend/uploads/$id.mp3',
+      audioUrl: 'https://api.hiddebalestra.nl/muziek/uploads/$id.mp3',
     );
 
 void main() {

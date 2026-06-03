@@ -12,8 +12,8 @@ void main() {
         'language': 'English',
         'year': 2024,
         'duration': 180,
-        'audio_url': 'http://10.0.2.2/backend/uploads/song.mp3',
-        'image_url': 'http://10.0.2.2/backend/uploads/cover.jpg',
+        'audio_url': 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3',
+        'image_url': 'https://api.hiddebalestra.nl/muziek/uploads/cover.jpg',
         'lyrics': 'Verse 1\nChorus',
       });
 
@@ -24,27 +24,27 @@ void main() {
       expect(song.language, 'English');
       expect(song.year, 2024);
       expect(song.duration, 180);
-      expect(song.audioUrl, 'http://10.0.2.2/backend/uploads/song.mp3');
-      expect(song.imageUrl, 'http://10.0.2.2/backend/uploads/cover.jpg');
+      expect(song.audioUrl, 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3');
+      expect(song.imageUrl, 'https://api.hiddebalestra.nl/muziek/uploads/cover.jpg');
       expect(song.lyrics, 'Verse 1\nChorus');
     });
 
-    test('rewrites localhost audio_url to emulator host', () {
-      final song = Song.fromJson(_minimal({'audio_url': 'http://localhost/backend/uploads/song.mp3'}));
-      expect(song.audioUrl, 'http://10.0.2.2/backend/uploads/song.mp3');
+    test('rewrites localhost audio_url to production host', () {
+      final song = Song.fromJson(_minimal({'audio_url': 'http://localhost/muziek/uploads/song.mp3'}));
+      expect(song.audioUrl, 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3');
     });
 
-    test('rewrites 127.0.0.1 audio_url to emulator host', () {
-      final song = Song.fromJson(_minimal({'audio_url': 'http://127.0.0.1/backend/uploads/song.mp3'}));
-      expect(song.audioUrl, 'http://10.0.2.2/backend/uploads/song.mp3');
+    test('rewrites 127.0.0.1 audio_url to production host', () {
+      final song = Song.fromJson(_minimal({'audio_url': 'http://127.0.0.1/muziek/uploads/song.mp3'}));
+      expect(song.audioUrl, 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3');
     });
 
-    test('rewrites localhost image_url to emulator host', () {
+    test('rewrites localhost image_url to production host', () {
       final song = Song.fromJson(_minimal({
         'audio_url': '',
-        'image_url': 'http://localhost/backend/uploads/cover.jpg',
+        'image_url': 'http://localhost/muziek/uploads/cover.jpg',
       }));
-      expect(song.imageUrl, 'http://10.0.2.2/backend/uploads/cover.jpg');
+      expect(song.imageUrl, 'https://api.hiddebalestra.nl/muziek/uploads/cover.jpg');
     });
 
     test('imageUrl is null when not present', () {
@@ -95,6 +95,6 @@ Map<String, dynamic> _minimal([Map<String, dynamic>? extra]) => {
       'language': 'English',
       'year': 2000,
       'duration': 120,
-      'audio_url': 'http://10.0.2.2/backend/uploads/song.mp3',
+      'audio_url': 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3',
       ...?extra,
     };

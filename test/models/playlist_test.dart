@@ -39,7 +39,7 @@ void main() {
             'language': 'Dutch',
             'year': 2023,
             'duration': 200,
-            'audio_url': 'http://10.0.2.2/backend/uploads/a.mp3',
+            'audio_url': 'https://api.hiddebalestra.nl/muziek/uploads/a.mp3',
           },
         ],
       });
@@ -94,12 +94,12 @@ void main() {
             'language': '',
             'year': 0,
             'duration': 0,
-            'audio_url': 'http://localhost/backend/uploads/song.mp3',
+            'audio_url': 'http://localhost/muziek/uploads/song.mp3',
           },
         ],
       });
 
-      expect(playlist.songs.first.audioUrl, 'http://10.0.2.2/backend/uploads/song.mp3');
+      expect(playlist.songs.first.audioUrl, 'https://api.hiddebalestra.nl/muziek/uploads/song.mp3');
     });
   });
 }
