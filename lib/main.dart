@@ -1,19 +1,34 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/api_service.dart';
 import 'services/auth_service.dart';
+import 'services/audio_handler.dart';
 import 'services/player_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/songs_screen.dart';
 import 'screens/playlists_screen.dart';
 import 'widgets/player_bar.dart';
 
-void main() {
-  runApp(const MusicPlayerApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final handler = await AudioService.init(
+    builder: () => MusicAudioHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.example.music_player_flutter.audio',
+      androidNotificationChannelName: 'Muziek',
+      androidNotificationIcon: 'mipmap/ic_launcher',
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
+      notificationColor: Color(0xFF1DB954),
+    ),
+  );
+  runApp(MusicPlayerApp(audioHandler: handler));
 }
 
 class MusicPlayerApp extends StatelessWidget {
-  const MusicPlayerApp({super.key});
+  final MusicAudioHandler audioHandler;
+  const MusicPlayerApp({super.key, required this.audioHandler});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +39,9 @@ class MusicPlayerApp extends StatelessWidget {
           create: (ctx) => AuthService(ctx.read<ApiService>()),
           update: (_, api, prev) => prev ?? AuthService(api),
         ),
-        ChangeNotifierProvider<PlayerService>(create: (_) => PlayerService()),
+        ChangeNotifierProvider<PlayerService>(
+          create: (_) => PlayerService(handler: audioHandler),
+        ),
       ],
       child: MaterialApp(
         title: 'Music Player',

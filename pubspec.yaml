@@ -16,6 +16,7 @@ dependencies:
   path_provider: ^2.1.5
   just_audio: ^0.9.40
   audio_session: ^0.1.21
+  audio_service: ^0.18.15
   provider: ^6.1.2
 
 dev_dependencies:

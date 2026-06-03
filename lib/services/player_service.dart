@@ -1,12 +1,14 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:audio_session/audio_session.dart';
 import '../models/song.dart';
+import 'audio_handler.dart';
 
 class PlayerService extends ChangeNotifier {
-  final AudioPlayer _player;
+  final MusicAudioHandler _handler;
   final _rng = Random();
+
+  AudioPlayer get _player => _handler.player;
 
   Song? _currentSong;
   List<Song> _playlist = [];
@@ -21,8 +23,10 @@ class PlayerService extends ChangeNotifier {
   Duration get position => _player.position;
   Duration? get duration => _player.duration;
 
-  PlayerService({AudioPlayer? player}) : _player = player ?? AudioPlayer() {
-    _setup();
+  PlayerService({MusicAudioHandler? handler})
+      : _handler = handler ?? MusicAudioHandler() {
+    _handler.onSkipToNext = () => playNext();
+    _handler.onSkipToPrevious = () => playPrevious();
     _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
         playNext();
@@ -30,13 +34,6 @@ class PlayerService extends ChangeNotifier {
       notifyListeners();
     });
     _player.positionStream.listen((_) => notifyListeners());
-  }
-
-  Future<void> _setup() async {
-    try {
-      final session = await AudioSession.instance;
-      await session.configure(const AudioSessionConfiguration.music());
-    } catch (_) {}
   }
 
   Future<void> playSong(Song song, List<Song> playlist, int index) async {
@@ -47,6 +44,7 @@ class PlayerService extends ChangeNotifier {
     _playlist = playlist;
     _currentIndex = index;
     _currentSong = song;
+    _handler.setMediaItem(song);
     notifyListeners();
     try {
       await _player.setUrl(song.audioUrl);

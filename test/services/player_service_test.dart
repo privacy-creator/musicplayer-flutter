@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:music_player_flutter/models/song.dart';
+import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/player_service.dart';
 
 class MockAudioPlayer extends Mock implements AudioPlayer {}
@@ -19,12 +20,12 @@ Song makeSong(int id) => Song(
 
 void main() {
   late MockAudioPlayer mockPlayer;
+  late MusicAudioHandler handler;
   late PlayerService service;
 
   setUp(() {
     mockPlayer = MockAudioPlayer();
 
-    // Stub streams used in PlayerService constructor
     when(() => mockPlayer.playerStateStream)
         .thenAnswer((_) => const Stream.empty());
     when(() => mockPlayer.positionStream)
@@ -32,19 +33,23 @@ void main() {
     when(() => mockPlayer.durationStream)
         .thenAnswer((_) => const Stream.empty());
 
-    // Stub state getters
     when(() => mockPlayer.playing).thenReturn(false);
     when(() => mockPlayer.position).thenReturn(Duration.zero);
     when(() => mockPlayer.duration).thenReturn(null);
+    when(() => mockPlayer.bufferedPosition).thenReturn(Duration.zero);
+    when(() => mockPlayer.playerState).thenReturn(
+      PlayerState(false, ProcessingState.idle),
+    );
 
-    // Stub async audio operations (errors are already caught in service)
     when(() => mockPlayer.setUrl(any())).thenAnswer((_) async => null);
     when(() => mockPlayer.play()).thenAnswer((_) async {});
     when(() => mockPlayer.pause()).thenAnswer((_) async {});
     when(() => mockPlayer.seek(any())).thenAnswer((_) async {});
+    when(() => mockPlayer.stop()).thenAnswer((_) async {});
     when(() => mockPlayer.dispose()).thenAnswer((_) async {});
 
-    service = PlayerService(player: mockPlayer);
+    handler = MusicAudioHandler(player: mockPlayer);
+    service = PlayerService(handler: handler);
   });
 
   tearDown(() => service.dispose());
@@ -104,11 +109,10 @@ void main() {
 
       clearInteractions(mockPlayer);
 
-      // Klik hetzelfde nummer opnieuw
       await service.playSong(song, [song], 0);
 
       verifyNever(() => mockPlayer.setUrl(any()));
-      verify(() => mockPlayer.play()).called(1); // playing was false → play()
+      verify(() => mockPlayer.play()).called(1);
     });
 
     test('laadt een ander nummer na een wissel', () async {
@@ -160,7 +164,6 @@ void main() {
         playedIds.add(service.currentSong!.id);
       }
 
-      // Met 10 nummers en 20 pogingen moeten er meerdere verschillende zijn
       expect(playedIds.length, greaterThan(1));
     });
 
