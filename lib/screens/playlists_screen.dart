@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/playlist.dart';
 import '../services/api_service.dart';
+import '../widgets/global_app_bar_actions.dart';
 import 'playlist_detail_screen.dart';
 
 class PlaylistsScreen extends StatefulWidget {
@@ -37,7 +38,10 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
     final l10n = AppL10n.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navPlaylists)),
+      appBar: AppBar(
+        title: Text(l10n.navPlaylists),
+        actions: const [GlobalAppBarActions()],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954)))
           : _playlists.isEmpty

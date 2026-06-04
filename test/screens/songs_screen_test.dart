@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/models/song.dart';
 import 'package:music_player_flutter/services/api_service.dart';
+import 'package:music_player_flutter/services/auth_service.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/download_service.dart';
 import 'package:music_player_flutter/services/player_service.dart';
@@ -64,6 +65,9 @@ void main() {
       providers: [
         ChangeNotifierProvider<DownloadService>.value(value: downloadService),
         Provider<ApiService>.value(value: mockApi),
+        ChangeNotifierProvider<AuthService>(
+          create: (ctx) => AuthService(ctx.read<ApiService>()),
+        ),
         ChangeNotifierProvider<PlayerService>.value(value: playerService),
       ],
       child: MaterialApp(

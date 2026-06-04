@@ -10,7 +10,6 @@ import 'services/audio_handler.dart';
 import 'services/download_service.dart';
 import 'services/language_service.dart';
 import 'services/player_service.dart';
-import 'screens/login_screen.dart';
 import 'screens/songs_screen.dart';
 import 'screens/playlists_screen.dart';
 import 'widgets/player_bar.dart';
@@ -162,114 +161,12 @@ class _MainShellState extends State<_MainShell> {
   int _index = 0;
   static const _pages = [SongsScreen(), PlaylistsScreen()];
 
-  void _showLanguagePicker(BuildContext context) {
-    final lang = context.read<LanguageService>();
-    final l10n = AppL10n.of(context)!;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                child: Text(
-                  l10n.languagePicker,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              _LangOption(
-                flag: '🇳🇱',
-                label: 'Nederlands',
-                code: 'nl',
-                current: lang.locale.languageCode,
-                onTap: () {
-                  lang.setLocale(const Locale('nl'));
-                  Navigator.pop(context);
-                },
-              ),
-              _LangOption(
-                flag: '🇬🇧',
-                label: 'English',
-                code: 'en',
-                current: lang.locale.languageCode,
-                onTap: () {
-                  lang.setLocale(const Locale('en'));
-                  Navigator.pop(context);
-                },
-              ),
-              _LangOption(
-                flag: '🇪🇸',
-                label: 'Español',
-                code: 'es',
-                current: lang.locale.languageCode,
-                onTap: () {
-                  lang.setLocale(const Locale('es'));
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthService>();
     final l10n = AppL10n.of(context)!;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          _pages[_index],
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SafeArea(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.language,
-                        color: Color(0xFFB3B3B3), size: 20),
-                    tooltip: l10n.languagePicker,
-                    onPressed: () => _showLanguagePicker(context),
-                  ),
-                  auth.isAuthenticated
-                      ? IconButton(
-                          icon: const Icon(Icons.logout,
-                              color: Color(0xFFB3B3B3), size: 20),
-                          tooltip: l10n.tooltipAdminLogout,
-                          onPressed: () => context.read<AuthService>().logout(),
-                        )
-                      : IconButton(
-                          icon: const Icon(Icons.admin_panel_settings_outlined,
-                              color: Color(0xFF3A3A3A), size: 20),
-                          tooltip: l10n.tooltipAdminLogin,
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const LoginScreen()),
-                          ),
-                        ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+      body: _pages[_index],
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -296,41 +193,6 @@ class _MainShellState extends State<_MainShell> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _LangOption extends StatelessWidget {
-  final String flag;
-  final String label;
-  final String code;
-  final String current;
-  final VoidCallback onTap;
-
-  const _LangOption({
-    required this.flag,
-    required this.label,
-    required this.code,
-    required this.current,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isActive = code == current;
-    return ListTile(
-      leading: Text(flag, style: const TextStyle(fontSize: 24)),
-      title: Text(
-        label,
-        style: TextStyle(
-          color: isActive ? const Color(0xFF1DB954) : Colors.white,
-          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      trailing: isActive
-          ? const Icon(Icons.check, color: Color(0xFF1DB954), size: 18)
-          : null,
-      onTap: onTap,
     );
   }
 }

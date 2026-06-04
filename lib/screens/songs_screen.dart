@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/player_service.dart';
+import '../widgets/global_app_bar_actions.dart';
 import 'song_detail_screen.dart';
 
 class SongsScreen extends StatefulWidget {
@@ -105,6 +106,7 @@ class _SongsScreenState extends State<SongsScreen> {
       appBar: AppBar(
         title: Text(l10n.navSongs),
         actions: [
+          const GlobalAppBarActions(),
           IconButton(
             tooltip: l10n.tooltipRefresh,
             icon: const Icon(Icons.refresh),
