@@ -1,0 +1,91 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Music Player",
+
+  "navSongs": "Songs",
+  "navPlaylists": "Playlists",
+
+  "tooltipRefresh": "Refresh",
+  "tooltipShuffleAll": "Shuffle all",
+  "searchHint": "Search songs...",
+  "filterLanguage": "Language",
+  "filterGenre": "Genre",
+  "allLanguage": "All languages",
+  "allGenre": "All genres",
+  "noSongsFound": "No songs found",
+  "offlineBanner": "Offline — cached songs",
+  "noInternet": "No internet connection",
+
+  "addedToQueue": "{title} added to queue",
+  "@addedToQueue": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+
+  "tooltipDownload": "Save offline",
+  "tooltipDeleteDownload": "Remove download",
+  "offlineBadge": "Available offline",
+  "btnAddToQueue": "Add to queue",
+
+  "songAdded": "{title} added",
+  "@songAdded": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+
+  "queue": "Queue",
+  "lyrics": "Lyrics",
+  "btnPlay": "Play",
+  "btnPause": "Pause",
+
+  "nowPlaying": "Now playing",
+  "tooltipQueue": "Queue",
+
+  "clearQueue": "Clear queue",
+  "emptyQueue": "No songs in the queue",
+  "sectionNowPlaying": "Now playing",
+  "sectionQueue": "Queue ({count})",
+  "@sectionQueue": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "sectionUpNext": "Up next",
+
+  "adminLogin": "Admin Login",
+  "adminSubtitle": "For administrators only",
+  "tooltipAdminLogout": "Admin logout",
+  "tooltipAdminLogin": "Admin login",
+  "hintEmail": "Email",
+  "hintPassword": "Password",
+  "btnSignIn": "Sign In",
+  "errorFillAll": "Please fill in all fields",
+  "mfaTotp": "Enter your authenticator app code",
+  "mfaEmail": "Enter the code sent to your email",
+  "hint6digit": "6-digit code",
+  "btnVerify": "Verify",
+  "backToLogin": "← Back to login",
+
+  "noPlaylists": "No playlists yet",
+
+  "songCount": "{count, plural, =1{1 song} other{{count} songs}}",
+  "@songCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "tooltipPlayAll": "Play all",
+  "tooltipShuffle": "Shuffle",
+  "noSongsInPlaylist": "No songs in this playlist",
+
+  "errorCannotLoad": "Song could not be loaded",
+
+  "languagePicker": "Language",
+  "langNl": "Dutch",
+  "langEn": "English",
+  "langEs": "Spanish"
+}

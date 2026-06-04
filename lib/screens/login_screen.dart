@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,8 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    final l10n = AppL10n.of(context)!;
     if (_emailCtrl.text.isEmpty || _passwordCtrl.text.isEmpty) {
-      setState(() => _error = 'Please fill in all fields');
+      setState(() => _error = l10n.errorFillAll);
       return;
     }
     setState(() { _loading = true; _error = ''; });
@@ -39,7 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailCtrl.text.trim(),
         _passwordCtrl.text,
       );
-      if (!mounted) return;
       if (!mounted) return;
       if (data['mfaRequired'] == true) {
         setState(() {
@@ -79,6 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
@@ -105,25 +108,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Icon(Icons.music_note, color: Colors.black, size: 44),
               ),
               const SizedBox(height: 28),
-              const Text(
-                'Admin Login',
-                style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+              Text(
+                l10n.adminLogin,
+                style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Alleen voor beheerders',
-                style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 14),
+              Text(
+                l10n.adminSubtitle,
+                style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 14),
               ),
               const SizedBox(height: 40),
 
               if (!_mfaRequired) ...[
-                _Input(controller: _emailCtrl, hint: 'Email', icon: Icons.email_outlined,
+                _Input(controller: _emailCtrl, hint: l10n.hintEmail, icon: Icons.email_outlined,
                     type: TextInputType.emailAddress),
                 const SizedBox(height: 14),
-                _Input(controller: _passwordCtrl, hint: 'Password', icon: Icons.lock_outline,
+                _Input(controller: _passwordCtrl, hint: l10n.hintPassword, icon: Icons.lock_outline,
                     obscure: true),
                 const SizedBox(height: 24),
-                _Button(label: 'Sign In', loading: _loading, onTap: _login),
+                _Button(label: l10n.btnSignIn, loading: _loading, onTap: _login),
               ] else ...[
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -139,8 +142,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       Expanded(
                         child: Text(
                           _mfaType == 'totp'
-                              ? 'Enter your authenticator app code'
-                              : 'Enter the code sent to your email',
+                              ? l10n.mfaTotp
+                              : l10n.mfaEmail,
                           style: const TextStyle(color: Colors.white, fontSize: 13),
                         ),
                       ),
@@ -150,17 +153,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 _Input(
                   controller: _mfaCtrl,
-                  hint: '6-digit code',
+                  hint: l10n.hint6digit,
                   icon: Icons.pin_outlined,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 24),
-                _Button(label: 'Verify', loading: _loading, onTap: _verifyMfa),
+                _Button(label: l10n.btnVerify, loading: _loading, onTap: _verifyMfa),
                 const SizedBox(height: 12),
                 TextButton(
                   onPressed: () => setState(() { _mfaRequired = false; _error = ''; }),
-                  child: const Text('← Back to login',
-                      style: TextStyle(color: Color(0xFFB3B3B3))),
+                  child: Text(l10n.backToLogin,
+                      style: const TextStyle(color: Color(0xFFB3B3B3))),
                 ),
               ],
 

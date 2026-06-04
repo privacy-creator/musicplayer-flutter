@@ -1,0 +1,71 @@
+{
+  "@@locale": "es",
+
+  "appTitle": "Music Player",
+
+  "navSongs": "Canciones",
+  "navPlaylists": "Listas",
+
+  "tooltipRefresh": "Actualizar",
+  "tooltipShuffleAll": "Mezclar todo",
+  "searchHint": "Buscar canciones...",
+  "filterLanguage": "Idioma",
+  "filterGenre": "Género",
+  "allLanguage": "Todos los idiomas",
+  "allGenre": "Todos los géneros",
+  "noSongsFound": "No se encontraron canciones",
+  "offlineBanner": "Sin conexión — canciones en caché",
+  "noInternet": "Sin conexión a internet",
+
+  "addedToQueue": "{title} añadida a la cola",
+
+  "tooltipDownload": "Guardar sin conexión",
+  "tooltipDeleteDownload": "Eliminar descarga",
+  "offlineBadge": "Disponible sin conexión",
+  "btnAddToQueue": "Añadir a la cola",
+
+  "songAdded": "{title} añadida",
+
+  "queue": "Cola",
+  "lyrics": "Letra",
+  "btnPlay": "Reproducir",
+  "btnPause": "Pausar",
+
+  "nowPlaying": "Reproduciendo ahora",
+  "tooltipQueue": "Cola",
+
+  "clearQueue": "Vaciar cola",
+  "emptyQueue": "No hay canciones en la cola",
+  "sectionNowPlaying": "Reproduciendo ahora",
+  "sectionQueue": "Cola ({count})",
+  "sectionUpNext": "A continuación",
+
+  "adminLogin": "Admin Login",
+  "adminSubtitle": "Solo para administradores",
+  "tooltipAdminLogout": "Cerrar sesión admin",
+  "tooltipAdminLogin": "Admin login",
+  "hintEmail": "Correo electrónico",
+  "hintPassword": "Contraseña",
+  "btnSignIn": "Iniciar sesión",
+  "errorFillAll": "Por favor complete todos los campos",
+  "mfaTotp": "Ingresa tu código de autenticación",
+  "mfaEmail": "Ingresa el código enviado a tu correo",
+  "hint6digit": "Código de 6 dígitos",
+  "btnVerify": "Verificar",
+  "backToLogin": "← Volver al inicio de sesión",
+
+  "noPlaylists": "Aún no hay listas",
+
+  "songCount": "{count, plural, =1{1 canción} other{{count} canciones}}",
+
+  "tooltipPlayAll": "Reproducir todo",
+  "tooltipShuffle": "Mezclar",
+  "noSongsInPlaylist": "No hay canciones en esta lista",
+
+  "errorCannotLoad": "No se pudo cargar la canción",
+
+  "languagePicker": "Idioma",
+  "langNl": "Holandés",
+  "langEn": "Inglés",
+  "langEs": "Español"
+}

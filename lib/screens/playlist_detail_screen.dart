@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/playlist.dart';
 import '../services/api_service.dart';
 import '../services/player_service.dart';
@@ -36,6 +37,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   Widget build(BuildContext context) {
     final pl = _playlist ?? widget.playlist;
     final player = context.watch<PlayerService>();
+    final l10n = AppL10n.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,12 +45,12 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         actions: [
           if (pl.songs.isNotEmpty) ...[
             IconButton(
-              tooltip: 'Play all',
+              tooltip: l10n.tooltipPlayAll,
               icon: const Icon(Icons.play_arrow, color: Color(0xFF1DB954)),
               onPressed: () => player.playSong(pl.songs[0], pl.songs, 0),
             ),
             IconButton(
-              tooltip: 'Shuffle',
+              tooltip: l10n.tooltipShuffle,
               icon: const Icon(Icons.shuffle, color: Color(0xFF1DB954)),
               onPressed: () => player.shufflePlay(pl.songs),
             ),
@@ -74,7 +76,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         const SizedBox(height: 6),
                       ],
                       Text(
-                        '${pl.songs.length} song${pl.songs.length != 1 ? 's' : ''}',
+                        l10n.songCount(pl.songs.length),
                         style: const TextStyle(
                             color: Color(0xFF1DB954),
                             fontSize: 13,
@@ -86,9 +88,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 // Song list
                 Expanded(
                   child: pl.songs.isEmpty
-                      ? const Center(
-                          child: Text('No songs in this playlist',
-                              style: TextStyle(color: Color(0xFFB3B3B3))))
+                      ? Center(
+                          child: Text(l10n.noSongsInPlaylist,
+                              style: const TextStyle(color: Color(0xFFB3B3B3))))
                       : ListView.builder(
                           itemCount: pl.songs.length,
                           itemBuilder: (_, i) {

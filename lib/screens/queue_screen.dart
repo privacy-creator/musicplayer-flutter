@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/player_service.dart';
 
@@ -12,41 +13,42 @@ class QueueScreen extends StatelessWidget {
     final queue = player.queue;
     final upcoming = player.upcomingInPlaylist;
     final current = player.currentSong;
+    final l10n = AppL10n.of(context)!;
 
     final isEmpty = current == null && queue.isEmpty && upcoming.isEmpty;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wachtrij'),
+        title: Text(l10n.queue),
         actions: [
           if (queue.isNotEmpty)
             TextButton(
               onPressed: () => context.read<PlayerService>().clearQueue(),
-              child: const Text('Wis wachtrij',
-                  style: TextStyle(color: Color(0xFF1DB954))),
+              child: Text(l10n.clearQueue,
+                  style: const TextStyle(color: Color(0xFF1DB954))),
             ),
         ],
       ),
       body: isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.queue_music, color: Color(0xFF3A3A3A), size: 64),
-                  SizedBox(height: 16),
-                  Text('Geen nummers in de wachtrij',
-                      style: TextStyle(color: Color(0xFFB3B3B3))),
+                  const Icon(Icons.queue_music, color: Color(0xFF3A3A3A), size: 64),
+                  const SizedBox(height: 16),
+                  Text(l10n.emptyQueue,
+                      style: const TextStyle(color: Color(0xFFB3B3B3))),
                 ],
               ),
             )
           : ListView(
               children: [
                 if (current != null) ...[
-                  _SectionHeader('Nu aan het afspelen'),
+                  _SectionHeader(l10n.sectionNowPlaying),
                   _QueueTile(song: current, isCurrent: true),
                 ],
                 if (queue.isNotEmpty) ...[
-                  _SectionHeader('Wachtrij (${queue.length})'),
+                  _SectionHeader(l10n.sectionQueue(queue.length)),
                   ...queue.asMap().entries.map(
                         (e) => _QueueTile(
                           song: e.value,
@@ -56,7 +58,7 @@ class QueueScreen extends StatelessWidget {
                       ),
                 ],
                 if (upcoming.isNotEmpty) ...[
-                  _SectionHeader('Hierna'),
+                  _SectionHeader(l10n.sectionUpNext),
                   ...upcoming.take(15).map((s) => _QueueTile(song: s)),
                 ],
                 const SizedBox(height: 16),

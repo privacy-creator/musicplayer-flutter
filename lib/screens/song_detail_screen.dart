@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
@@ -39,6 +40,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
     final player = context.watch<PlayerService>();
     final downloads = context.watch<DownloadService>();
     final isCurrent = player.currentSong?.id == song.id;
+    final l10n = AppL10n.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -110,13 +112,13 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: const Color(0xFF1DB954), width: 1),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.offline_pin, color: Color(0xFF1DB954), size: 14),
-                          SizedBox(width: 4),
-                          Text('Offline beschikbaar',
-                              style: TextStyle(color: Color(0xFF1DB954), fontSize: 12)),
+                          const Icon(Icons.offline_pin, color: Color(0xFF1DB954), size: 14),
+                          const SizedBox(width: 4),
+                          Text(l10n.offlineBadge,
+                              style: const TextStyle(color: Color(0xFF1DB954), fontSize: 12)),
                         ],
                       ),
                     ),
@@ -132,7 +134,9 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                       icon: Icon(isCurrent && player.isPlaying
                           ? Icons.pause
                           : Icons.play_arrow),
-                      label: Text(isCurrent && player.isPlaying ? 'Pause' : 'Play'),
+                      label: Text(isCurrent && player.isPlaying
+                          ? l10n.btnPause
+                          : l10n.btnPlay),
                       onPressed: () =>
                           context.read<PlayerService>().playSong(song, [song], 0),
                       style: ElevatedButton.styleFrom(
@@ -150,14 +154,14 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     height: 44,
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.playlist_add, size: 20),
-                      label: const Text('Aan wachtrij toevoegen'),
+                      label: Text(l10n.btnAddToQueue),
                       onPressed: () {
                         context.read<PlayerService>().addToQueue(song);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${song.title} toegevoegd'),
+                            content: Text(l10n.songAdded(song.title)),
                             action: SnackBarAction(
-                              label: 'Wachtrij',
+                              label: l10n.queue,
                               textColor: const Color(0xFF1DB954),
                               onPressed: () => Navigator.push(
                                 context,
@@ -183,11 +187,11 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     const SizedBox(height: 36),
                     const Divider(color: Colors.white12),
                     const SizedBox(height: 20),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Lyrics',
-                        style: TextStyle(
+                        l10n.lyrics,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold),
@@ -222,6 +226,8 @@ class _DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+
     if (downloads.isDownloading(song.id)) {
       return Padding(
         padding: const EdgeInsets.all(14),
@@ -239,14 +245,14 @@ class _DownloadButton extends StatelessWidget {
 
     if (downloads.isDownloaded(song.id)) {
       return IconButton(
-        tooltip: 'Download verwijderen',
+        tooltip: l10n.tooltipDeleteDownload,
         icon: const Icon(Icons.download_done, color: Color(0xFF1DB954)),
         onPressed: () => downloads.delete(song.id),
       );
     }
 
     return IconButton(
-      tooltip: 'Offline opslaan',
+      tooltip: l10n.tooltipDownload,
       icon: const Icon(Icons.download_outlined),
       onPressed: () => downloads.download(song, context.read<ApiService>().dio),
     );

@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/player_service.dart';
@@ -83,10 +84,11 @@ class _SongsScreenState extends State<SongsScreen> {
     final online = await _hasInternet();
     if (!online) {
       if (mounted) {
+        final l10n = AppL10n.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Geen internetverbinding'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(l10n.noInternet),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -97,17 +99,19 @@ class _SongsScreenState extends State<SongsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Songs'),
+        title: Text(l10n.navSongs),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: l10n.tooltipRefresh,
             icon: const Icon(Icons.refresh),
             onPressed: _refreshOnline,
           ),
           IconButton(
-            tooltip: 'Shuffle all',
+            tooltip: l10n.tooltipShuffleAll,
             icon: const Icon(Icons.shuffle, color: Color(0xFF1DB954)),
             onPressed: _songs.isEmpty
                 ? null
@@ -123,12 +127,12 @@ class _SongsScreenState extends State<SongsScreen> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               color: const Color(0xFF7B5300),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.wifi_off, color: Colors.white, size: 14),
-                  SizedBox(width: 6),
-                  Text('Offline — gecachede nummers',
-                      style: TextStyle(color: Colors.white, fontSize: 12)),
+                  const Icon(Icons.wifi_off, color: Colors.white, size: 14),
+                  const SizedBox(width: 6),
+                  Text(l10n.offlineBanner,
+                      style: const TextStyle(color: Colors.white, fontSize: 12)),
                 ],
               ),
             ),
@@ -146,9 +150,9 @@ class _SongsScreenState extends State<SongsScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954)))
                 : _songs.isEmpty
-                    ? const Center(
-                        child: Text('No songs found',
-                            style: TextStyle(color: Color(0xFFB3B3B3))))
+                    ? Center(
+                        child: Text(l10n.noSongsFound,
+                            style: const TextStyle(color: Color(0xFFB3B3B3))))
                     : GridView.builder(
                         padding: const EdgeInsets.all(12),
                         gridDelegate:
@@ -192,6 +196,7 @@ class _Filters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
     return Container(
       color: const Color(0xFF1E1E1E),
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
@@ -202,7 +207,7 @@ class _Filters extends StatelessWidget {
             onChanged: onSearch,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              hintText: 'Search songs...',
+              hintText: l10n.searchHint,
               hintStyle: const TextStyle(color: Color(0xFFB3B3B3)),
               prefixIcon: const Icon(Icons.search, color: Color(0xFF1DB954), size: 20),
               filled: true,
@@ -219,7 +224,8 @@ class _Filters extends StatelessWidget {
             children: [
               Expanded(
                 child: _Drop(
-                  label: 'Language',
+                  label: l10n.filterLanguage,
+                  allLabel: l10n.allLanguage,
                   value: language,
                   items: languages,
                   onChanged: onLanguage,
@@ -228,7 +234,8 @@ class _Filters extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: _Drop(
-                  label: 'Genre',
+                  label: l10n.filterGenre,
+                  allLabel: l10n.allGenre,
                   value: genre,
                   items: genres,
                   onChanged: onGenre,
@@ -244,12 +251,14 @@ class _Filters extends StatelessWidget {
 
 class _Drop extends StatelessWidget {
   final String label;
+  final String allLabel;
   final String value;
   final List<String> items;
   final ValueChanged<String?> onChanged;
 
   const _Drop({
     required this.label,
+    required this.allLabel,
     required this.value,
     required this.items,
     required this.onChanged,
@@ -274,7 +283,7 @@ class _Drop extends StatelessWidget {
           items: items
               .map((e) => DropdownMenuItem(
                     value: e,
-                    child: Text(e.isEmpty ? 'All $label' : e),
+                    child: Text(e.isEmpty ? allLabel : e),
                   ))
               .toList(),
           onChanged: onChanged,
@@ -295,6 +304,7 @@ class _SongCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = context.watch<PlayerService>();
     final isCurrent = player.currentSong?.id == song.id;
+    final l10n = AppL10n.of(context)!;
 
     return GestureDetector(
       onTap: () => context.read<PlayerService>().playSong(song, playlist, index),
@@ -333,8 +343,15 @@ class _SongCard extends StatelessWidget {
                       bottom: 6,
                       left: 6,
                       child: GestureDetector(
-                        onTap: () =>
-                            context.read<PlayerService>().addToQueue(song),
+                        onTap: () {
+                          context.read<PlayerService>().addToQueue(song);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.addedToQueue(song.title)),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(

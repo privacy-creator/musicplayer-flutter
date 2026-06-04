@@ -1,0 +1,183 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppL10nEn extends AppL10n {
+  AppL10nEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Music Player';
+
+  @override
+  String get navSongs => 'Songs';
+
+  @override
+  String get navPlaylists => 'Playlists';
+
+  @override
+  String get tooltipRefresh => 'Refresh';
+
+  @override
+  String get tooltipShuffleAll => 'Shuffle all';
+
+  @override
+  String get searchHint => 'Search songs...';
+
+  @override
+  String get filterLanguage => 'Language';
+
+  @override
+  String get filterGenre => 'Genre';
+
+  @override
+  String get allLanguage => 'All languages';
+
+  @override
+  String get allGenre => 'All genres';
+
+  @override
+  String get noSongsFound => 'No songs found';
+
+  @override
+  String get offlineBanner => 'Offline — cached songs';
+
+  @override
+  String get noInternet => 'No internet connection';
+
+  @override
+  String addedToQueue(String title) {
+    return '$title added to queue';
+  }
+
+  @override
+  String get tooltipDownload => 'Save offline';
+
+  @override
+  String get tooltipDeleteDownload => 'Remove download';
+
+  @override
+  String get offlineBadge => 'Available offline';
+
+  @override
+  String get btnAddToQueue => 'Add to queue';
+
+  @override
+  String songAdded(String title) {
+    return '$title added';
+  }
+
+  @override
+  String get queue => 'Queue';
+
+  @override
+  String get lyrics => 'Lyrics';
+
+  @override
+  String get btnPlay => 'Play';
+
+  @override
+  String get btnPause => 'Pause';
+
+  @override
+  String get nowPlaying => 'Now playing';
+
+  @override
+  String get tooltipQueue => 'Queue';
+
+  @override
+  String get clearQueue => 'Clear queue';
+
+  @override
+  String get emptyQueue => 'No songs in the queue';
+
+  @override
+  String get sectionNowPlaying => 'Now playing';
+
+  @override
+  String sectionQueue(int count) {
+    return 'Queue ($count)';
+  }
+
+  @override
+  String get sectionUpNext => 'Up next';
+
+  @override
+  String get adminLogin => 'Admin Login';
+
+  @override
+  String get adminSubtitle => 'For administrators only';
+
+  @override
+  String get tooltipAdminLogout => 'Admin logout';
+
+  @override
+  String get tooltipAdminLogin => 'Admin login';
+
+  @override
+  String get hintEmail => 'Email';
+
+  @override
+  String get hintPassword => 'Password';
+
+  @override
+  String get btnSignIn => 'Sign In';
+
+  @override
+  String get errorFillAll => 'Please fill in all fields';
+
+  @override
+  String get mfaTotp => 'Enter your authenticator app code';
+
+  @override
+  String get mfaEmail => 'Enter the code sent to your email';
+
+  @override
+  String get hint6digit => '6-digit code';
+
+  @override
+  String get btnVerify => 'Verify';
+
+  @override
+  String get backToLogin => '← Back to login';
+
+  @override
+  String get noPlaylists => 'No playlists yet';
+
+  @override
+  String songCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count songs',
+      one: '1 song',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tooltipPlayAll => 'Play all';
+
+  @override
+  String get tooltipShuffle => 'Shuffle';
+
+  @override
+  String get noSongsInPlaylist => 'No songs in this playlist';
+
+  @override
+  String get errorCannotLoad => 'Song could not be loaded';
+
+  @override
+  String get languagePicker => 'Language';
+
+  @override
+  String get langNl => 'Dutch';
+
+  @override
+  String get langEn => 'English';
+
+  @override
+  String get langEs => 'Spanish';
+}

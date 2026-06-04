@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/playlist.dart';
 import '../services/api_service.dart';
 import 'playlist_detail_screen.dart';
@@ -33,14 +34,16 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Playlists')),
+      appBar: AppBar(title: Text(l10n.navPlaylists)),
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954)))
           : _playlists.isEmpty
-              ? const Center(
-                  child: Text('No playlists yet',
-                      style: TextStyle(color: Color(0xFFB3B3B3))))
+              ? Center(
+                  child: Text(l10n.noPlaylists,
+                      style: const TextStyle(color: Color(0xFFB3B3B3))))
               : RefreshIndicator(
                   onRefresh: _load,
                   color: const Color(0xFF1DB954),
@@ -60,6 +63,8 @@ class _PlaylistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+
     return Card(
       color: const Color(0xFF1E1E1E),
       margin: const EdgeInsets.only(bottom: 10),
@@ -97,7 +102,7 @@ class _PlaylistCard extends StatelessWidget {
                             fontSize: 15)),
                     const SizedBox(height: 3),
                     Text(
-                      '${playlist.songs.length} song${playlist.songs.length != 1 ? 's' : ''}',
+                      l10n.songCount(playlist.songs.length),
                       style: const TextStyle(
                           color: Color(0xFFB3B3B3), fontSize: 12),
                     ),

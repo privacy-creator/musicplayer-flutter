@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../services/player_service.dart';
 import '../screens/player_detail_screen.dart';
 
@@ -17,15 +18,19 @@ class _PlayerBarState extends State<PlayerBar> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _errorSub ??= context.read<PlayerService>().errorStream.listen((err) {
+    _errorSub ??= context.read<PlayerService>().errorStream.listen((errKey) {
       if (!mounted) return;
+      final l10n = AppL10n.of(context)!;
+      final message = errKey == 'errorCannotLoad'
+          ? l10n.errorCannotLoad
+          : errKey;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
             children: [
               const Icon(Icons.error_outline, color: Colors.white, size: 18),
               const SizedBox(width: 8),
-              Expanded(child: Text(err)),
+              Expanded(child: Text(message)),
             ],
           ),
           backgroundColor: const Color(0xFFB00020),

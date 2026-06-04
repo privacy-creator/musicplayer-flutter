@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/models/song.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/player_service.dart';
@@ -54,7 +55,12 @@ void main() {
 
   Widget buildScreen() => ChangeNotifierProvider<PlayerService>.value(
         value: playerService,
-        child: const MaterialApp(home: QueueScreen()),
+        child: MaterialApp(
+          locale: const Locale('nl'),
+          localizationsDelegates: AppL10n.localizationsDelegates,
+          supportedLocales: AppL10n.supportedLocales,
+          home: const QueueScreen(),
+        ),
       );
 
   group('QueueScreen', () {

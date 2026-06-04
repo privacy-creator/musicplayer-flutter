@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
@@ -25,6 +26,7 @@ class PlayerDetailScreen extends StatelessWidget {
     }
 
     final downloads = context.watch<DownloadService>();
+    final l10n = AppL10n.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
@@ -36,12 +38,12 @@ class PlayerDetailScreen extends StatelessWidget {
               size: 32, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Nu aan het afspelen',
-            style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 13)),
+        title: Text(l10n.nowPlaying,
+            style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 13)),
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: 'Wachtrij',
+            tooltip: l10n.tooltipQueue,
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -245,11 +247,11 @@ class PlayerDetailScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 const Divider(color: Colors.white12),
                 const SizedBox(height: 20),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Tekst',
-                    style: TextStyle(
+                    l10n.lyrics,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold),
@@ -286,6 +288,8 @@ class _DownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+
     if (downloads.isDownloading(song.id)) {
       return Padding(
         padding: const EdgeInsets.all(14),
@@ -303,14 +307,14 @@ class _DownloadButton extends StatelessWidget {
 
     if (downloads.isDownloaded(song.id)) {
       return IconButton(
-        tooltip: 'Download verwijderen',
+        tooltip: l10n.tooltipDeleteDownload,
         icon: const Icon(Icons.download_done, color: Color(0xFF1DB954)),
         onPressed: () => downloads.delete(song.id),
       );
     }
 
     return IconButton(
-      tooltip: 'Offline opslaan',
+      tooltip: l10n.tooltipDownload,
       icon: const Icon(Icons.download_outlined),
       onPressed: () => downloads.download(song, context.read<ApiService>().dio),
     );

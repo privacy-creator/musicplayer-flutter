@@ -1,7 +1,7 @@
 name: music_player_flutter
 description: "Music player app"
 publish_to: 'none'
-version: 0.3.0+3
+version: 0.5.0+5
 
 environment:
   sdk: ^3.11.4
@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
   cupertino_icons: ^1.0.8
   dio: ^5.7.0
   dio_cookie_manager: ^3.1.1
@@ -30,3 +33,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true

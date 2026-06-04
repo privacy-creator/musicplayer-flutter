@@ -1,0 +1,71 @@
+{
+  "@@locale": "nl",
+
+  "appTitle": "Music Player",
+
+  "navSongs": "Nummers",
+  "navPlaylists": "Afspeellijsten",
+
+  "tooltipRefresh": "Vernieuwen",
+  "tooltipShuffleAll": "Alles shuffelen",
+  "searchHint": "Zoek nummers...",
+  "filterLanguage": "Taal",
+  "filterGenre": "Genre",
+  "allLanguage": "Alle talen",
+  "allGenre": "Alle genres",
+  "noSongsFound": "Geen nummers gevonden",
+  "offlineBanner": "Offline — gecachede nummers",
+  "noInternet": "Geen internetverbinding",
+
+  "addedToQueue": "{title} toegevoegd aan wachtrij",
+
+  "tooltipDownload": "Offline opslaan",
+  "tooltipDeleteDownload": "Download verwijderen",
+  "offlineBadge": "Offline beschikbaar",
+  "btnAddToQueue": "Aan wachtrij toevoegen",
+
+  "songAdded": "{title} toegevoegd",
+
+  "queue": "Wachtrij",
+  "lyrics": "Tekst",
+  "btnPlay": "Play",
+  "btnPause": "Pause",
+
+  "nowPlaying": "Nu aan het afspelen",
+  "tooltipQueue": "Wachtrij",
+
+  "clearQueue": "Wis wachtrij",
+  "emptyQueue": "Geen nummers in de wachtrij",
+  "sectionNowPlaying": "Nu aan het afspelen",
+  "sectionQueue": "Wachtrij ({count})",
+  "sectionUpNext": "Hierna",
+
+  "adminLogin": "Admin Login",
+  "adminSubtitle": "Alleen voor beheerders",
+  "tooltipAdminLogout": "Admin uitloggen",
+  "tooltipAdminLogin": "Admin login",
+  "hintEmail": "E-mail",
+  "hintPassword": "Wachtwoord",
+  "btnSignIn": "Inloggen",
+  "errorFillAll": "Vul alle velden in",
+  "mfaTotp": "Voer je authenticator code in",
+  "mfaEmail": "Voer de code in die naar je e-mail is gestuurd",
+  "hint6digit": "6-cijferige code",
+  "btnVerify": "Verificeren",
+  "backToLogin": "← Terug naar login",
+
+  "noPlaylists": "Nog geen afspeellijsten",
+
+  "songCount": "{count, plural, =1{1 nummer} other{{count} nummers}}",
+
+  "tooltipPlayAll": "Alles afspelen",
+  "tooltipShuffle": "Shuffelen",
+  "noSongsInPlaylist": "Geen nummers in deze afspeellijst",
+
+  "errorCannotLoad": "Nummer kan niet worden geladen",
+
+  "languagePicker": "Taal",
+  "langNl": "Nederlands",
+  "langEn": "Engels",
+  "langEs": "Spaans"
+}

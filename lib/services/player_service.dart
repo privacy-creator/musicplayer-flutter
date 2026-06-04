@@ -103,7 +103,7 @@ class PlayerService extends ChangeNotifier {
       }
       await _player.play();
     } catch (_) {
-      _errorController.add('Nummer kan niet worden geladen');
+      _errorController.add('errorCannotLoad');
     }
     notifyListeners();
   }

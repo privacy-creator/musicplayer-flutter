@@ -1,0 +1,454 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
+import 'app_localizations_nl.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppL10n
+/// returned by `AppL10n.of(context)`.
+///
+/// Applications need to include `AppL10n.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppL10n.localizationsDelegates,
+///   supportedLocales: AppL10n.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppL10n.supportedLocales
+/// property.
+abstract class AppL10n {
+  AppL10n(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppL10n? of(BuildContext context) {
+    return Localizations.of<AppL10n>(context, AppL10n);
+  }
+
+  static const LocalizationsDelegate<AppL10n> delegate = _AppL10nDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('nl'),
+    Locale('en'),
+    Locale('es'),
+  ];
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Music Player'**
+  String get appTitle;
+
+  /// No description provided for @navSongs.
+  ///
+  /// In en, this message translates to:
+  /// **'Songs'**
+  String get navSongs;
+
+  /// No description provided for @navPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlists'**
+  String get navPlaylists;
+
+  /// No description provided for @tooltipRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get tooltipRefresh;
+
+  /// No description provided for @tooltipShuffleAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle all'**
+  String get tooltipShuffleAll;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search songs...'**
+  String get searchHint;
+
+  /// No description provided for @filterLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get filterLanguage;
+
+  /// No description provided for @filterGenre.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get filterGenre;
+
+  /// No description provided for @allLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'All languages'**
+  String get allLanguage;
+
+  /// No description provided for @allGenre.
+  ///
+  /// In en, this message translates to:
+  /// **'All genres'**
+  String get allGenre;
+
+  /// No description provided for @noSongsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No songs found'**
+  String get noSongsFound;
+
+  /// No description provided for @offlineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — cached songs'**
+  String get offlineBanner;
+
+  /// No description provided for @noInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get noInternet;
+
+  /// No description provided for @addedToQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} added to queue'**
+  String addedToQueue(String title);
+
+  /// No description provided for @tooltipDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Save offline'**
+  String get tooltipDownload;
+
+  /// No description provided for @tooltipDeleteDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove download'**
+  String get tooltipDeleteDownload;
+
+  /// No description provided for @offlineBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Available offline'**
+  String get offlineBadge;
+
+  /// No description provided for @btnAddToQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to queue'**
+  String get btnAddToQueue;
+
+  /// No description provided for @songAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} added'**
+  String songAdded(String title);
+
+  /// No description provided for @queue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get queue;
+
+  /// No description provided for @lyrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics'**
+  String get lyrics;
+
+  /// No description provided for @btnPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get btnPlay;
+
+  /// No description provided for @btnPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get btnPause;
+
+  /// No description provided for @nowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Now playing'**
+  String get nowPlaying;
+
+  /// No description provided for @tooltipQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get tooltipQueue;
+
+  /// No description provided for @clearQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear queue'**
+  String get clearQueue;
+
+  /// No description provided for @emptyQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'No songs in the queue'**
+  String get emptyQueue;
+
+  /// No description provided for @sectionNowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Now playing'**
+  String get sectionNowPlaying;
+
+  /// No description provided for @sectionQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue ({count})'**
+  String sectionQueue(int count);
+
+  /// No description provided for @sectionUpNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Up next'**
+  String get sectionUpNext;
+
+  /// No description provided for @adminLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Login'**
+  String get adminLogin;
+
+  /// No description provided for @adminSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For administrators only'**
+  String get adminSubtitle;
+
+  /// No description provided for @tooltipAdminLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin logout'**
+  String get tooltipAdminLogout;
+
+  /// No description provided for @tooltipAdminLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin login'**
+  String get tooltipAdminLogin;
+
+  /// No description provided for @hintEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get hintEmail;
+
+  /// No description provided for @hintPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get hintPassword;
+
+  /// No description provided for @btnSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get btnSignIn;
+
+  /// No description provided for @errorFillAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all fields'**
+  String get errorFillAll;
+
+  /// No description provided for @mfaTotp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your authenticator app code'**
+  String get mfaTotp;
+
+  /// No description provided for @mfaEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code sent to your email'**
+  String get mfaEmail;
+
+  /// No description provided for @hint6digit.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get hint6digit;
+
+  /// No description provided for @btnVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get btnVerify;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'← Back to login'**
+  String get backToLogin;
+
+  /// No description provided for @noPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'No playlists yet'**
+  String get noPlaylists;
+
+  /// No description provided for @songCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 song} other{{count} songs}}'**
+  String songCount(int count);
+
+  /// No description provided for @tooltipPlayAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Play all'**
+  String get tooltipPlayAll;
+
+  /// No description provided for @tooltipShuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle'**
+  String get tooltipShuffle;
+
+  /// No description provided for @noSongsInPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'No songs in this playlist'**
+  String get noSongsInPlaylist;
+
+  /// No description provided for @errorCannotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Song could not be loaded'**
+  String get errorCannotLoad;
+
+  /// No description provided for @languagePicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languagePicker;
+
+  /// No description provided for @langNl.
+  ///
+  /// In en, this message translates to:
+  /// **'Dutch'**
+  String get langNl;
+
+  /// No description provided for @langEn.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get langEn;
+
+  /// No description provided for @langEs.
+  ///
+  /// In en, this message translates to:
+  /// **'Spanish'**
+  String get langEs;
+}
+
+class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
+  const _AppL10nDelegate();
+
+  @override
+  Future<AppL10n> load(Locale locale) {
+    return SynchronousFuture<AppL10n>(lookupAppL10n(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['en', 'es', 'nl'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppL10nDelegate old) => false;
+}
+
+AppL10n lookupAppL10n(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppL10nEn();
+    case 'es':
+      return AppL10nEs();
+    case 'nl':
+      return AppL10nNl();
+  }
+
+  throw FlutterError(
+    'AppL10n.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
+}

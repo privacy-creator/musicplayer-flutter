@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/models/song.dart';
 import 'package:music_player_flutter/services/api_service.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
@@ -66,6 +67,9 @@ void main() {
         ChangeNotifierProvider<PlayerService>.value(value: playerService),
       ],
       child: MaterialApp(
+        locale: const Locale('nl'),
+        localizationsDelegates: AppL10n.localizationsDelegates,
+        supportedLocales: AppL10n.supportedLocales,
         home: SongsScreen(connectivityChecker: () async => online),
       ),
     );
