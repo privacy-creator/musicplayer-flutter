@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
 import '../models/song.dart';
+import 'queue_screen.dart';
 
 class PlayerDetailScreen extends StatelessWidget {
   const PlayerDetailScreen({super.key});
@@ -38,7 +39,44 @@ class PlayerDetailScreen extends StatelessWidget {
         title: const Text('Nu aan het afspelen',
             style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 13)),
         centerTitle: true,
-        actions: [_DownloadButton(song: song, downloads: downloads)],
+        actions: [
+          IconButton(
+            tooltip: 'Wachtrij',
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.queue_music),
+                if (context.watch<PlayerService>().queue.isNotEmpty)
+                  Positioned(
+                    top: -4,
+                    right: -4,
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1DB954),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${context.read<PlayerService>().queue.length}',
+                          style: const TextStyle(
+                              fontSize: 9,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const QueueScreen()),
+            ),
+          ),
+          _DownloadButton(song: song, downloads: downloads),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

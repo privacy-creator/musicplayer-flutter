@@ -4,6 +4,7 @@ import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
+import 'queue_screen.dart';
 
 class SongDetailScreen extends StatefulWidget {
   final Song song;
@@ -137,6 +138,40 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1DB954),
                         foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Add to queue button
+                  SizedBox(
+                    width: 200,
+                    height: 44,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.playlist_add, size: 20),
+                      label: const Text('Aan wachtrij toevoegen'),
+                      onPressed: () {
+                        context.read<PlayerService>().addToQueue(song);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${song.title} toegevoegd'),
+                            action: SnackBarAction(
+                              label: 'Wachtrij',
+                              textColor: const Color(0xFF1DB954),
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const QueueScreen()),
+                              ),
+                            ),
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1DB954),
+                        side: const BorderSide(color: Color(0xFF1DB954)),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                       ),

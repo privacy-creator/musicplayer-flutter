@@ -331,6 +331,23 @@ class _SongCard extends StatelessWidget {
                       ),
                     Positioned(
                       bottom: 6,
+                      left: 6,
+                      child: GestureDetector(
+                        onTap: () =>
+                            context.read<PlayerService>().addToQueue(song),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(Icons.playlist_add,
+                              color: Colors.white70, size: 15),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 6,
                       right: 6,
                       child: GestureDetector(
                         onTap: () => Navigator.push(

@@ -14,15 +14,18 @@ class PlayerService extends ChangeNotifier {
   final MusicAudioHandler _handler;
   final DownloadService? _downloadService;
   final _rng = Random();
-
-  AudioPlayer get _player => _handler.player;
-
   final _errorController = StreamController<String>.broadcast();
 
   Song? _currentSong;
   List<Song> _playlist = [];
   int _currentIndex = 0;
   bool _shuffleMode = false;
+
+  // Wachtrij: songs die voor de volgende playlist-song spelen
+  final List<Song> _queue = [];
+
+  // Smart shuffle: gevulde zak met indices; huidige song staat altijd achteraan
+  final List<int> _shuffleBag = [];
 
   Song? get currentSong => _currentSong;
   bool get isPlaying => _player.playing;
@@ -32,6 +35,23 @@ class PlayerService extends ChangeNotifier {
   Duration get position => _player.position;
   Duration? get duration => _player.duration;
   Stream<String> get errorStream => _errorController.stream;
+  List<Song> get queue => List.unmodifiable(_queue);
+
+  /// Volgende songs in playlist na huidige (shuffle-volgorde of sequentieel).
+  List<Song> get upcomingInPlaylist {
+    if (_playlist.isEmpty) return [];
+    if (_shuffleMode) {
+      return _shuffleBag.map((i) => _playlist[i]).toList();
+    }
+    final result = <Song>[];
+    for (var i = 1; i < _playlist.length && result.length < 20; i++) {
+      final idx = (_currentIndex + i) % _playlist.length;
+      result.add(_playlist[idx]);
+    }
+    return result;
+  }
+
+  AudioPlayer get _player => _handler.player;
 
   PlayerService({MusicAudioHandler? handler, DownloadService? downloadService})
       : _handler = handler ?? MusicAudioHandler(),
@@ -62,13 +82,15 @@ class PlayerService extends ChangeNotifier {
     await prefs.setBool(_shuffleKey, _shuffleMode);
   }
 
-  Future<void> playSong(Song song, List<Song> playlist, int index) async {
-    if (_currentSong?.id == song.id) {
-      await togglePlayPause();
-      return;
-    }
-    _playlist = playlist;
-    _currentIndex = index;
+  /// Vult de shuffle-zak met alle playlist-indices, huidige index altijd achteraan.
+  void _fillShuffleBag() {
+    final indices = List.generate(_playlist.length, (i) => i)..shuffle(_rng);
+    if (indices.remove(_currentIndex)) indices.add(_currentIndex);
+    _shuffleBag.addAll(indices);
+  }
+
+  /// Laadt en speelt een nummer af zonder playlist-state te wijzigen.
+  Future<void> _loadAndPlay(Song song) async {
     _currentSong = song;
     _handler.setMediaItem(song);
     notifyListeners();
@@ -86,6 +108,22 @@ class PlayerService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Speelt een nummer af vanuit de UI (bijv. tik op song card).
+  Future<void> playSong(Song song, List<Song> playlist, int index) async {
+    if (_currentSong?.id == song.id) {
+      await togglePlayPause();
+      return;
+    }
+    _playlist = playlist;
+    _currentIndex = index;
+    if (_shuffleMode) {
+      _shuffleBag.clear();
+      _fillShuffleBag();
+      _shuffleBag.remove(index);
+    }
+    await _loadAndPlay(song);
+  }
+
   Future<void> togglePlayPause() async {
     if (_player.playing) {
       await _player.pause();
@@ -95,38 +133,80 @@ class PlayerService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Speelt het volgende nummer: wachtrij eerst, daarna playlist (smart shuffle).
   Future<void> playNext() async {
-    if (_playlist.isEmpty) return;
-    int next;
-    if (_shuffleMode && _playlist.length > 1) {
-      do {
-        next = _rng.nextInt(_playlist.length);
-      } while (next == _currentIndex);
-    } else {
-      next = (_currentIndex + 1) % _playlist.length;
+    if (_queue.isNotEmpty) {
+      final next = _queue.removeAt(0);
+      notifyListeners();
+      await _loadAndPlay(next);
+      return;
     }
-    await playSong(_playlist[next], _playlist, next);
+    if (_playlist.isEmpty) return;
+
+    int nextIdx;
+    if (_shuffleMode) {
+      if (_shuffleBag.isEmpty) _fillShuffleBag();
+      nextIdx = _shuffleBag.removeAt(0);
+    } else {
+      nextIdx = (_currentIndex + 1) % _playlist.length;
+    }
+    _currentIndex = nextIdx;
+    await _loadAndPlay(_playlist[nextIdx]);
   }
 
   Future<void> playPrevious() async {
     if (_playlist.isEmpty) return;
-    final prev =
-        _currentIndex > 0 ? _currentIndex - 1 : _playlist.length - 1;
-    await playSong(_playlist[prev], _playlist, prev);
+    final prev = _currentIndex > 0 ? _currentIndex - 1 : _playlist.length - 1;
+    _currentIndex = prev;
+    await _loadAndPlay(_playlist[prev]);
   }
+
+  // ── Wachtrij ────────────────────────────────────────────────────────────────
+
+  void addToQueue(Song song) {
+    _queue.add(song);
+    notifyListeners();
+  }
+
+  void removeFromQueue(int index) {
+    if (index >= 0 && index < _queue.length) {
+      _queue.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  void clearQueue() {
+    _queue.clear();
+    notifyListeners();
+  }
+
+  // ── Shuffle ──────────────────────────────────────────────────────────────────
 
   void toggleShuffle() {
     _shuffleMode = !_shuffleMode;
+    if (_shuffleMode && _playlist.isNotEmpty) {
+      _shuffleBag.clear();
+      _fillShuffleBag();
+      _shuffleBag.remove(_currentIndex);
+    } else {
+      _shuffleBag.clear();
+    }
     _saveShuffleMode();
     notifyListeners();
   }
 
   Future<void> shufflePlay(List<Song> playlist) async {
     if (playlist.isEmpty) return;
-    final shuffled = List<Song>.from(playlist)..shuffle(_rng);
+    _queue.clear();
+    _shuffleBag.clear();
     _shuffleMode = true;
     _saveShuffleMode();
-    await playSong(shuffled[0], shuffled, 0);
+    _playlist = playlist;
+    final startIdx = _rng.nextInt(playlist.length);
+    _currentIndex = startIdx;
+    _fillShuffleBag();
+    _shuffleBag.remove(startIdx);
+    await _loadAndPlay(playlist[startIdx]);
   }
 
   Future<void> seek(Duration position) async {
