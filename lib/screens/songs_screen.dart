@@ -6,7 +6,6 @@ import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/player_service.dart';
 import '../widgets/global_app_bar_actions.dart';
-import '../widgets/now_playing_card.dart';
 import 'song_detail_screen.dart';
 
 class SongsScreen extends StatefulWidget {
@@ -140,7 +139,6 @@ class _SongsScreenState extends State<SongsScreen> {
                 ],
               ),
             ),
-          const NowPlayingCard(),
           _Filters(
             searchCtrl: _searchCtrl,
             language: _language,
