@@ -16,7 +16,7 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
         const val ACTION_PLAY_PAUSE = "com.example.music_player_flutter.PLAY_PAUSE"
         const val ACTION_SKIP_NEXT  = "com.example.music_player_flutter.SKIP_NEXT"
         const val ACTION_SKIP_PREV  = "com.example.music_player_flutter.SKIP_PREV"
-        private const val PREFS_NAME = "HomeWidgetPlugin"
+        private const val PREFS_NAME = "HomeWidgetPreferences"
     }
 
     override fun onUpdate(
