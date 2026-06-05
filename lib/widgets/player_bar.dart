@@ -52,15 +52,16 @@ class _PlayerBarState extends State<PlayerBar> {
     final song = player.currentSong;
     if (song == null) return const SizedBox.shrink();
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E),
-        border: Border(top: BorderSide(color: Color(0xFF1DB954), width: 1)),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        border: Border(top: BorderSide(color: colorScheme.primary, width: 1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Seekable progress bar
           StreamBuilder<Duration>(
             stream: player.positionStream,
             builder: (_, snap) {
@@ -74,10 +75,10 @@ class _PlayerBarState extends State<PlayerBar> {
                   trackHeight: 3,
                   thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
                   overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-                  activeTrackColor: const Color(0xFF1DB954),
-                  inactiveTrackColor: Colors.white12,
-                  thumbColor: Colors.white,
-                  overlayColor: Colors.white24,
+                  activeTrackColor: colorScheme.primary,
+                  inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.12),
+                  thumbColor: colorScheme.onSurface,
+                  overlayColor: colorScheme.onSurface.withValues(alpha: 0.12),
                 ),
                 child: Slider(
                   value: pct,
@@ -90,7 +91,6 @@ class _PlayerBarState extends State<PlayerBar> {
             padding: const EdgeInsets.fromLTRB(12, 0, 4, 8),
             child: Row(
               children: [
-                // Thumbnail + title → taps open player detail
                 Expanded(
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
@@ -110,9 +110,9 @@ class _PlayerBarState extends State<PlayerBar> {
                                 ? Image.network(
                                     song.imageUrl!,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => _thumb(),
+                                    errorBuilder: (_, _, _) => _thumb(colorScheme),
                                   )
-                                : _thumb(),
+                                : _thumb(colorScheme),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -123,8 +123,8 @@ class _PlayerBarState extends State<PlayerBar> {
                             children: [
                               Text(
                                 song.title,
-                                style: const TextStyle(
-                                    color: Colors.white,
+                                style: TextStyle(
+                                    color: colorScheme.onSurface,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13),
                                 maxLines: 1,
@@ -132,8 +132,9 @@ class _PlayerBarState extends State<PlayerBar> {
                               ),
                               Text(
                                 song.artist,
-                                style: const TextStyle(
-                                    color: Color(0xFFB3B3B3), fontSize: 11),
+                                style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontSize: 11),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -144,24 +145,27 @@ class _PlayerBarState extends State<PlayerBar> {
                     ),
                   ),
                 ),
-                // Controls
                 IconButton(
                   icon: Icon(Icons.skip_previous,
-                      color: Colors.white.withValues(alpha: 0.7)),
+                      color: colorScheme.onSurface.withValues(alpha: 0.7)),
                   onPressed: player.playPrevious,
                 ),
-                _PlayPauseButton(isPlaying: player.isPlaying, onTap: player.togglePlayPause),
+                _PlayPauseButton(
+                  isPlaying: player.isPlaying,
+                  onTap: player.togglePlayPause,
+                  colorScheme: colorScheme,
+                ),
                 IconButton(
                   icon: Icon(Icons.skip_next,
-                      color: Colors.white.withValues(alpha: 0.7)),
+                      color: colorScheme.onSurface.withValues(alpha: 0.7)),
                   onPressed: player.playNext,
                 ),
                 IconButton(
                   icon: Icon(
                     Icons.shuffle,
                     color: player.shuffleMode
-                        ? const Color(0xFF1DB954)
-                        : Colors.white.withValues(alpha: 0.45),
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.45),
                     size: 20,
                   ),
                   onPressed: player.toggleShuffle,
@@ -174,17 +178,22 @@ class _PlayerBarState extends State<PlayerBar> {
     );
   }
 
-  Widget _thumb() => Container(
-        color: const Color(0xFF282828),
-        child: const Icon(Icons.music_note, color: Color(0xFF1DB954), size: 22),
+  Widget _thumb(ColorScheme cs) => Container(
+        color: cs.surfaceContainerHighest,
+        child: Icon(Icons.music_note, color: cs.primary, size: 22),
       );
 }
 
 class _PlayPauseButton extends StatelessWidget {
   final bool isPlaying;
   final VoidCallback onTap;
+  final ColorScheme colorScheme;
 
-  const _PlayPauseButton({required this.isPlaying, required this.onTap});
+  const _PlayPauseButton({
+    required this.isPlaying,
+    required this.onTap,
+    required this.colorScheme,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -193,8 +202,8 @@ class _PlayPauseButton extends StatelessWidget {
       child: Container(
         width: 38,
         height: 38,
-        decoration: const BoxDecoration(
-          color: Color(0xFF1DB954),
+        decoration: BoxDecoration(
+          color: colorScheme.primary,
           shape: BoxShape.circle,
         ),
         child: Icon(

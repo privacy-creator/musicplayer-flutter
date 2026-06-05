@@ -108,6 +108,9 @@ class MusicPlayerApp extends StatelessWidget {
           primary: Color(0xFF1DB954),
           secondary: Color(0xFF1ED760),
           surface: Color(0xFF1E1E1E),
+          surfaceContainerHighest: Color(0xFF282828),
+          onSurface: Colors.white,
+          onSurfaceVariant: Color(0xFFB3B3B3),
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1E1E1E),
@@ -125,22 +128,26 @@ class MusicPlayerApp extends StatelessWidget {
           subtitleTextStyle: TextStyle(color: Color(0xFFB3B3B3), fontSize: 13),
         ),
         dividerColor: Colors.white12,
+        cardColor: const Color(0xFF1E1E1E),
       );
 
   static ThemeData _lightTheme() => ThemeData(
         brightness: Brightness.light,
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+        scaffoldBackgroundColor: const Color(0xFFF0F0F0),
         colorScheme: const ColorScheme.light(
           primary: Color(0xFF1AA34A),
           secondary: Color(0xFF1DB954),
           surface: Colors.white,
+          surfaceContainerHighest: Color(0xFFE4E4E4),
+          onSurface: Color(0xFF111111),
+          onSurfaceVariant: Color(0xFF555555),
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
+          foregroundColor: Color(0xFF111111),
           elevation: 0,
           titleTextStyle: TextStyle(
-              color: Colors.black87, fontSize: 18, fontWeight: FontWeight.bold),
+              color: Color(0xFF111111), fontSize: 18, fontWeight: FontWeight.bold),
         ),
         navigationBarTheme: const NavigationBarThemeData(
           backgroundColor: Colors.white,
@@ -148,9 +155,10 @@ class MusicPlayerApp extends StatelessWidget {
         ),
         listTileTheme: const ListTileThemeData(
           iconColor: Color(0xFF555555),
-          subtitleTextStyle: TextStyle(color: Color(0xFF666666), fontSize: 13),
+          subtitleTextStyle: TextStyle(color: Color(0xFF555555), fontSize: 13),
         ),
         dividerColor: Colors.black12,
+        cardColor: Colors.white,
       );
 }
 

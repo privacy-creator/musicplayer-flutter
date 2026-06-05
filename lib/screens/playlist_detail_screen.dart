@@ -38,6 +38,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
     final pl = _playlist ?? widget.playlist;
     final player = context.watch<PlayerService>();
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -46,39 +47,39 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           if (pl.songs.isNotEmpty) ...[
             IconButton(
               tooltip: l10n.tooltipPlayAll,
-              icon: const Icon(Icons.play_arrow, color: Color(0xFF1DB954)),
+              icon: Icon(Icons.play_arrow, color: colorScheme.primary),
               onPressed: () => player.playSong(pl.songs[0], pl.songs, 0),
             ),
             IconButton(
               tooltip: l10n.tooltipShuffle,
-              icon: const Icon(Icons.shuffle, color: Color(0xFF1DB954)),
+              icon: Icon(Icons.shuffle, color: colorScheme.primary),
               onPressed: () => player.shufflePlay(pl.songs),
             ),
           ],
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954)))
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : Column(
               children: [
                 // Header
                 Container(
                   width: double.infinity,
-                  color: const Color(0xFF1E1E1E),
+                  color: colorScheme.surface,
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (pl.description != null && pl.description!.isNotEmpty) ...[
                         Text(pl.description!,
-                            style: const TextStyle(
-                                color: Color(0xFFB3B3B3), fontSize: 13)),
+                            style: TextStyle(
+                                color: colorScheme.onSurfaceVariant, fontSize: 13)),
                         const SizedBox(height: 6),
                       ],
                       Text(
                         l10n.songCount(pl.songs.length),
-                        style: const TextStyle(
-                            color: Color(0xFF1DB954),
+                        style: TextStyle(
+                            color: colorScheme.primary,
                             fontSize: 13,
                             fontWeight: FontWeight.w600),
                       ),
@@ -90,7 +91,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                   child: pl.songs.isEmpty
                       ? Center(
                           child: Text(l10n.noSongsInPlaylist,
-                              style: const TextStyle(color: Color(0xFFB3B3B3))))
+                              style: TextStyle(color: colorScheme.onSurfaceVariant)))
                       : ListView.builder(
                           itemCount: pl.songs.length,
                           itemBuilder: (_, i) {
@@ -104,19 +105,19 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                                         player.isPlaying
                                             ? Icons.volume_up
                                             : Icons.pause,
-                                        color: const Color(0xFF1DB954),
+                                        color: colorScheme.primary,
                                         size: 18)
                                     : Text('${i + 1}',
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                            color: Color(0xFFB3B3B3))),
+                                        style: TextStyle(
+                                            color: colorScheme.onSurfaceVariant)),
                               ),
                               title: Text(
                                 song.title,
                                 style: TextStyle(
                                   color: isCurrent
-                                      ? const Color(0xFF1DB954)
-                                      : Colors.white,
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurface,
                                   fontWeight: isCurrent
                                       ? FontWeight.bold
                                       : FontWeight.normal,
@@ -130,12 +131,13 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                                   if (song.genre.isNotEmpty) song.genre,
                                   song.formattedDuration,
                                 ].join(' • '),
-                                style: const TextStyle(
-                                    color: Color(0xFFB3B3B3), fontSize: 12),
+                                style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontSize: 12),
                               ),
                               trailing: IconButton(
-                                icon: const Icon(Icons.info_outline,
-                                    color: Color(0xFFB3B3B3), size: 18),
+                                icon: Icon(Icons.info_outline,
+                                    color: colorScheme.onSurfaceVariant, size: 18),
                                 onPressed: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(

@@ -36,6 +36,7 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,14 +44,14 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
         actions: const [GlobalAppBarActions()],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954)))
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : _playlists.isEmpty
               ? Center(
                   child: Text(l10n.noPlaylists,
-                      style: const TextStyle(color: Color(0xFFB3B3B3))))
+                      style: TextStyle(color: colorScheme.onSurfaceVariant)))
               : RefreshIndicator(
                   onRefresh: _load,
-                  color: const Color(0xFF1DB954),
+                  color: colorScheme.primary,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: _playlists.length,
@@ -68,9 +69,9 @@ class _PlaylistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
-      color: const Color(0xFF1E1E1E),
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
@@ -88,11 +89,10 @@ class _PlaylistCard extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1DB954).withValues(alpha: 0.15),
+                  color: colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.queue_music,
-                    color: Color(0xFF1DB954), size: 28),
+                child: Icon(Icons.queue_music, color: colorScheme.primary, size: 28),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -100,29 +100,29 @@ class _PlaylistCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(playlist.name,
-                        style: const TextStyle(
-                            color: Colors.white,
+                        style: TextStyle(
+                            color: colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                             fontSize: 15)),
                     const SizedBox(height: 3),
                     Text(
                       l10n.songCount(playlist.songs.length),
-                      style: const TextStyle(
-                          color: Color(0xFFB3B3B3), fontSize: 12),
+                      style: TextStyle(
+                          color: colorScheme.onSurfaceVariant, fontSize: 12),
                     ),
                     if (playlist.description != null &&
                         playlist.description!.isNotEmpty) ...[
                       const SizedBox(height: 3),
                       Text(playlist.description!,
-                          style: const TextStyle(
-                              color: Color(0xFFB3B3B3), fontSize: 12),
+                          style: TextStyle(
+                              color: colorScheme.onSurfaceVariant, fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ],
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: Color(0xFFB3B3B3)),
+              Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
             ],
           ),
         ),

@@ -14,6 +14,7 @@ class QueueScreen extends StatelessWidget {
     final upcoming = player.upcomingInPlaylist;
     final current = player.currentSong;
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final isEmpty = current == null && queue.isEmpty && upcoming.isEmpty;
 
@@ -25,7 +26,7 @@ class QueueScreen extends StatelessWidget {
             TextButton(
               onPressed: () => context.read<PlayerService>().clearQueue(),
               child: Text(l10n.clearQueue,
-                  style: const TextStyle(color: Color(0xFF1DB954))),
+                  style: TextStyle(color: colorScheme.primary)),
             ),
         ],
       ),
@@ -34,10 +35,12 @@ class QueueScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.queue_music, color: Color(0xFF3A3A3A), size: 64),
+                  Icon(Icons.queue_music,
+                      color: colorScheme.onSurface.withValues(alpha: 0.2),
+                      size: 64),
                   const SizedBox(height: 16),
                   Text(l10n.emptyQueue,
-                      style: const TextStyle(color: Color(0xFFB3B3B3))),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 ],
               ),
             )
@@ -78,8 +81,8 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 6),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
-          color: Color(0xFFB3B3B3),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           fontSize: 11,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
@@ -102,6 +105,8 @@ class _QueueTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       leading: ClipRRect(
@@ -113,15 +118,15 @@ class _QueueTile extends StatelessWidget {
               ? Image.network(
                   song.imageUrl!,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => _thumb(),
+                  errorBuilder: (_, _, _) => _thumb(colorScheme),
                 )
-              : _thumb(),
+              : _thumb(colorScheme),
         ),
       ),
       title: Text(
         song.title,
         style: TextStyle(
-          color: isCurrent ? const Color(0xFF1DB954) : Colors.white,
+          color: isCurrent ? colorScheme.primary : colorScheme.onSurface,
           fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
           fontSize: 14,
         ),
@@ -130,23 +135,24 @@ class _QueueTile extends StatelessWidget {
       ),
       subtitle: Text(
         song.artist,
-        style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 12),
+        style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: onRemove != null
           ? IconButton(
-              icon: const Icon(Icons.close, color: Color(0xFFB3B3B3), size: 18),
+              icon: Icon(Icons.close,
+                  color: colorScheme.onSurfaceVariant, size: 18),
               onPressed: onRemove,
             )
           : isCurrent
-              ? const Icon(Icons.volume_up, color: Color(0xFF1DB954), size: 18)
+              ? Icon(Icons.volume_up, color: colorScheme.primary, size: 18)
               : null,
     );
   }
 
-  Widget _thumb() => Container(
-        color: const Color(0xFF282828),
-        child: const Icon(Icons.music_note, color: Color(0xFF1DB954), size: 22),
+  Widget _thumb(ColorScheme cs) => Container(
+        color: cs.surfaceContainerHighest,
+        child: Icon(Icons.music_note, color: cs.primary, size: 22),
       );
 }

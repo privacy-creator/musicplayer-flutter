@@ -28,19 +28,19 @@ class PlayerDetailScreen extends StatelessWidget {
 
     final downloads = context.watch<DownloadService>();
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_down,
-              size: 32, color: Colors.white),
+          icon: Icon(Icons.keyboard_arrow_down,
+              size: 32, color: colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(l10n.nowPlaying,
-            style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 13)),
+            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -48,7 +48,7 @@ class PlayerDetailScreen extends StatelessWidget {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.queue_music),
+                Icon(Icons.queue_music, color: colorScheme.onSurface),
                 if (context.watch<PlayerService>().queue.isNotEmpty)
                   Positioned(
                     top: -4,
@@ -56,8 +56,8 @@ class PlayerDetailScreen extends StatelessWidget {
                     child: Container(
                       width: 14,
                       height: 14,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1DB954),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -95,10 +95,10 @@ class PlayerDetailScreen extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 300, maxHeight: 300),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: const Color(0xFF282828),
+                    color: colorScheme.surfaceContainerHighest,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF1DB954).withValues(alpha: 0.2),
+                        color: colorScheme.primary.withValues(alpha: 0.2),
                         blurRadius: 60,
                         offset: const Offset(0, 20),
                       ),
@@ -109,8 +109,8 @@ class PlayerDetailScreen extends StatelessWidget {
                     aspectRatio: 1,
                     child: song.imageUrl != null
                         ? Image.network(song.imageUrl!, fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => _placeholder())
-                        : _placeholder(),
+                            errorBuilder: (_, _, _) => _placeholder(colorScheme))
+                        : _placeholder(colorScheme),
                   ),
                 ),
               ),
@@ -126,8 +126,8 @@ class PlayerDetailScreen extends StatelessWidget {
                       children: [
                         Text(
                           song.title,
-                          style: const TextStyle(
-                              color: Colors.white,
+                          style: TextStyle(
+                              color: colorScheme.onSurface,
                               fontSize: 22,
                               fontWeight: FontWeight.bold),
                           maxLines: 1,
@@ -136,8 +136,8 @@ class PlayerDetailScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           song.artist,
-                          style: const TextStyle(
-                              color: Color(0xFFB3B3B3), fontSize: 15),
+                          style: TextStyle(
+                              color: colorScheme.onSurfaceVariant, fontSize: 15),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -148,8 +148,8 @@ class PlayerDetailScreen extends StatelessWidget {
                     icon: Icon(
                       Icons.shuffle,
                       color: player.shuffleMode
-                          ? const Color(0xFF1DB954)
-                          : Colors.white.withValues(alpha: 0.45),
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.45),
                     ),
                     onPressed: player.toggleShuffle,
                   ),
@@ -177,10 +177,12 @@ class PlayerDetailScreen extends StatelessWidget {
                               const RoundSliderThumbShape(enabledThumbRadius: 7),
                           overlayShape:
                               const RoundSliderOverlayShape(overlayRadius: 16),
-                          activeTrackColor: const Color(0xFF1DB954),
-                          inactiveTrackColor: Colors.white12,
-                          thumbColor: Colors.white,
-                          overlayColor: Colors.white24,
+                          activeTrackColor: colorScheme.primary,
+                          inactiveTrackColor:
+                              colorScheme.onSurface.withValues(alpha: 0.12),
+                          thumbColor: colorScheme.onSurface,
+                          overlayColor:
+                              colorScheme.onSurface.withValues(alpha: 0.12),
                         ),
                         child: Slider(
                           value: pct,
@@ -193,11 +195,13 @@ class PlayerDetailScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(_fmt(pos),
-                                style: const TextStyle(
-                                    color: Color(0xFFB3B3B3), fontSize: 12)),
+                                style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontSize: 12)),
                             Text(_fmt(dur),
-                                style: const TextStyle(
-                                    color: Color(0xFFB3B3B3), fontSize: 12)),
+                                style: TextStyle(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontSize: 12)),
                           ],
                         ),
                       ),
@@ -215,7 +219,7 @@ class PlayerDetailScreen extends StatelessWidget {
                   IconButton(
                     iconSize: 36,
                     icon: Icon(Icons.skip_previous,
-                        color: Colors.white.withValues(alpha: 0.8)),
+                        color: colorScheme.onSurface.withValues(alpha: 0.8)),
                     onPressed: player.playPrevious,
                   ),
                   GestureDetector(
@@ -223,8 +227,8 @@ class PlayerDetailScreen extends StatelessWidget {
                     child: Container(
                       width: 64,
                       height: 64,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1DB954),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -237,7 +241,7 @@ class PlayerDetailScreen extends StatelessWidget {
                   IconButton(
                     iconSize: 36,
                     icon: Icon(Icons.skip_next,
-                        color: Colors.white.withValues(alpha: 0.8)),
+                        color: colorScheme.onSurface.withValues(alpha: 0.8)),
                     onPressed: player.playNext,
                   ),
                 ],
@@ -253,8 +257,8 @@ class PlayerDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _placeholder() => const Center(
-      child: Icon(Icons.music_note, color: Color(0xFF1DB954), size: 80));
+  Widget _placeholder(ColorScheme cs) => Center(
+      child: Icon(Icons.music_note, color: cs.primary, size: 80));
 }
 
 class _DownloadButton extends StatelessWidget {
@@ -266,6 +270,7 @@ class _DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (downloads.isDownloading(song.id)) {
       return Padding(
@@ -276,7 +281,7 @@ class _DownloadButton extends StatelessWidget {
           child: CircularProgressIndicator(
             value: downloads.getProgress(song.id),
             strokeWidth: 2.5,
-            color: const Color(0xFF1DB954),
+            color: colorScheme.primary,
           ),
         ),
       );
@@ -285,7 +290,7 @@ class _DownloadButton extends StatelessWidget {
     if (downloads.isDownloaded(song.id)) {
       return IconButton(
         tooltip: l10n.tooltipDeleteDownload,
-        icon: const Icon(Icons.download_done, color: Color(0xFF1DB954)),
+        icon: Icon(Icons.download_done, color: colorScheme.primary),
         onPressed: () => downloads.delete(song.id),
       );
     }
