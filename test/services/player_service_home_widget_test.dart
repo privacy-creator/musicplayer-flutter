@@ -79,7 +79,7 @@ void main() {
     playerService.dispose();
   });
 
-  Iterable<MethodCall> _saves(String id) => recorded.where(
+  Iterable<MethodCall> saves(String id) => recorded.where(
         (c) => c.method == 'saveWidgetData' && c.arguments['id'] == id,
       );
 
@@ -90,7 +90,7 @@ void main() {
       await playerService.playSong(_song(1), [_song(1)], 0);
       await _pump();
 
-      final calls = _saves('title').toList();
+      final calls = saves('title').toList();
       expect(calls, isNotEmpty);
       expect(calls.last.arguments['data'], equals('Track 1'));
     });
@@ -99,7 +99,7 @@ void main() {
       await playerService.playSong(_song(1), [_song(1)], 0);
       await _pump();
 
-      final calls = _saves('artist').toList();
+      final calls = saves('artist').toList();
       expect(calls, isNotEmpty);
       expect(calls.last.arguments['data'], equals('Artist 1'));
     });
@@ -109,7 +109,7 @@ void main() {
       await playerService.playSong(_song(1), [_song(1)], 0);
       await _pump();
 
-      final calls = _saves('is_playing').toList();
+      final calls = saves('is_playing').toList();
       expect(calls, isNotEmpty);
       expect(calls.last.arguments['data'], isTrue);
     });
@@ -118,7 +118,7 @@ void main() {
       await playerService.playSong(_song(1), [_song(1)], 0);
       await _pump();
 
-      final calls = _saves('art_path').toList();
+      final calls = saves('art_path').toList();
       expect(calls, isNotEmpty);
       expect(calls.last.arguments['data'], equals(''));
     });
@@ -141,7 +141,7 @@ void main() {
       await playerService.togglePlayPause();
       await _pump();
 
-      final calls = _saves('is_playing').toList();
+      final calls = saves('is_playing').toList();
       expect(calls, isNotEmpty);
       expect(calls.last.arguments['data'], isFalse);
     });
@@ -165,7 +165,7 @@ void main() {
       await playerService.playSong(_song(2), [_song(1), _song(2)], 1);
       await _pump();
 
-      final calls = _saves('title').toList();
+      final calls = saves('title').toList();
       expect(calls, isNotEmpty);
       expect(calls.last.arguments['data'], equals('Track 2'));
     });
@@ -198,7 +198,7 @@ void main() {
       stateCtrl.add(PlayerState(true, ProcessingState.ready));
       await _pump();
 
-      final calls = _saves('is_playing').toList();
+      final calls = saves('is_playing').toList();
       expect(calls, isNotEmpty, reason: 'is_playing moet worden opgeslagen');
       expect(calls.last.arguments['data'], isTrue);
       expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);
@@ -219,7 +219,7 @@ void main() {
       stateCtrl.add(PlayerState(false, ProcessingState.ready));
       await _pump();
 
-      final calls = _saves('is_playing').toList();
+      final calls = saves('is_playing').toList();
       expect(calls, isNotEmpty, reason: 'is_playing moet worden opgeslagen');
       expect(calls.last.arguments['data'], isFalse);
       expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);

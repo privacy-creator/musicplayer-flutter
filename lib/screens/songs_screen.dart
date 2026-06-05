@@ -56,9 +56,10 @@ class _SongsScreenState extends State<SongsScreen> {
 
   Future<void> _load() async {
     setState(() { _loading = true; _offline = false; });
+    final apiService = context.read<ApiService>();
     final online = await _hasInternet();
     try {
-      final songs = await context.read<ApiService>().getSongs(
+      final songs = await apiService.getSongs(
         search: _searchCtrl.text,
         language: _language,
         genre: _genre,

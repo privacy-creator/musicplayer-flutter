@@ -36,7 +36,7 @@ class DownloadService extends ChangeNotifier {
   }
 
   Future<String> _downloadsDir() async {
-    if (_testBaseDir != null) return _testBaseDir!;
+    if (_testBaseDir != null) return _testBaseDir;
     final base = await getApplicationDocumentsDirectory();
     return '${base.path}/song_downloads';
   }

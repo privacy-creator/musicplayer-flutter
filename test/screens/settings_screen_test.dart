@@ -32,7 +32,7 @@ void main() {
 
   group('SettingsScreen', () {
     Future<(ThemeService, LanguageService, TranslationService)>
-        _makeServices() async {
+        makeServices() async {
       final prefs = await SharedPreferences.getInstance();
       return (
         ThemeService(prefs),
@@ -42,7 +42,7 @@ void main() {
     }
 
     testWidgets('shows settings title', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       expect(find.text('Settings'), findsOneWidget);
@@ -50,7 +50,7 @@ void main() {
 
     testWidgets('shows Appearance, Language and Storage sections',
         (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       expect(find.text('APPEARANCE'), findsOneWidget);
@@ -59,21 +59,21 @@ void main() {
     });
 
     testWidgets('shows Theme tile', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       expect(find.text('Theme'), findsOneWidget);
     });
 
     testWidgets('shows Language tile', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       expect(find.text('Language'), findsOneWidget);
     });
 
     testWidgets('shows Clear cache tile', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       expect(find.text('Clear cache'), findsOneWidget);
@@ -81,7 +81,7 @@ void main() {
 
     testWidgets('tapping theme tile opens bottom sheet with options',
         (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Theme'));
@@ -93,7 +93,7 @@ void main() {
     });
 
     testWidgets('selecting dark theme updates ThemeService', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Theme'));
@@ -104,7 +104,7 @@ void main() {
     });
 
     testWidgets('tapping language tile opens bottom sheet', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Language'));
@@ -116,7 +116,7 @@ void main() {
     });
 
     testWidgets('selecting English updates LanguageService', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Language'));
@@ -127,7 +127,7 @@ void main() {
     });
 
     testWidgets('shows version label', (tester) async {
-      final (theme, lang, trans) = await _makeServices();
+      final (theme, lang, trans) = await makeServices();
       await tester.pumpWidget(_buildSettings(theme, lang, trans));
       await tester.pumpAndSettle();
       expect(find.text('alfa 0.6.0'), findsOneWidget);

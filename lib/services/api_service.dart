@@ -20,7 +20,9 @@ List<Song> filterSongs(
     if (search != null && search.isNotEmpty) {
       final q = search.toLowerCase();
       if (!s.title.toLowerCase().contains(q) &&
-          !s.artist.toLowerCase().contains(q)) return false;
+          !s.artist.toLowerCase().contains(q)) {
+        return false;
+      }
     }
     if (language != null && language.isNotEmpty && s.language != language) {
       return false;

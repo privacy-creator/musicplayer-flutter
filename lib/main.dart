@@ -14,7 +14,6 @@ import 'services/theme_service.dart';
 import 'services/translation_service.dart';
 import 'screens/songs_screen.dart';
 import 'screens/playlists_screen.dart';
-import 'screens/settings_screen.dart';
 import 'widgets/player_bar.dart';
 
 void main() async {
@@ -86,7 +85,7 @@ class MusicPlayerApp extends StatelessWidget {
         ),
       ],
       child: Consumer2<LanguageService, ThemeService>(
-        builder: (_, lang, theme, __) => MaterialApp(
+        builder: (_, lang, theme, _) => MaterialApp(
           title: 'Music Player',
           debugShowCheckedModeBanner: false,
           locale: lang.locale,
