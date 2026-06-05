@@ -101,6 +101,7 @@ class _SongsScreenState extends State<SongsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -114,7 +115,7 @@ class _SongsScreenState extends State<SongsScreen> {
           ),
           IconButton(
             tooltip: l10n.tooltipShuffleAll,
-            icon: const Icon(Icons.shuffle, color: Color(0xFF1DB954)),
+            icon: Icon(Icons.shuffle, color: colorScheme.primary),
             onPressed: _songs.isEmpty
                 ? null
                 : () => context.read<PlayerService>().shufflePlay(_songs),
@@ -150,11 +151,11 @@ class _SongsScreenState extends State<SongsScreen> {
           ),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954)))
+                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
                 : _songs.isEmpty
                     ? Center(
                         child: Text(l10n.noSongsFound,
-                            style: const TextStyle(color: Color(0xFFB3B3B3))))
+                            style: TextStyle(color: colorScheme.onSurfaceVariant)))
                     : GridView.builder(
                         padding: const EdgeInsets.all(12),
                         gridDelegate:
@@ -199,21 +200,23 @@ class _Filters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
-      color: const Color(0xFF1E1E1E),
+      color: colorScheme.surface,
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
       child: Column(
         children: [
           TextField(
             controller: searchCtrl,
             onChanged: onSearch,
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: colorScheme.onSurface),
             decoration: InputDecoration(
               hintText: l10n.searchHint,
-              hintStyle: const TextStyle(color: Color(0xFFB3B3B3)),
-              prefixIcon: const Icon(Icons.search, color: Color(0xFF1DB954), size: 20),
+              hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+              prefixIcon: Icon(Icons.search, color: colorScheme.primary, size: 20),
               filled: true,
-              fillColor: const Color(0xFF282828),
+              fillColor: colorScheme.surfaceContainerHighest,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none),
@@ -268,19 +271,22 @@ class _Drop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF282828),
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          dropdownColor: const Color(0xFF282828),
-          style: const TextStyle(color: Colors.white, fontSize: 13),
-          hint: Text(label, style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 13)),
+          dropdownColor: colorScheme.surfaceContainerHighest,
+          style: TextStyle(color: colorScheme.onSurface, fontSize: 13),
+          hint: Text(label,
+              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
           isDense: true,
           items: items
               .map((e) => DropdownMenuItem(
@@ -307,15 +313,16 @@ class _SongCard extends StatelessWidget {
     final player = context.watch<PlayerService>();
     final isCurrent = player.currentSong?.id == song.id;
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () => context.read<PlayerService>().playSong(song, playlist, index),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: isCurrent
-              ? Border.all(color: const Color(0xFF1DB954), width: 1.5)
+              ? Border.all(color: colorScheme.primary, width: 1.5)
               : null,
         ),
         child: Column(
@@ -330,14 +337,14 @@ class _SongCard extends StatelessWidget {
                   children: [
                     song.imageUrl != null
                         ? Image.network(song.imageUrl!, fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => _placeholder())
-                        : _placeholder(),
+                            errorBuilder: (_, _, _) => _placeholder(colorScheme))
+                        : _placeholder(colorScheme),
                     if (isCurrent)
                       Container(
                         color: Colors.black45,
                         child: Icon(
                           player.isPlaying ? Icons.pause_circle : Icons.play_circle,
-                          color: const Color(0xFF1DB954),
+                          color: colorScheme.primary,
                           size: 48,
                         ),
                       ),
@@ -397,7 +404,7 @@ class _SongCard extends StatelessWidget {
                   Text(
                     song.title,
                     style: TextStyle(
-                      color: isCurrent ? const Color(0xFF1DB954) : Colors.white,
+                      color: isCurrent ? colorScheme.primary : colorScheme.onSurface,
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -407,7 +414,7 @@ class _SongCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${song.genre} • ${song.year}',
-                    style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 11),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -420,8 +427,8 @@ class _SongCard extends StatelessWidget {
     );
   }
 
-  Widget _placeholder() => Container(
-        color: const Color(0xFF282828),
-        child: const Icon(Icons.music_note, color: Color(0xFF1DB954), size: 48),
+  Widget _placeholder(ColorScheme cs) => Container(
+        color: cs.surfaceContainerHighest,
+        child: Icon(Icons.music_note, color: cs.primary, size: 48),
       );
 }

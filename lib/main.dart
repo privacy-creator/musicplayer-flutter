@@ -10,8 +10,11 @@ import 'services/audio_handler.dart';
 import 'services/download_service.dart';
 import 'services/language_service.dart';
 import 'services/player_service.dart';
+import 'services/theme_service.dart';
+import 'services/translation_service.dart';
 import 'screens/songs_screen.dart';
 import 'screens/playlists_screen.dart';
+import 'screens/settings_screen.dart';
 import 'widgets/player_bar.dart';
 
 void main() async {
@@ -23,6 +26,8 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
   final languageService = LanguageService(prefs);
+  final themeService = ThemeService(prefs);
+  final translationService = TranslationService(prefs);
 
   final handler = await AudioService.init(
     builder: () => MusicAudioHandler(),
@@ -39,6 +44,8 @@ void main() async {
     audioHandler: handler,
     downloadService: downloadService,
     languageService: languageService,
+    themeService: themeService,
+    translationService: translationService,
   ));
 }
 
@@ -46,12 +53,16 @@ class MusicPlayerApp extends StatelessWidget {
   final MusicAudioHandler audioHandler;
   final DownloadService downloadService;
   final LanguageService languageService;
+  final ThemeService themeService;
+  final TranslationService translationService;
 
   const MusicPlayerApp({
     super.key,
     required this.audioHandler,
     required this.downloadService,
     required this.languageService,
+    required this.themeService,
+    required this.translationService,
   });
 
   @override
@@ -59,6 +70,8 @@ class MusicPlayerApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<LanguageService>.value(value: languageService),
+        ChangeNotifierProvider<ThemeService>.value(value: themeService),
+        Provider<TranslationService>.value(value: translationService),
         ChangeNotifierProvider<DownloadService>.value(value: downloadService),
         Provider<ApiService>(create: (_) => ApiService()),
         ChangeNotifierProxyProvider<ApiService, AuthService>(
@@ -72,40 +85,81 @@ class MusicPlayerApp extends StatelessWidget {
           ),
         ),
       ],
-      child: Consumer<LanguageService>(
-        builder: (_, lang, __) => MaterialApp(
+      child: Consumer2<LanguageService, ThemeService>(
+        builder: (_, lang, theme, __) => MaterialApp(
           title: 'Music Player',
           debugShowCheckedModeBanner: false,
           locale: lang.locale,
           localizationsDelegates: AppL10n.localizationsDelegates,
           supportedLocales: AppL10n.supportedLocales,
-          theme: ThemeData(
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF121212),
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF1DB954),
-              secondary: Color(0xFF1ED760),
-              surface: Color(0xFF1E1E1E),
-            ),
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFF1E1E1E),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              titleTextStyle: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
-            navigationBarTheme: const NavigationBarThemeData(
-              backgroundColor: Color(0xFF1E1E1E),
-              indicatorColor: Color(0x221DB954),
-            ),
-          ),
+          themeMode: theme.themeMode,
+          theme: _lightTheme(),
+          darkTheme: _darkTheme(),
           home: const _AuthWrapper(),
         ),
       ),
     );
   }
+
+  static ThemeData _darkTheme() => ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF1DB954),
+          secondary: Color(0xFF1ED760),
+          surface: Color(0xFF1E1E1E),
+          surfaceContainerHighest: Color(0xFF282828),
+          onSurface: Colors.white,
+          onSurfaceVariant: Color(0xFFB3B3B3),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1E1E1E),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          titleTextStyle: TextStyle(
+              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        navigationBarTheme: const NavigationBarThemeData(
+          backgroundColor: Color(0xFF1E1E1E),
+          indicatorColor: Color(0x221DB954),
+        ),
+        listTileTheme: const ListTileThemeData(
+          iconColor: Color(0xFFB3B3B3),
+          subtitleTextStyle: TextStyle(color: Color(0xFFB3B3B3), fontSize: 13),
+        ),
+        dividerColor: Colors.white12,
+        cardColor: const Color(0xFF1E1E1E),
+      );
+
+  static ThemeData _lightTheme() => ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xFFF0F0F0),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF1AA34A),
+          secondary: Color(0xFF1DB954),
+          surface: Colors.white,
+          surfaceContainerHighest: Color(0xFFE4E4E4),
+          onSurface: Color(0xFF111111),
+          onSurfaceVariant: Color(0xFF555555),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF111111),
+          elevation: 0,
+          titleTextStyle: TextStyle(
+              color: Color(0xFF111111), fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        navigationBarTheme: const NavigationBarThemeData(
+          backgroundColor: Colors.white,
+          indicatorColor: Color(0x221AA34A),
+        ),
+        listTileTheme: const ListTileThemeData(
+          iconColor: Color(0xFF555555),
+          subtitleTextStyle: TextStyle(color: Color(0xFF555555), fontSize: 13),
+        ),
+        dividerColor: Colors.black12,
+        cardColor: Colors.white,
+      );
 }
 
 class _AuthWrapper extends StatefulWidget {
@@ -132,15 +186,16 @@ class _AuthWrapperState extends State<_AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     if (!_checked) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF121212),
+      return Scaffold(
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.music_note, color: Color(0xFF1DB954), size: 56),
-              SizedBox(height: 20),
-              CircularProgressIndicator(color: Color(0xFF1DB954)),
+              Icon(Icons.music_note,
+                  color: Theme.of(context).colorScheme.primary, size: 56),
+              const SizedBox(height: 20),
+              CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary),
             ],
           ),
         ),
@@ -174,19 +229,18 @@ class _MainShellState extends State<_MainShell> {
           NavigationBar(
             selectedIndex: _index,
             onDestinationSelected: (i) => setState(() => _index = i),
-            backgroundColor: const Color(0xFF1E1E1E),
             surfaceTintColor: Colors.transparent,
             destinations: [
               NavigationDestination(
                 icon: const Icon(Icons.music_note_outlined),
-                selectedIcon:
-                    const Icon(Icons.music_note, color: Color(0xFF1DB954)),
+                selectedIcon: Icon(Icons.music_note,
+                    color: Theme.of(context).colorScheme.primary),
                 label: l10n.navSongs,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.queue_music_outlined),
-                selectedIcon:
-                    const Icon(Icons.queue_music, color: Color(0xFF1DB954)),
+                selectedIcon: Icon(Icons.queue_music,
+                    color: Theme.of(context).colorScheme.primary),
                 label: l10n.navPlaylists,
               ),
             ],

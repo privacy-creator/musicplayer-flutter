@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song.dart';
 import 'audio_handler.dart';
@@ -20,6 +22,7 @@ class PlayerService extends ChangeNotifier {
   List<Song> _playlist = [];
   int _currentIndex = 0;
   bool _shuffleMode = false;
+  bool _lastWidgetPlaying = false;
 
   // Wachtrij: songs die voor de volgende playlist-song spelen
   final List<Song> _queue = [];
@@ -63,6 +66,12 @@ class PlayerService extends ChangeNotifier {
         playNext();
       }
       notifyListeners();
+      // Update the home-screen widget when play/pause is toggled externally
+      // (via widget button, headphones, lock screen) — not just from togglePlayPause().
+      if (state.playing != _lastWidgetPlaying) {
+        _lastWidgetPlaying = state.playing;
+        unawaited(_updateHomeWidget());
+      }
     });
     _player.positionStream.listen((_) => notifyListeners());
     _loadShuffleMode();
@@ -106,6 +115,7 @@ class PlayerService extends ChangeNotifier {
       _errorController.add('errorCannotLoad');
     }
     notifyListeners();
+    unawaited(_updateHomeWidget());
   }
 
   /// Speelt een nummer af vanuit de UI (bijv. tik op song card).
@@ -131,6 +141,7 @@ class PlayerService extends ChangeNotifier {
       await _player.play();
     }
     notifyListeners();
+    unawaited(_updateHomeWidget());
   }
 
   /// Speelt het volgende nummer: wachtrij eerst, daarna playlist (smart shuffle).
@@ -211,6 +222,54 @@ class PlayerService extends ChangeNotifier {
 
   Future<void> seek(Duration position) async {
     await _player.seek(position);
+  }
+
+  // ── Home-screen widget ───────────────────────────────────────────────────────
+
+  /// Pushes current playback state to the Android home-screen widget.
+  /// Called only on song/play-state changes, not on every position tick.
+  Future<void> _updateHomeWidget() async {
+    try {
+      final song = _currentSong;
+      await HomeWidget.saveWidgetData<String>('title',  song?.title  ?? '');
+      await HomeWidget.saveWidgetData<String>('artist', song?.artist ?? '');
+      await HomeWidget.saveWidgetData<bool>('is_playing', _player.playing);
+
+      // Cache album art to a local file so the widget can display it.
+      if (song?.imageUrl != null) {
+        await _cacheArtForWidget(song!.imageUrl!);
+      } else {
+        await HomeWidget.saveWidgetData<String>('art_path', '');
+      }
+
+      await HomeWidget.updateWidget(
+        androidName: 'NowPlayingWidgetProvider',
+      );
+    } catch (_) {
+      // Widget update is non-critical; swallow all errors.
+    }
+  }
+
+  Future<void> _cacheArtForWidget(String url) async {
+    try {
+      final dir  = await getTemporaryDirectory();
+      final file = File('${dir.path}/widget_art.jpg');
+      // Re-use cached file if it already exists from same song.
+      if (!file.existsSync()) {
+        final client   = HttpClient();
+        final request  = await client.getUrl(Uri.parse(url));
+        final response = await request.close();
+        final bytes    = <int>[];
+        await for (final chunk in response) {
+          bytes.addAll(chunk);
+        }
+        client.close();
+        await file.writeAsBytes(bytes);
+      }
+      await HomeWidget.saveWidgetData<String>('art_path', file.path);
+    } catch (_) {
+      await HomeWidget.saveWidgetData<String>('art_path', '');
+    }
   }
 
   @override

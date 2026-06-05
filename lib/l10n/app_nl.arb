@@ -67,5 +67,24 @@
   "languagePicker": "Taal",
   "langNl": "Nederlands",
   "langEn": "Engels",
-  "langEs": "Spaans"
+  "langEs": "Spaans",
+
+  "navSettings": "Instellingen",
+  "settingsTitle": "Instellingen",
+  "appearanceSection": "Weergave",
+  "languageSection": "Taal",
+  "storageSection": "Opslag",
+  "themeMode": "Thema",
+  "themeDark": "Donker",
+  "themeLight": "Licht",
+  "themeSystem": "Systeemstandaard",
+  "translateLyrics": "Vertalen",
+  "translating": "Vertalen...",
+  "translateTo": "Vertalen naar",
+  "translateError": "Vertaling mislukt",
+  "originalLyrics": "Origineel",
+  "translatedLyrics": "Vertaling",
+  "clearCache": "Cache wissen",
+  "cacheCleared": "Cache gewist",
+  "showOriginal": "Origineel tonen"
 }

@@ -180,4 +180,58 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get langEs => 'Spaans';
+
+  @override
+  String get navSettings => 'Instellingen';
+
+  @override
+  String get settingsTitle => 'Instellingen';
+
+  @override
+  String get appearanceSection => 'Weergave';
+
+  @override
+  String get languageSection => 'Taal';
+
+  @override
+  String get storageSection => 'Opslag';
+
+  @override
+  String get themeMode => 'Thema';
+
+  @override
+  String get themeDark => 'Donker';
+
+  @override
+  String get themeLight => 'Licht';
+
+  @override
+  String get themeSystem => 'Systeemstandaard';
+
+  @override
+  String get translateLyrics => 'Vertalen';
+
+  @override
+  String get translating => 'Vertalen...';
+
+  @override
+  String get translateTo => 'Vertalen naar';
+
+  @override
+  String get translateError => 'Vertaling mislukt';
+
+  @override
+  String get originalLyrics => 'Origineel';
+
+  @override
+  String get translatedLyrics => 'Vertaling';
+
+  @override
+  String get clearCache => 'Cache wissen';
+
+  @override
+  String get cacheCleared => 'Cache gewist';
+
+  @override
+  String get showOriginal => 'Origineel tonen';
 }

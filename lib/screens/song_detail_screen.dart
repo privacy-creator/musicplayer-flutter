@@ -5,6 +5,7 @@ import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
+import '../widgets/lyrics_section.dart';
 import 'queue_screen.dart';
 
 class SongDetailScreen extends StatefulWidget {
@@ -41,6 +42,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
     final downloads = context.watch<DownloadService>();
     final isCurrent = player.currentSong?.id == song.id;
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -48,7 +50,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
         actions: [_DownloadButton(song: song, downloads: downloads)],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954)))
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -60,10 +62,10 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     height: 220,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: const Color(0xFF282828),
+                      color: colorScheme.surfaceContainerHighest,
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF1DB954).withValues(alpha: 0.25),
+                          color: colorScheme.primary.withValues(alpha: 0.25),
                           blurRadius: 40,
                           offset: const Offset(0, 12),
                         ),
@@ -72,15 +74,15 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     clipBehavior: Clip.hardEdge,
                     child: song.imageUrl != null
                         ? Image.network(song.imageUrl!, fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => _placeholder())
-                        : _placeholder(),
+                            errorBuilder: (_, _, _) => _placeholder(colorScheme))
+                        : _placeholder(colorScheme),
                   ),
                   const SizedBox(height: 24),
 
                   Text(
                     song.title,
-                    style: const TextStyle(
-                        color: Colors.white,
+                    style: TextStyle(
+                        color: colorScheme.onSurface,
                         fontSize: 22,
                         fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
@@ -93,13 +95,13 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                       if (song.language.isNotEmpty) song.language,
                       if (song.year > 0) song.year.toString(),
                     ].join(' • '),
-                    style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 13),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     song.formattedDuration,
-                    style: const TextStyle(color: Color(0xFFB3B3B3), fontSize: 12),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
                   ),
 
                   // Offline badge
@@ -108,17 +110,17 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1DB954).withValues(alpha: 0.15),
+                        color: colorScheme.primary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFF1DB954), width: 1),
+                        border: Border.all(color: colorScheme.primary, width: 1),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.offline_pin, color: Color(0xFF1DB954), size: 14),
+                          Icon(Icons.offline_pin, color: colorScheme.primary, size: 14),
                           const SizedBox(width: 4),
                           Text(l10n.offlineBadge,
-                              style: const TextStyle(color: Color(0xFF1DB954), fontSize: 12)),
+                              style: TextStyle(color: colorScheme.primary, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -140,7 +142,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                       onPressed: () =>
                           context.read<PlayerService>().playSong(song, [song], 0),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1DB954),
+                        backgroundColor: colorScheme.primary,
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
@@ -162,7 +164,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                             content: Text(l10n.songAdded(song.title)),
                             action: SnackBarAction(
                               label: l10n.queue,
-                              textColor: const Color(0xFF1DB954),
+                              textColor: colorScheme.primary,
                               onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -174,48 +176,23 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF1DB954),
-                        side: const BorderSide(color: Color(0xFF1DB954)),
+                        foregroundColor: colorScheme.primary,
+                        side: BorderSide(color: colorScheme.primary),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                       ),
                     ),
                   ),
 
-                  // Lyrics
-                  if (song.lyrics != null && song.lyrics!.isNotEmpty) ...[
-                    const SizedBox(height: 36),
-                    const Divider(color: Colors.white12),
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        l10n.lyrics,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        song.lyrics!,
-                        style: const TextStyle(
-                            color: Color(0xFFB3B3B3), height: 1.8, fontSize: 14),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                  LyricsSection(song: song),
                 ],
               ),
             ),
     );
   }
 
-  Widget _placeholder() => const Center(
-      child: Icon(Icons.music_note, color: Color(0xFF1DB954), size: 80));
+  Widget _placeholder(ColorScheme cs) => Center(
+      child: Icon(Icons.music_note, color: cs.primary, size: 80));
 }
 
 class _DownloadButton extends StatelessWidget {
@@ -227,6 +204,7 @@ class _DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (downloads.isDownloading(song.id)) {
       return Padding(
@@ -237,7 +215,7 @@ class _DownloadButton extends StatelessWidget {
           child: CircularProgressIndicator(
             value: downloads.getProgress(song.id),
             strokeWidth: 2.5,
-            color: const Color(0xFF1DB954),
+            color: colorScheme.primary,
           ),
         ),
       );
@@ -246,7 +224,7 @@ class _DownloadButton extends StatelessWidget {
     if (downloads.isDownloaded(song.id)) {
       return IconButton(
         tooltip: l10n.tooltipDeleteDownload,
-        icon: const Icon(Icons.download_done, color: Color(0xFF1DB954)),
+        icon: Icon(Icons.download_done, color: colorScheme.primary),
         onPressed: () => downloads.delete(song.id),
       );
     }

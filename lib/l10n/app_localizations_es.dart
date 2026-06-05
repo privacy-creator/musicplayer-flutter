@@ -180,4 +180,58 @@ class AppL10nEs extends AppL10n {
 
   @override
   String get langEs => 'Español';
+
+  @override
+  String get navSettings => 'Configuración';
+
+  @override
+  String get settingsTitle => 'Configuración';
+
+  @override
+  String get appearanceSection => 'Apariencia';
+
+  @override
+  String get languageSection => 'Idioma';
+
+  @override
+  String get storageSection => 'Almacenamiento';
+
+  @override
+  String get themeMode => 'Tema';
+
+  @override
+  String get themeDark => 'Oscuro';
+
+  @override
+  String get themeLight => 'Claro';
+
+  @override
+  String get themeSystem => 'Predeterminado del sistema';
+
+  @override
+  String get translateLyrics => 'Traducir';
+
+  @override
+  String get translating => 'Traduciendo...';
+
+  @override
+  String get translateTo => 'Traducir a';
+
+  @override
+  String get translateError => 'Error de traducción';
+
+  @override
+  String get originalLyrics => 'Original';
+
+  @override
+  String get translatedLyrics => 'Traducción';
+
+  @override
+  String get clearCache => 'Limpiar caché';
+
+  @override
+  String get cacheCleared => 'Caché eliminado';
+
+  @override
+  String get showOriginal => 'Mostrar original';
 }
