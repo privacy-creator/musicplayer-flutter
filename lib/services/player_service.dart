@@ -22,6 +22,7 @@ class PlayerService extends ChangeNotifier {
   List<Song> _playlist = [];
   int _currentIndex = 0;
   bool _shuffleMode = false;
+  bool _lastWidgetPlaying = false;
 
   // Wachtrij: songs die voor de volgende playlist-song spelen
   final List<Song> _queue = [];
@@ -65,6 +66,12 @@ class PlayerService extends ChangeNotifier {
         playNext();
       }
       notifyListeners();
+      // Update the home-screen widget when play/pause is toggled externally
+      // (via widget button, headphones, lock screen) — not just from togglePlayPause().
+      if (state.playing != _lastWidgetPlaying) {
+        _lastWidgetPlaying = state.playing;
+        unawaited(_updateHomeWidget());
+      }
     });
     _player.positionStream.listen((_) => notifyListeners());
     _loadShuffleMode();

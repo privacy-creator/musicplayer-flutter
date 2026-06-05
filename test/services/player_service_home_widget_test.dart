@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
@@ -20,8 +22,8 @@ Song _song(int id) => Song(
       audioUrl: 'https://example.com/$id.mp3',
     );
 
-// Drains the async event queue so unawaited futures inside PlayerService
-// (like _updateHomeWidget) have time to complete before we assert.
+// Drain the async event queue so unawaited futures (like _updateHomeWidget)
+// have time to complete before asserting.
 Future<void> _pump() => Future<void>.delayed(const Duration(milliseconds: 20));
 
 void main() {
@@ -30,6 +32,7 @@ void main() {
   final recorded = <MethodCall>[];
   late MockAudioPlayer mockPlayer;
   late PlayerService playerService;
+  late StreamController<PlayerState> stateCtrl;
 
   setUp(() {
     recorded.clear();
@@ -45,9 +48,11 @@ void main() {
       },
     );
 
+    stateCtrl = StreamController<PlayerState>.broadcast();
+
     mockPlayer = MockAudioPlayer();
     when(() => mockPlayer.playerStateStream)
-        .thenAnswer((_) => const Stream.empty());
+        .thenAnswer((_) => stateCtrl.stream);
     when(() => mockPlayer.positionStream)
         .thenAnswer((_) => const Stream.empty());
     when(() => mockPlayer.durationStream)
@@ -67,15 +72,18 @@ void main() {
     playerService = PlayerService(handler: handler);
   });
 
-  tearDown(() {
+  tearDown(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(const MethodChannel('home_widget'), null);
+    await stateCtrl.close();
     playerService.dispose();
   });
 
   Iterable<MethodCall> _saves(String id) => recorded.where(
         (c) => c.method == 'saveWidgetData' && c.arguments['id'] == id,
       );
+
+  // ─── Bestaande data-flow tests ───────────────────────────────────────────
 
   group('PlayerService → home widget data', () {
     test('slaat titel op na playSong', () async {
@@ -119,13 +127,12 @@ void main() {
       await playerService.playSong(_song(1), [_song(1)], 0);
       await _pump();
 
-      final updates =
-          recorded.where((c) => c.method == 'updateWidget').toList();
+      final updates = recorded.where((c) => c.method == 'updateWidget').toList();
       expect(updates, isNotEmpty);
       expect(updates.last.arguments['android'], equals('NowPlayingWidgetProvider'));
     });
 
-    test('slaat is_playing false op na pauzeren', () async {
+    test('slaat is_playing false op na pauzeren via togglePlayPause', () async {
       await playerService.playSong(_song(1), [_song(1)], 0);
       await _pump();
       recorded.clear();
@@ -147,10 +154,7 @@ void main() {
       await playerService.togglePlayPause();
       await _pump();
 
-      expect(
-        recorded.where((c) => c.method == 'updateWidget'),
-        isNotEmpty,
-      );
+      expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);
     });
 
     test('werkt bij wisseling van nummer', () async {
@@ -167,19 +171,95 @@ void main() {
     });
 
     test('gooit geen exception als het widget niet beschikbaar is', () async {
-      // Simuleer een fout vanuit het platform (bijv. geen widget geïnstalleerd).
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
         const MethodChannel('home_widget'),
         (call) async => throw PlatformException(code: 'error'),
       );
 
-      // Mag nooit een exception gooien — widget-updates zijn niet-kritisch.
       await expectLater(
         playerService.playSong(_song(1), [_song(1)], 0),
         completes,
       );
       await _pump();
+    });
+  });
+
+  // ─── Externe play/pause via playerStateStream (widget-knop fix) ──────────
+
+  group('PlayerService → widget update via playerStateStream', () {
+    test('updatet widget bij extern afspelen (bijv. widget-knop → play)', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+      recorded.clear();
+
+      // Simuleer dat audio_service play() aanroept van buiten de app.
+      when(() => mockPlayer.playing).thenReturn(true);
+      stateCtrl.add(PlayerState(true, ProcessingState.ready));
+      await _pump();
+
+      final calls = _saves('is_playing').toList();
+      expect(calls, isNotEmpty, reason: 'is_playing moet worden opgeslagen');
+      expect(calls.last.arguments['data'], isTrue);
+      expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);
+    });
+
+    test('updatet widget bij externe pause (widget-knop → pause)', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+
+      // Zet eerst op playing zodat _lastWidgetPlaying = true
+      when(() => mockPlayer.playing).thenReturn(true);
+      stateCtrl.add(PlayerState(true, ProcessingState.ready));
+      await _pump();
+      recorded.clear();
+
+      // Simuleer externe pause.
+      when(() => mockPlayer.playing).thenReturn(false);
+      stateCtrl.add(PlayerState(false, ProcessingState.ready));
+      await _pump();
+
+      final calls = _saves('is_playing').toList();
+      expect(calls, isNotEmpty, reason: 'is_playing moet worden opgeslagen');
+      expect(calls.last.arguments['data'], isFalse);
+      expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);
+    });
+
+    test('updatet widget NIET als playing-status ongewijzigd is', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+
+      when(() => mockPlayer.playing).thenReturn(true);
+      stateCtrl.add(PlayerState(true, ProcessingState.ready));
+      await _pump();
+      recorded.clear();
+
+      // Zelfde status nogmaals — mag geen update triggeren.
+      stateCtrl.add(PlayerState(true, ProcessingState.ready));
+      await _pump();
+
+      expect(
+        recorded.where((c) => c.method == 'updateWidget'),
+        isEmpty,
+        reason: 'Geen onnodige widget-updates als status niet verandert',
+      );
+    });
+
+    test('updatet widget bij processingState.completed (lied afgelopen)', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+
+      when(() => mockPlayer.playing).thenReturn(true);
+      stateCtrl.add(PlayerState(true, ProcessingState.ready));
+      await _pump();
+      recorded.clear();
+
+      // Lied afgelopen → playing wordt false.
+      when(() => mockPlayer.playing).thenReturn(false);
+      stateCtrl.add(PlayerState(false, ProcessingState.completed));
+      await _pump();
+
+      expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);
     });
   });
 }
