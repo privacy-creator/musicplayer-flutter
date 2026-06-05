@@ -67,5 +67,24 @@
   "languagePicker": "Idioma",
   "langNl": "Holandés",
   "langEn": "Inglés",
-  "langEs": "Español"
+  "langEs": "Español",
+
+  "navSettings": "Configuración",
+  "settingsTitle": "Configuración",
+  "appearanceSection": "Apariencia",
+  "languageSection": "Idioma",
+  "storageSection": "Almacenamiento",
+  "themeMode": "Tema",
+  "themeDark": "Oscuro",
+  "themeLight": "Claro",
+  "themeSystem": "Predeterminado del sistema",
+  "translateLyrics": "Traducir",
+  "translating": "Traduciendo...",
+  "translateTo": "Traducir a",
+  "translateError": "Error de traducción",
+  "originalLyrics": "Original",
+  "translatedLyrics": "Traducción",
+  "clearCache": "Limpiar caché",
+  "cacheCleared": "Caché eliminado",
+  "showOriginal": "Mostrar original"
 }

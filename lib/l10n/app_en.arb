@@ -87,5 +87,24 @@
   "languagePicker": "Language",
   "langNl": "Dutch",
   "langEn": "English",
-  "langEs": "Spanish"
+  "langEs": "Spanish",
+
+  "navSettings": "Settings",
+  "settingsTitle": "Settings",
+  "appearanceSection": "Appearance",
+  "languageSection": "Language",
+  "storageSection": "Storage",
+  "themeMode": "Theme",
+  "themeDark": "Dark",
+  "themeLight": "Light",
+  "themeSystem": "System default",
+  "translateLyrics": "Translate",
+  "translating": "Translating...",
+  "translateTo": "Translate to",
+  "translateError": "Translation failed",
+  "originalLyrics": "Original",
+  "translatedLyrics": "Translation",
+  "clearCache": "Clear cache",
+  "cacheCleared": "Cache cleared",
+  "showOriginal": "Show original"
 }
