@@ -416,6 +416,25 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Spanish'**
   String get langEs;
+
+  String get navSettings;
+  String get settingsTitle;
+  String get appearanceSection;
+  String get languageSection;
+  String get storageSection;
+  String get themeMode;
+  String get themeDark;
+  String get themeLight;
+  String get themeSystem;
+  String get translateLyrics;
+  String get translating;
+  String get translateTo;
+  String get translateError;
+  String get originalLyrics;
+  String get translatedLyrics;
+  String get clearCache;
+  String get cacheCleared;
+  String get showOriginal;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

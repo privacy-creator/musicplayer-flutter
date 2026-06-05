@@ -5,6 +5,7 @@ import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
+import '../widgets/lyrics_section.dart';
 import 'queue_screen.dart';
 
 class SongDetailScreen extends StatefulWidget {
@@ -182,32 +183,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     ),
                   ),
 
-                  // Lyrics
-                  if (song.lyrics != null && song.lyrics!.isNotEmpty) ...[
-                    const SizedBox(height: 36),
-                    const Divider(color: Colors.white12),
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        l10n.lyrics,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        song.lyrics!,
-                        style: const TextStyle(
-                            color: Color(0xFFB3B3B3), height: 1.8, fontSize: 14),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                  LyricsSection(song: song),
                 ],
               ),
             ),
