@@ -1,6 +1,7 @@
 class AppConstants {
   static const String baseUrl = 'https://api.hiddebalestra.nl/muziek';
   static const String apiUrl = '$baseUrl/api';
+  static const String websiteUrl = 'https://www.awake-music.co';
 
   // Rewrite legacy local dev URLs to the production server.
   // Replaces the full old base (host + /backend path) so the uploads path resolves correctly.

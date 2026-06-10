@@ -171,4 +171,52 @@ void main() {
       expect(find.text('Song 2'), findsOneWidget);
     });
   });
+
+  group('SongsScreen deel knop', () {
+    testWidgets('deel knop is zichtbaar per nummer-kaart', (tester) async {
+      when(() => mockApi.getSongs(
+            search: any(named: 'search'),
+            language: any(named: 'language'),
+            genre: any(named: 'genre'),
+            year: any(named: 'year'),
+          )).thenAnswer((_) async => [makeSong(1), makeSong(2)]);
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Two song cards, each with a share icon
+      expect(find.byIcon(Icons.share), findsNWidgets(2));
+    });
+
+    testWidgets('deel knop zichtbaar bij één nummer', (tester) async {
+      when(() => mockApi.getSongs(
+            search: any(named: 'search'),
+            language: any(named: 'language'),
+            genre: any(named: 'genre'),
+            year: any(named: 'year'),
+          )).thenAnswer((_) async => [makeSong(1)]);
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byIcon(Icons.share), findsOneWidget);
+    });
+
+    testWidgets('geen deel knop als lijst leeg is', (tester) async {
+      when(() => mockApi.getSongs(
+            search: any(named: 'search'),
+            language: any(named: 'language'),
+            genre: any(named: 'genre'),
+            year: any(named: 'year'),
+          )).thenAnswer((_) async => []);
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.byIcon(Icons.share), findsNothing);
+    });
+  });
 }

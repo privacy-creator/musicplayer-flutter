@@ -234,4 +234,14 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get showOriginal => 'Origineel tonen';
+
+  @override
+  String get translationDisclaimer =>
+      'Vertaling kan onnauwkeurig zijn en fouten bevatten';
+
+  @override
+  String get tooltipShare => 'Delen';
+
+  @override
+  String get shareLinkCopied => 'Link gekopieerd!';
 }
