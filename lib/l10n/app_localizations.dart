@@ -524,6 +524,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Show original'**
   String get showOriginal;
+
+  /// No description provided for @translationDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation may be inaccurate and contain errors'**
+  String get translationDisclaimer;
+
+  /// No description provided for @tooltipShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get tooltipShare;
+
+  /// No description provided for @shareLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied!'**
+  String get shareLinkCopied;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

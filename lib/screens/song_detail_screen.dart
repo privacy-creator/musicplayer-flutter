@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import '../constants.dart';
 import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
@@ -47,7 +49,24 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(song.title),
-        actions: [_DownloadButton(song: song, downloads: downloads)],
+        actions: [
+          IconButton(
+            tooltip: l10n.tooltipShare,
+            icon: const Icon(Icons.share),
+            onPressed: () async {
+              final url = '${AppConstants.websiteUrl}/song/${song.id}';
+              final box = context.findRenderObject() as RenderBox?;
+              await Share.share(
+                url,
+                subject: song.title,
+                sharePositionOrigin: box != null
+                    ? box.localToGlobal(Offset.zero) & box.size
+                    : null,
+              );
+            },
+          ),
+          _DownloadButton(song: song, downloads: downloads),
+        ],
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator(color: colorScheme.primary))

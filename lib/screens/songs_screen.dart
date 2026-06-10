@@ -1,6 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import '../constants.dart';
 import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
@@ -302,6 +304,17 @@ class _Drop extends StatelessWidget {
   }
 }
 
+Future<void> _shareSong(BuildContext context, Song song) async {
+  final url = '${AppConstants.websiteUrl}/song/${song.id}';
+  final box = context.findRenderObject() as RenderBox?;
+  await Share.share(
+    url,
+    subject: song.title,
+    sharePositionOrigin:
+        box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+  );
+}
+
 class _SongCard extends StatelessWidget {
   final Song song;
   final List<Song> playlist;
@@ -390,6 +403,25 @@ class _SongCard extends StatelessWidget {
                           ),
                           child: const Icon(Icons.info_outline,
                               color: Colors.white70, size: 15),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 6,
+                      right: 6,
+                      child: Tooltip(
+                        message: l10n.tooltipShare,
+                        child: GestureDetector(
+                          onTap: () => _shareSong(context, song),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Icon(Icons.share,
+                                color: Colors.white70, size: 15),
+                          ),
                         ),
                       ),
                     ),

@@ -106,5 +106,8 @@
   "translatedLyrics": "Translation",
   "clearCache": "Clear cache",
   "cacheCleared": "Cache cleared",
-  "showOriginal": "Show original"
+  "showOriginal": "Show original",
+  "translationDisclaimer": "Translation may be inaccurate and contain errors",
+  "tooltipShare": "Share",
+  "shareLinkCopied": "Link copied!"
 }

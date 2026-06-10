@@ -137,6 +137,25 @@ class _LyricsSectionState extends State<LyricsSection> {
               color: colorScheme.onSurface.withValues(alpha: 0.45),
             ),
           ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.info_outline,
+                  size: 12,
+                  color: colorScheme.onSurface.withValues(alpha: 0.4)),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  l10n.translationDisclaimer,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontStyle: FontStyle.italic,
+                    color: colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           Text(
             _translated!,

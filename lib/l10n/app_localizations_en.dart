@@ -234,4 +234,14 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get showOriginal => 'Show original';
+
+  @override
+  String get translationDisclaimer =>
+      'Translation may be inaccurate and contain errors';
+
+  @override
+  String get tooltipShare => 'Share';
+
+  @override
+  String get shareLinkCopied => 'Link copied!';
 }

@@ -86,5 +86,8 @@
   "translatedLyrics": "Traducción",
   "clearCache": "Limpiar caché",
   "cacheCleared": "Caché eliminado",
-  "showOriginal": "Mostrar original"
+  "showOriginal": "Mostrar original",
+  "translationDisclaimer": "La traducción puede ser inexacta y contener errores",
+  "tooltipShare": "Compartir",
+  "shareLinkCopied": "¡Enlace copiado!"
 }
