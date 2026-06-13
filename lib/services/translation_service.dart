@@ -5,12 +5,13 @@ class TranslationService {
   final Dio _dio;
   final SharedPreferences _prefs;
 
-  TranslationService(this._prefs)
-      : _dio = Dio(BaseOptions(
-          baseUrl: 'https://api.mymemory.translated.net',
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 10),
-        ));
+  TranslationService(this._prefs, {Dio? dio})
+      : _dio = dio ??
+            Dio(BaseOptions(
+              baseUrl: 'https://api.mymemory.translated.net',
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 10),
+            ));
 
   String _cacheKey(int songId, String targetLang) =>
       'lyrics_translation_${songId}_$targetLang';

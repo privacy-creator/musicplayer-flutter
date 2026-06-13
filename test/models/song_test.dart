@@ -76,6 +76,44 @@ void main() {
     });
   });
 
+  group('Song.toJson', () {
+    test('serializes all fields', () {
+      const song = Song(
+        id: 7,
+        title: 'My Song',
+        artist: 'Me',
+        genre: 'Jazz',
+        language: 'English',
+        year: 2023,
+        duration: 240,
+        audioUrl: 'https://api.hiddebalestra.nl/muziek/uploads/7.mp3',
+        imageUrl: 'https://api.hiddebalestra.nl/muziek/uploads/7.jpg',
+        lyrics: 'La la la',
+      );
+      final j = song.toJson();
+      expect(j['id'], 7);
+      expect(j['title'], 'My Song');
+      expect(j['artist'], 'Me');
+      expect(j['genre'], 'Jazz');
+      expect(j['language'], 'English');
+      expect(j['year'], 2023);
+      expect(j['duration'], 240);
+      expect(j['audio_url'], 'https://api.hiddebalestra.nl/muziek/uploads/7.mp3');
+      expect(j['image_url'], 'https://api.hiddebalestra.nl/muziek/uploads/7.jpg');
+      expect(j['lyrics'], 'La la la');
+    });
+
+    test('toJson with null optional fields', () {
+      const song = Song(
+        id: 1, title: '', artist: '', genre: '',
+        language: '', year: 0, duration: 0, audioUrl: '',
+      );
+      final j = song.toJson();
+      expect(j['image_url'], isNull);
+      expect(j['lyrics'], isNull);
+    });
+  });
+
   group('Song.formattedDuration', () {
     Song withDuration(int seconds) => Song(
           id: 1, title: '', artist: '', genre: '',
