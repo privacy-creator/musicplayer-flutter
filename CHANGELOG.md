@@ -4,6 +4,17 @@ All release notes are written in English.
 
 ---
 
+## [1.8.0] — 2026-06-17
+
+### Added
+- **Share function** — share songs directly from the player and song detail screen.
+- **Translation disclaimer** — disclaimer shown when using the lyrics translation feature.
+
+### Tests
+- Increased test coverage to 85%+.
+
+---
+
 ## [0.6.0-alpha] — 2026-06-05
 
 ### Added
