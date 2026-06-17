@@ -7,8 +7,32 @@ import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/player_service.dart';
+import '../services/streaming_service.dart';
 import '../widgets/global_app_bar_actions.dart';
 import 'song_detail_screen.dart';
+
+Future<bool> _confirmLeaveStream(BuildContext context) async {
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Leave live stream?'),
+      content: const Text(
+          'You are currently listening along in a live stream. '
+          'Leave the stream and play your own music?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Leave stream'),
+        ),
+      ],
+    ),
+  );
+  return result == true;
+}
 
 class SongsScreen extends StatefulWidget {
   final Future<bool> Function()? connectivityChecker;
@@ -121,7 +145,16 @@ class _SongsScreenState extends State<SongsScreen> {
             icon: Icon(Icons.shuffle, color: colorScheme.primary),
             onPressed: _songs.isEmpty
                 ? null
-                : () => context.read<PlayerService>().shufflePlay(_songs),
+                : () async {
+                    final streaming = context.read<StreamingService>();
+                    if (streaming.inRoom && !streaming.isHost) {
+                      final leave = await _confirmLeaveStream(context);
+                      if (!leave || !context.mounted) return;
+                      await streaming.leaveRoom();
+                      if (!context.mounted) return;
+                    }
+                    context.read<PlayerService>().shufflePlay(_songs);
+                  },
           ),
         ],
       ),
@@ -330,7 +363,16 @@ class _SongCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
-      onTap: () => context.read<PlayerService>().playSong(song, playlist, index),
+      onTap: () async {
+        final streaming = context.read<StreamingService>();
+        if (streaming.inRoom && !streaming.isHost) {
+          final leave = await _confirmLeaveStream(context);
+          if (!leave || !context.mounted) return;
+          await streaming.leaveRoom();
+          if (!context.mounted) return;
+        }
+        context.read<PlayerService>().playSong(song, playlist, index);
+      },
       child: Container(
         decoration: BoxDecoration(
           color: colorScheme.surface,

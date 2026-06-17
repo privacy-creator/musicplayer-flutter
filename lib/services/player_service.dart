@@ -98,6 +98,9 @@ class PlayerService extends ChangeNotifier {
     _shuffleBag.addAll(indices);
   }
 
+  /// Laadt en speelt een nummer af vanuit een externe sync (bijv. livestream).
+  Future<void> loadAndPlaySong(Song song) => _loadAndPlay(song);
+
   /// Laadt en speelt een nummer af zonder playlist-state te wijzigen.
   Future<void> _loadAndPlay(Song song) async {
     _currentSong = song;

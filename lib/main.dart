@@ -85,9 +85,13 @@ class MusicPlayerApp extends StatelessWidget {
             downloadService: downloadService,
           ),
         ),
-        ChangeNotifierProxyProvider<ApiService, StreamingService>(
+        ChangeNotifierProxyProvider2<ApiService, PlayerService, StreamingService>(
           create: (ctx) => StreamingService(ctx.read<ApiService>().dio),
-          update: (_, api, prev) => prev ?? StreamingService(api.dio),
+          update: (_, api, player, prev) {
+            final svc = prev ?? StreamingService(api.dio);
+            svc.listenToPlayer(player);
+            return svc;
+          },
         ),
       ],
       child: Consumer2<LanguageService, ThemeService>(

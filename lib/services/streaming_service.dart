@@ -6,7 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../constants.dart';
+import '../models/song.dart';
 import '../models/stream_room.dart';
+import 'player_service.dart';
 
 typedef WsChannelFactory = WebSocketChannel Function(Uri);
 
@@ -19,6 +21,11 @@ class StreamingService extends ChangeNotifier {
   bool _wsConnected = false;
   String? _error;
   String? _guestToken;
+
+  // Player integration
+  PlayerService? _player;
+  Song? _lastSyncedSong;
+  bool? _lastSyncedIsPlaying;
 
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _wsSub;
@@ -40,6 +47,68 @@ class StreamingService extends ChangeNotifier {
   bool get inRoom => _room != null;
   bool get wsConnected => _wsConnected;
   String? get error => _error;
+
+  // ── Player integration ───────────────────────────────────────
+
+  /// Called by the DI layer whenever the PlayerService instance changes.
+  void listenToPlayer(PlayerService player) {
+    if (_player == player) return;
+    _player?.removeListener(_onPlayerChanged);
+    _player = player;
+    _player!.addListener(_onPlayerChanged);
+  }
+
+  /// Fires on every PlayerService notification. When hosting, auto-pushes
+  /// sync if the current song or playing state diverges from the room state.
+  void _onPlayerChanged() {
+    if (!_isHost || _room == null || _player == null) return;
+    final song = _player!.currentSong;
+    final playing = _player!.isPlaying;
+    if (song?.id == _lastSyncedSong?.id && playing == _lastSyncedIsPlaying) {
+      return;
+    }
+    _lastSyncedSong = song;
+    _lastSyncedIsPlaying = playing;
+    updateState(
+      trackId: song?.id,
+      position: _player!.position.inMilliseconds / 1000.0,
+      isPlaying: playing,
+    );
+  }
+
+  /// Applies an incoming sync event to the local player (guest-side only).
+  Future<void> _applySync(Map<String, dynamic> msg) async {
+    final trackId = msg['track_id'] as int?;
+    final isPlaying = msg['is_playing'] as bool?;
+
+    // Update room snapshot
+    if (_room != null) {
+      _room = _room!.copyWith(
+        currentTrackId: trackId,
+        position: (msg['position'] as num?)?.toDouble() ?? _room!.position,
+        isPlaying: isPlaying ?? _room!.isPlaying,
+      );
+    }
+
+    // Apply playback only for guests
+    if (!_isHost && _player != null && trackId != null) {
+      if (trackId != _player!.currentSong?.id) {
+        try {
+          final resp = await _dio.get(
+            '/songs.php',
+            queryParameters: {'id': trackId},
+          );
+          final song = Song.fromJson(resp.data as Map<String, dynamic>);
+          await _player!.loadAndPlaySong(song);
+        } catch (_) {}
+      } else if (isPlaying != null && isPlaying != _player!.isPlaying) {
+        await _player!.togglePlayPause();
+      }
+    }
+
+    onSyncReceived?.call(msg);
+    notifyListeners();
+  }
 
   // ── Room management ──────────────────────────────────────────
 
@@ -125,6 +194,11 @@ class StreamingService extends ChangeNotifier {
     bool? isPlaying,
   }) async {
     if (_room == null || !_isHost) return;
+    // Prevent _onPlayerChanged from firing a redundant sync
+    if (_player != null) {
+      _lastSyncedSong = _player!.currentSong;
+      _lastSyncedIsPlaying = _player!.isPlaying;
+    }
     final body = <String, dynamic>{
       'action': 'update',
       'stream_id': _room!.id,
@@ -257,14 +331,7 @@ class StreamingService extends ChangeNotifier {
       _wsConnected = true;
       notifyListeners();
     } else if (type == 'sync' && _room != null) {
-      // Apply to local room state snapshot.
-      _room = _room!.copyWith(
-        currentTrackId: msg['track_id'] as int?,
-        position: (msg['position'] as num?)?.toDouble() ?? _room!.position,
-        isPlaying: msg['is_playing'] as bool? ?? _room!.isPlaying,
-      );
-      onSyncReceived?.call(msg);
-      notifyListeners();
+      unawaited(_applySync(msg));
     }
   }
 
@@ -305,21 +372,22 @@ class StreamingService extends ChangeNotifier {
       if (state != null && _room != null) {
         final updated = StreamRoom.fromJson(state);
 
+        // Always refresh participants list from poll.
+        _room = _room!.copyWith(participants: updated.participants);
+
         // If WS is not connected use poll state for playback sync.
         if (!_wsConnected) {
           if (updated.currentTrackId != _room!.currentTrackId ||
               updated.isPlaying != _room!.isPlaying) {
-            onSyncReceived?.call({
+            unawaited(_applySync({
               'type': 'sync',
               'track_id': updated.currentTrackId,
               'position': updated.position,
               'is_playing': updated.isPlaying,
-            });
+            }));
           }
         }
 
-        // Always refresh participants list from poll.
-        _room = _room!.copyWith(participants: updated.participants);
         notifyListeners();
       }
     } catch (_) {}
@@ -332,11 +400,14 @@ class StreamingService extends ChangeNotifier {
     _room = null;
     _isHost = false;
     _wsConnected = false;
+    _lastSyncedSong = null;
+    _lastSyncedIsPlaying = null;
     notifyListeners();
   }
 
   @override
   void dispose() {
+    _player?.removeListener(_onPlayerChanged);
     _clearRoom();
     super.dispose();
   }
