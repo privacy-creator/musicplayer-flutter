@@ -89,7 +89,7 @@ class _PlayerBarState extends State<PlayerBar> {
             ),
           StreamBuilder<Duration>(
             stream: player.positionStream,
-            builder: (_, snap) {
+            builder: (ctx, snap) {
               final pos = snap.data ?? Duration.zero;
               final dur = player.duration ?? Duration.zero;
               final pct = dur.inMilliseconds > 0
@@ -108,6 +108,18 @@ class _PlayerBarState extends State<PlayerBar> {
                 child: Slider(
                   value: pct,
                   onChanged: locked ? null : (v) => player.seek(dur * v),
+                  onChangeEnd: locked
+                      ? null
+                      : (v) {
+                          final s = ctx.read<StreamingService>();
+                          if (s.isHost) {
+                            s.updateState(
+                              trackId: player.currentSong?.id,
+                              position: (dur * v).inMilliseconds / 1000.0,
+                              isPlaying: player.isPlaying,
+                            );
+                          }
+                        },
                 ),
               );
             },
