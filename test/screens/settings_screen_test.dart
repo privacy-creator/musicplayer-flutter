@@ -180,7 +180,8 @@ void main() {
       await dl.init();
 
       await tester.pumpWidget(_buildSettings(theme, lang, trans, dl));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
 
       expect(find.text('Test Song'), findsOneWidget);
       expect(find.text('Test Artist · 1.0 KB'), findsOneWidget);
@@ -205,12 +206,15 @@ void main() {
       await dl.init();
 
       await tester.pumpWidget(_buildSettings(theme, lang, trans, dl));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
 
       expect(find.text('Song To Delete'), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.delete_outline));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump();
 
       expect(find.text('Song To Delete'), findsNothing);
       expect(find.text('No downloaded songs'), findsOneWidget);
