@@ -92,5 +92,26 @@
   "shareLinkCopied": "¡Enlace copiado!",
   "downloadsHeader": "Descargas",
   "noDownloads": "Sin canciones descargadas",
-  "downloadRemoved": "Eliminado de las descargas"
+  "downloadRemoved": "Eliminado de las descargas",
+
+  "navLive": "En vivo",
+  "liveListening": "Escucha en vivo",
+  "createRoom": "Iniciar fiesta de escucha",
+  "joinRoom": "Unirse a una sala",
+  "roomCode": "Código de sala",
+  "enterRoomCode": "Ingresa el código de invitación",
+  "participants": "Participantes",
+  "noParticipants": "Aún no hay participantes",
+  "host": "Anfitrión",
+  "nowPlayingLabel": "REPRODUCIENDO AHORA",
+  "noSongPlaying": "Ninguna canción seleccionada",
+  "leaveRoom": "Salir",
+  "endRoom": "Terminar fiesta",
+  "endRoomConfirm": "Esto terminará la fiesta para todos los oyentes.",
+  "syncNow": "Sincronizar ahora",
+  "inviteCode": "CÓDIGO DE INVITACIÓN",
+  "roomCodeCopied": "¡Código copiado!",
+  "hostControls": "CONTROLES DEL ANFITRIÓN",
+  "transferHost": "Hacer anfitrión",
+  "roomEnded": "La fiesta de escucha ha terminado"
 }

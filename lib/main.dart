@@ -12,8 +12,10 @@ import 'services/language_service.dart';
 import 'services/player_service.dart';
 import 'services/theme_service.dart';
 import 'services/translation_service.dart';
+import 'screens/listening_room_screen.dart';
 import 'screens/songs_screen.dart';
 import 'screens/playlists_screen.dart';
+import 'services/streaming_service.dart';
 import 'widgets/player_bar.dart';
 
 void main() async {
@@ -82,6 +84,10 @@ class MusicPlayerApp extends StatelessWidget {
             handler: audioHandler,
             downloadService: downloadService,
           ),
+        ),
+        ChangeNotifierProxyProvider<ApiService, StreamingService>(
+          create: (ctx) => StreamingService(ctx.read<ApiService>().dio),
+          update: (_, api, prev) => prev ?? StreamingService(api.dio),
         ),
       ],
       child: Consumer2<LanguageService, ThemeService>(
@@ -213,7 +219,7 @@ class _MainShell extends StatefulWidget {
 
 class _MainShellState extends State<_MainShell> {
   int _index = 0;
-  static const _pages = [SongsScreen(), PlaylistsScreen()];
+  static const _pages = [SongsScreen(), PlaylistsScreen(), ListeningRoomScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -241,6 +247,12 @@ class _MainShellState extends State<_MainShell> {
                 selectedIcon: Icon(Icons.queue_music,
                     color: Theme.of(context).colorScheme.primary),
                 label: l10n.navPlaylists,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.people_alt_outlined),
+                selectedIcon: Icon(Icons.people_alt,
+                    color: Theme.of(context).colorScheme.primary),
+                label: l10n.navLive,
               ),
             ],
           ),
