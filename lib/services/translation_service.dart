@@ -56,10 +56,19 @@ class TranslationService {
     return result;
   }
 
+  int get cachedTranslationCount =>
+      _prefs.getKeys().where((k) => k.startsWith('lyrics_translation_')).length;
+
+  int get cacheSizeBytes => _prefs
+      .getKeys()
+      .where((k) => k.startsWith('lyrics_translation_'))
+      .fold<int>(0, (sum, k) => sum + (_prefs.getString(k)?.length ?? 0) * 2);
+
   Future<void> clearCache() async {
     final keys = _prefs
         .getKeys()
-        .where((k) => k.startsWith('lyrics_translation_'));
+        .where((k) => k.startsWith('lyrics_translation_'))
+        .toList();
     for (final k in keys) {
       await _prefs.remove(k);
     }

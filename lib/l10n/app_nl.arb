@@ -89,5 +89,8 @@
   "showOriginal": "Origineel tonen",
   "translationDisclaimer": "Vertaling kan onnauwkeurig zijn en fouten bevatten",
   "tooltipShare": "Delen",
-  "shareLinkCopied": "Link gekopieerd!"
+  "shareLinkCopied": "Link gekopieerd!",
+  "downloadsHeader": "Downloads",
+  "noDownloads": "Geen gedownloade nummers",
+  "downloadRemoved": "Verwijderd uit downloads"
 }

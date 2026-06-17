@@ -109,5 +109,8 @@
   "showOriginal": "Show original",
   "translationDisclaimer": "Translation may be inaccurate and contain errors",
   "tooltipShare": "Share",
-  "shareLinkCopied": "Link copied!"
+  "shareLinkCopied": "Link copied!",
+  "downloadsHeader": "Downloads",
+  "noDownloads": "No downloaded songs",
+  "downloadRemoved": "Removed from downloads"
 }

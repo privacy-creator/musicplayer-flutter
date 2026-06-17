@@ -6,19 +6,49 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song.dart';
 
+class DownloadedSongInfo {
+  final int id;
+  final String title;
+  final String artist;
+  final String path;
+
+  const DownloadedSongInfo({
+    required this.id,
+    required this.title,
+    required this.artist,
+    required this.path,
+  });
+}
+
 class DownloadService extends ChangeNotifier {
   static const _prefKey = 'downloaded_songs_v1';
 
   final String? _testBaseDir;
-  final Map<int, String> _downloads = {};
+  // songId → {path, title, artist}
+  final Map<int, Map<String, String>> _downloads = {};
   final Map<int, double> _progress = {};
+  final Map<int, int> _sizes = {}; // cached file sizes in bytes
 
   DownloadService({String? testBaseDir}) : _testBaseDir = testBaseDir;
 
   bool isDownloaded(int songId) => _downloads.containsKey(songId);
-  String? getLocalPath(int songId) => _downloads[songId];
+  String? getLocalPath(int songId) => _downloads[songId]?['path'];
   bool isDownloading(int songId) => _progress.containsKey(songId);
   double getProgress(int songId) => _progress[songId] ?? 0.0;
+
+  List<DownloadedSongInfo> get downloadedSongs => _downloads.entries
+      .map((e) => DownloadedSongInfo(
+            id: e.key,
+            title: e.value['title'] ?? '',
+            artist: e.value['artist'] ?? '',
+            path: e.value['path'] ?? '',
+          ))
+      .toList();
+
+  int getFileSizeBytes(int songId) => _sizes[songId] ?? 0;
+
+  int get totalDownloadSizeBytes =>
+      _sizes.values.fold(0, (sum, s) => sum + s);
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,9 +57,26 @@ class DownloadService extends ChangeNotifier {
     final map = jsonDecode(raw) as Map<String, dynamic>;
     for (final entry in map.entries) {
       final id = int.tryParse(entry.key);
-      final path = entry.value as String?;
-      if (id != null && path != null && File(path).existsSync()) {
-        _downloads[id] = path;
+      if (id == null) continue;
+      final value = entry.value;
+      String? path;
+      String title = '';
+      String artist = '';
+      if (value is String) {
+        // Migrate old format: {"id": "path"}
+        path = value;
+      } else if (value is Map) {
+        path = value['path'] as String?;
+        title = value['title'] as String? ?? '';
+        artist = value['artist'] as String? ?? '';
+      }
+      if (path != null && File(path).existsSync()) {
+        _downloads[id] = {'path': path, 'title': title, 'artist': artist};
+        try {
+          _sizes[id] = File(path).lengthSync();
+        } catch (_) {
+          _sizes[id] = 0;
+        }
       }
     }
     notifyListeners();
@@ -62,7 +109,16 @@ class DownloadService extends ChangeNotifier {
           }
         },
       );
-      _downloads[song.id] = localPath;
+      _downloads[song.id] = {
+        'path': localPath,
+        'title': song.title,
+        'artist': song.artist,
+      };
+      try {
+        _sizes[song.id] = File(localPath).lengthSync();
+      } catch (_) {
+        _sizes[song.id] = 0;
+      }
       await _persist();
     } catch (_) {
       final f = File(localPath);
@@ -74,10 +130,14 @@ class DownloadService extends ChangeNotifier {
   }
 
   Future<void> delete(int songId) async {
-    final path = _downloads.remove(songId);
-    if (path != null) {
-      final f = File(path);
-      if (f.existsSync()) f.deleteSync();
+    final entry = _downloads.remove(songId);
+    _sizes.remove(songId);
+    if (entry != null) {
+      final path = entry['path'];
+      if (path != null) {
+        final f = File(path);
+        if (f.existsSync()) f.deleteSync();
+      }
       await _persist();
       notifyListeners();
     }

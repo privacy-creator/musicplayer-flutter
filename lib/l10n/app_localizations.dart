@@ -542,6 +542,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Link copied!'**
   String get shareLinkCopied;
+
+  /// No description provided for @downloadsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get downloadsHeader;
+
+  /// No description provided for @noDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'No downloaded songs'**
+  String get noDownloads;
+
+  /// No description provided for @downloadRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from downloads'**
+  String get downloadRemoved;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

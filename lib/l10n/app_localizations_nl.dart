@@ -244,4 +244,13 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get shareLinkCopied => 'Link gekopieerd!';
+
+  @override
+  String get downloadsHeader => 'Downloads';
+
+  @override
+  String get noDownloads => 'Geen gedownloade nummers';
+
+  @override
+  String get downloadRemoved => 'Verwijderd uit downloads';
 }

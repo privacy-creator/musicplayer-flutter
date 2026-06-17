@@ -89,5 +89,8 @@
   "showOriginal": "Mostrar original",
   "translationDisclaimer": "La traducción puede ser inexacta y contener errores",
   "tooltipShare": "Compartir",
-  "shareLinkCopied": "¡Enlace copiado!"
+  "shareLinkCopied": "¡Enlace copiado!",
+  "downloadsHeader": "Descargas",
+  "noDownloads": "Sin canciones descargadas",
+  "downloadRemoved": "Eliminado de las descargas"
 }
