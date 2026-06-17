@@ -28,38 +28,71 @@ class _LobbyView extends StatelessWidget {
     final l10n = AppL10n.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.liveListening)),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.people_alt_outlined,
-                size: 72,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.6)),
-            const SizedBox(height: 24),
-            _LobbyCard(
-              icon: Icons.broadcast_on_personal,
-              label: l10n.createRoom,
-              onTap: () =>
-                  Navigator.push(context, _route(const _CreateRoomSheet())),
+      body: Column(
+        children: [
+          _BetaBanner(),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.people_alt_outlined,
+                      size: 72,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.6)),
+                  const SizedBox(height: 24),
+                  _LobbyCard(
+                    icon: Icons.broadcast_on_personal,
+                    label: l10n.createRoom,
+                    onTap: () => Navigator.push(
+                        context, _route(const _CreateRoomSheet())),
+                  ),
+                  const SizedBox(height: 12),
+                  _LobbyCard(
+                    icon: Icons.group_add_outlined,
+                    label: l10n.joinRoom,
+                    onTap: () => Navigator.push(
+                        context, _route(const _JoinRoomSheet())),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            _LobbyCard(
-              icon: Icons.group_add_outlined,
-              label: l10n.joinRoom,
-              onTap: () =>
-                  Navigator.push(context, _route(const _JoinRoomSheet())),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   MaterialPageRoute<void> _route(Widget child) =>
       MaterialPageRoute(builder: (_) => child);
+}
+
+class _BetaBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      color: colors.tertiaryContainer.withValues(alpha: 0.55),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Icon(Icons.science_outlined, size: 18, color: colors.onTertiaryContainer),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Beta — deze functie is in ontwikkeling. '
+              'Problemen zijn mogelijk.',
+              style: TextStyle(
+                  fontSize: 13, color: colors.onTertiaryContainer),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _LobbyCard extends StatelessWidget {
@@ -164,10 +197,10 @@ class _CreateRoomSheetState extends State<_CreateRoomSheet> {
         isPlaying: player.isPlaying,
       );
       if (mounted) Navigator.pop(context);
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = streaming.error ?? 'Onbekende fout';
           _loading = false;
         });
       }
@@ -590,11 +623,11 @@ class _ParticipantsCard extends StatelessWidget {
                   contentPadding: EdgeInsets.zero,
                   leading: CircleAvatar(
                     radius: 16,
-                    child: Text(p.email.isNotEmpty
-                        ? p.email[0].toUpperCase()
+                    child: Text(p.name.isNotEmpty
+                        ? p.name[0].toUpperCase()
                         : '?'),
                   ),
-                  title: Text(p.email,
+                  title: Text(p.name,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   trailing: p.id == room.hostId
                       ? Chip(

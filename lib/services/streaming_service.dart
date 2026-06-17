@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../constants.dart';
 import '../models/stream_room.dart';
@@ -16,6 +18,7 @@ class StreamingService extends ChangeNotifier {
   bool _isHost = false;
   bool _wsConnected = false;
   String? _error;
+  String? _guestToken;
 
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _wsSub;
@@ -47,10 +50,12 @@ class StreamingService extends ChangeNotifier {
   }) async {
     _error = null;
     try {
+      final hostToken = await _getGuestToken();
       final resp = await _dio.post(
         '/streams.php',
         data: {
           'action': 'create',
+          'host_token': hostToken,
           'track_id': trackId,
           'position': position,
           'is_playing': isPlaying,
@@ -84,9 +89,14 @@ class StreamingService extends ChangeNotifier {
   Future<void> joinRoom(String code) async {
     _error = null;
     try {
+      final participantToken = await _getGuestToken();
       final resp = await _dio.post(
         '/streams.php',
-        data: {'action': 'join', 'room_code': code.trim().toUpperCase()},
+        data: {
+          'action': 'join',
+          'room_code': code.trim().toUpperCase(),
+          'participant_token': participantToken,
+        },
       );
       final data = resp.data as Map<String, dynamic>;
       if (data['success'] == true) {
@@ -118,6 +128,7 @@ class StreamingService extends ChangeNotifier {
     final body = <String, dynamic>{
       'action': 'update',
       'stream_id': _room!.id,
+      'host_token': _guestToken!,
     };
     if (trackId != null) body['track_id'] = trackId;
     if (position != null) body['position'] = position;
@@ -145,13 +156,14 @@ class StreamingService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> transferHost(int newHostId) async {
+  Future<void> transferHost(int newParticipantId) async {
     if (_room == null || !_isHost) return;
     try {
       await _dio.post('/streams.php', data: {
         'action': 'transfer',
         'stream_id': _room!.id,
-        'new_host_id': newHostId,
+        'host_token': _guestToken!,
+        'new_participant_id': newParticipantId,
       });
       _isHost = false;
       notifyListeners();
@@ -161,21 +173,44 @@ class StreamingService extends ChangeNotifier {
   Future<void> leaveRoom() async {
     if (_room == null) return;
     final streamId = _room!.id;
+    final participantToken = _guestToken ?? await _getGuestToken();
     _clearRoom();
     try {
-      await _dio.post('/streams.php',
-          data: {'action': 'leave', 'stream_id': streamId});
+      await _dio.post('/streams.php', data: {
+        'action': 'leave',
+        'stream_id': streamId,
+        'participant_token': participantToken,
+      });
     } catch (_) {}
   }
 
   Future<void> endRoom() async {
     if (_room == null || !_isHost) return;
     final streamId = _room!.id;
+    final hostToken = _guestToken!;
     _clearRoom();
     try {
-      await _dio.post('/streams.php',
-          data: {'action': 'end', 'stream_id': streamId});
+      await _dio.post('/streams.php', data: {
+        'action': 'end',
+        'stream_id': streamId,
+        'host_token': hostToken,
+      });
     } catch (_) {}
+  }
+
+  // ── Guest token ──────────────────────────────────────────────
+
+  Future<String> _getGuestToken() async {
+    if (_guestToken != null) return _guestToken!;
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('stream_guest_token');
+    if (token == null) {
+      final rng = Random.secure();
+      token = List.generate(32, (_) => rng.nextInt(16).toRadixString(16)).join();
+      await prefs.setString('stream_guest_token', token);
+    }
+    _guestToken = token;
+    return token;
   }
 
   // ── WebSocket ────────────────────────────────────────────────

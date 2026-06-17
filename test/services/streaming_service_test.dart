@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:music_player_flutter/models/stream_room.dart';
 import 'package:music_player_flutter/services/streaming_service.dart';
@@ -35,6 +36,7 @@ Response<dynamic> _jsonResp(Map<String, dynamic> data) => Response(
 
 void main() {
   setUpAll(() {
+    SharedPreferences.setMockInitialValues({});
     registerFallbackValue(RequestOptions(path: ''));
   });
 
@@ -60,7 +62,7 @@ void main() {
       expect(room.position, closeTo(30.5, 0.001));
       expect(room.isPlaying, true);
       expect(room.participants.length, 2);
-      expect(room.participants.first.email, 'host@example.com');
+      expect(room.participants.first.name, 'host@example.com');
     });
 
     test('handles null currentTrackId', () {
@@ -124,7 +126,7 @@ void main() {
       final ws = MockWebSocketChannel();
       final sink = MockWebSocketSink();
       final streamCtrl = StreamController<dynamic>.broadcast();
-      when(() => ws.stream).thenReturn(streamCtrl.stream);
+      when(() => ws.stream).thenAnswer((_) => streamCtrl.stream);
       when(() => ws.sink).thenReturn(sink);
       when(() => sink.add(any())).thenReturn(null);
       when(() => sink.close()).thenAnswer((_) async {});
@@ -142,6 +144,7 @@ void main() {
           .captured
           .first as Map<String, dynamic>;
       expect(captured['action'], 'create');
+      expect(captured['host_token'], isNotNull);
       expect(captured['track_id'], 5);
       expect(captured['is_playing'], true);
 
@@ -174,7 +177,7 @@ void main() {
       final ws = MockWebSocketChannel();
       final sink = MockWebSocketSink();
       final streamCtrl = StreamController<dynamic>.broadcast();
-      when(() => ws.stream).thenReturn(streamCtrl.stream);
+      when(() => ws.stream).thenAnswer((_) => streamCtrl.stream);
       when(() => ws.sink).thenReturn(sink);
       when(() => sink.add(any())).thenReturn(null);
       when(() => sink.close()).thenAnswer((_) async {});
@@ -192,6 +195,7 @@ void main() {
           .first as Map<String, dynamic>;
       expect(captured['action'], 'join');
       expect(captured['room_code'], 'XYZABC');
+      expect(captured['participant_token'], isNotNull);
 
       service.dispose();
       await streamCtrl.close();
@@ -207,7 +211,7 @@ void main() {
       final ws = MockWebSocketChannel();
       final sink = MockWebSocketSink();
       final streamCtrl = StreamController<dynamic>.broadcast();
-      when(() => ws.stream).thenReturn(streamCtrl.stream);
+      when(() => ws.stream).thenAnswer((_) => streamCtrl.stream);
       when(() => ws.sink).thenReturn(sink);
       when(() => sink.add(any())).thenReturn(null);
       when(() => sink.close()).thenAnswer((_) async {});
@@ -242,7 +246,7 @@ void main() {
       final ws = MockWebSocketChannel();
       final sink = MockWebSocketSink();
       final streamCtrl = StreamController<dynamic>.broadcast();
-      when(() => ws.stream).thenReturn(streamCtrl.stream);
+      when(() => ws.stream).thenAnswer((_) => streamCtrl.stream);
       when(() => ws.sink).thenReturn(sink);
       when(() => sink.add(any())).thenReturn(null);
       when(() => sink.close()).thenAnswer((_) async {});

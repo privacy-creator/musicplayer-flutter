@@ -1,13 +1,13 @@
 class StreamParticipant {
   final int id;
-  final String email;
+  final String name;
 
-  const StreamParticipant({required this.id, required this.email});
+  const StreamParticipant({required this.id, required this.name});
 
   factory StreamParticipant.fromJson(Map<String, dynamic> json) =>
       StreamParticipant(
         id: json['id'] as int,
-        email: json['email'] as String? ?? '',
+        name: json['email'] as String? ?? '',
       );
 }
 

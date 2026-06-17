@@ -42,7 +42,7 @@ StreamingService _fakeStreaming() {
   when(() => dio.options).thenReturn(BaseOptions(baseUrl: 'http://test'));
   final ws = MockWebSocketChannel();
   final sink = MockWebSocketSink();
-  when(() => ws.stream).thenReturn(const Stream.empty());
+  when(() => ws.stream).thenAnswer((_) => const Stream.empty());
   when(() => ws.sink).thenReturn(sink);
   when(() => sink.add(any())).thenReturn(null);
   when(() => sink.close()).thenAnswer((_) async {});
@@ -102,7 +102,7 @@ void main() {
 
       expect(room.roomCode, 'ABCDEF');
       expect(room.participants.length, 2);
-      expect(room.participants[0].email, 'host@test.com');
+      expect(room.participants[0].name, 'host@test.com');
     });
 
     test('copyWith keeps unspecified fields', () {
@@ -139,11 +139,11 @@ void main() {
   });
 
   group('StreamParticipant', () {
-    test('fromJson parses id and email', () {
+    test('fromJson parses id and name', () {
       final p =
-          StreamParticipant.fromJson({'id': 7, 'email': 'user@example.com'});
+          StreamParticipant.fromJson({'id': 7, 'email': 'Luisteraar A1B2'});
       expect(p.id, 7);
-      expect(p.email, 'user@example.com');
+      expect(p.name, 'Luisteraar A1B2');
     });
   });
 }
