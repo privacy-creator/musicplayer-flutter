@@ -51,4 +51,4 @@ Do NOT edit the generated `app_localizations*.dart` files directly — they will
 - `SharedPreferences.setMockInitialValues({})` in `setUp` to reset state
 - Test descriptions are written in Dutch
 - Widget tests use `AppL10nEn` for localization; wrap the widget under test in a `MaterialApp` with the localizations delegates
-- no tests because the work flow takes care of it
+- run the test as fast as possible

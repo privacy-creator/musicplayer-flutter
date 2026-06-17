@@ -560,6 +560,126 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Removed from downloads'**
   String get downloadRemoved;
+
+  /// No description provided for @navLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get navLive;
+
+  /// No description provided for @liveListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Listening'**
+  String get liveListening;
+
+  /// No description provided for @createRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Listening Party'**
+  String get createRoom;
+
+  /// No description provided for @joinRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a Room'**
+  String get joinRoom;
+
+  /// No description provided for @roomCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Room Code'**
+  String get roomCode;
+
+  /// No description provided for @enterRoomCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter invite code'**
+  String get enterRoomCode;
+
+  /// No description provided for @participants.
+  ///
+  /// In en, this message translates to:
+  /// **'Participants'**
+  String get participants;
+
+  /// No description provided for @noParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'No participants yet'**
+  String get noParticipants;
+
+  /// No description provided for @host.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get host;
+
+  /// No description provided for @nowPlayingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'NOW PLAYING'**
+  String get nowPlayingLabel;
+
+  /// No description provided for @noSongPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'No song selected'**
+  String get noSongPlaying;
+
+  /// No description provided for @leaveRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get leaveRoom;
+
+  /// No description provided for @endRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'End Party'**
+  String get endRoom;
+
+  /// No description provided for @endRoomConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This will end the party for all listeners.'**
+  String get endRoomConfirm;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Now'**
+  String get syncNow;
+
+  /// No description provided for @inviteCode.
+  ///
+  /// In en, this message translates to:
+  /// **'INVITE CODE'**
+  String get inviteCode;
+
+  /// No description provided for @roomCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Room code copied!'**
+  String get roomCodeCopied;
+
+  /// No description provided for @hostControls.
+  ///
+  /// In en, this message translates to:
+  /// **'HOST CONTROLS'**
+  String get hostControls;
+
+  /// No description provided for @transferHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Make host'**
+  String get transferHost;
+
+  /// No description provided for @roomEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'The listening party has ended'**
+  String get roomEnded;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
