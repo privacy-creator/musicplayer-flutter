@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
+import '../services/streaming_service.dart';
 import '../models/song.dart';
 import '../widgets/lyrics_section.dart';
 import 'queue_screen.dart';
@@ -27,6 +28,8 @@ class PlayerDetailScreen extends StatelessWidget {
     }
 
     final downloads = context.watch<DownloadService>();
+    final streaming = context.watch<StreamingService>();
+    final locked = streaming.inRoom && !streaming.isHost;
     final l10n = AppL10n.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -147,11 +150,13 @@ class PlayerDetailScreen extends StatelessWidget {
                   IconButton(
                     icon: Icon(
                       Icons.shuffle,
-                      color: player.shuffleMode
-                          ? colorScheme.primary
-                          : colorScheme.onSurface.withValues(alpha: 0.45),
+                      color: locked
+                          ? colorScheme.onSurface.withValues(alpha: 0.2)
+                          : player.shuffleMode
+                              ? colorScheme.primary
+                              : colorScheme.onSurface.withValues(alpha: 0.45),
                     ),
-                    onPressed: player.toggleShuffle,
+                    onPressed: locked ? null : player.toggleShuffle,
                   ),
                 ],
               ),
@@ -186,7 +191,7 @@ class PlayerDetailScreen extends StatelessWidget {
                         ),
                         child: Slider(
                           value: pct,
-                          onChanged: (v) => player.seek(dur * v),
+                          onChanged: locked ? null : (v) => player.seek(dur * v),
                         ),
                       ),
                       Padding(
@@ -213,38 +218,44 @@ class PlayerDetailScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Controls
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    iconSize: 36,
-                    icon: Icon(Icons.skip_previous,
-                        color: colorScheme.onSurface.withValues(alpha: 0.8)),
-                    onPressed: player.playPrevious,
-                  ),
-                  GestureDetector(
-                    onTap: player.togglePlayPause,
-                    child: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
+              Opacity(
+                opacity: locked ? 0.35 : 1.0,
+                child: IgnorePointer(
+                  ignoring: locked,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        iconSize: 36,
+                        icon: Icon(Icons.skip_previous,
+                            color: colorScheme.onSurface.withValues(alpha: 0.8)),
+                        onPressed: player.playPrevious,
                       ),
-                      child: Icon(
-                        player.isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.black,
-                        size: 36,
+                      GestureDetector(
+                        onTap: player.togglePlayPause,
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            player.isPlaying ? Icons.pause : Icons.play_arrow,
+                            color: Colors.black,
+                            size: 36,
+                          ),
+                        ),
                       ),
-                    ),
+                      IconButton(
+                        iconSize: 36,
+                        icon: Icon(Icons.skip_next,
+                            color: colorScheme.onSurface.withValues(alpha: 0.8)),
+                        onPressed: player.playNext,
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    iconSize: 36,
-                    icon: Icon(Icons.skip_next,
-                        color: colorScheme.onSurface.withValues(alpha: 0.8)),
-                    onPressed: player.playNext,
-                  ),
-                ],
+                ),
               ),
 
               LyricsSection(song: song),

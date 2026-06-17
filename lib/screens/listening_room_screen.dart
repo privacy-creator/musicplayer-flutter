@@ -350,7 +350,7 @@ class _RoomView extends StatelessWidget {
 
           // Host controls
           if (streaming.isHost)
-            _HostControlsCard(room: room, player: player, streaming: streaming),
+            _HostControlsCard(room: room, player: player),
 
           // Participants
           _ParticipantsCard(
@@ -505,14 +505,13 @@ class _NowPlayingCard extends StatelessWidget {
 class _HostControlsCard extends StatelessWidget {
   final StreamRoom room;
   final PlayerService player;
-  final StreamingService streaming;
 
-  const _HostControlsCard(
-      {required this.room, required this.player, required this.streaming});
+  const _HostControlsCard({required this.room, required this.player});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -523,7 +522,7 @@ class _HostControlsCard extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: cs.primary,
                     letterSpacing: 1)),
             const SizedBox(height: 12),
             Row(
@@ -532,10 +531,7 @@ class _HostControlsCard extends StatelessWidget {
                 IconButton(
                   iconSize: 36,
                   icon: const Icon(Icons.skip_previous),
-                  onPressed: () async {
-                    await player.playPrevious();
-                    _pushSync(streaming, player);
-                  },
+                  onPressed: player.playPrevious,
                 ),
                 const SizedBox(width: 8),
                 IconButton(
@@ -543,42 +539,20 @@ class _HostControlsCard extends StatelessWidget {
                   icon: Icon(player.isPlaying
                       ? Icons.pause_circle
                       : Icons.play_circle),
-                  color: Theme.of(context).colorScheme.primary,
-                  onPressed: () async {
-                    await player.togglePlayPause();
-                    _pushSync(streaming, player);
-                  },
+                  color: cs.primary,
+                  onPressed: player.togglePlayPause,
                 ),
                 const SizedBox(width: 8),
                 IconButton(
                   iconSize: 36,
                   icon: const Icon(Icons.skip_next),
-                  onPressed: () async {
-                    await player.playNext();
-                    _pushSync(streaming, player);
-                  },
+                  onPressed: player.playNext,
                 ),
               ],
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: TextButton.icon(
-                icon: const Icon(Icons.sync, size: 16),
-                label: Text(l10n.syncNow),
-                onPressed: () => _pushSync(streaming, player),
-              ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  void _pushSync(StreamingService streaming, PlayerService player) {
-    streaming.updateState(
-      trackId: player.currentSong?.id,
-      position: player.position.inMilliseconds / 1000.0,
-      isPlaying: player.isPlaying,
     );
   }
 }
