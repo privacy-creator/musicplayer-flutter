@@ -314,4 +314,7 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get roomEnded => 'Het luisterfeestje is beëindigd';
+
+  @override
+  String get controlledByHost => 'Bestuurd door host';
 }

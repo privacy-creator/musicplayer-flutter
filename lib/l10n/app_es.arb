@@ -113,5 +113,6 @@
   "roomCodeCopied": "¡Código copiado!",
   "hostControls": "CONTROLES DEL ANFITRIÓN",
   "transferHost": "Hacer anfitrión",
-  "roomEnded": "La fiesta de escucha ha terminado"
+  "roomEnded": "La fiesta de escucha ha terminado",
+  "controlledByHost": "Controlado por el anfitrión"
 }

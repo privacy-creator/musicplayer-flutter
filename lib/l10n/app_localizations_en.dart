@@ -313,4 +313,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get roomEnded => 'The listening party has ended';
+
+  @override
+  String get controlledByHost => 'Controlled by host';
 }

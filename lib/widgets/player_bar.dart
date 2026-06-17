@@ -79,7 +79,7 @@ class _PlayerBarState extends State<PlayerBar> {
                       size: 11, color: colorScheme.onPrimaryContainer),
                   const SizedBox(width: 5),
                   Text(
-                    'Bestuurd door host',
+                    AppL10n.of(context)!.controlledByHost,
                     style: TextStyle(
                         fontSize: 11,
                         color: colorScheme.onPrimaryContainer),

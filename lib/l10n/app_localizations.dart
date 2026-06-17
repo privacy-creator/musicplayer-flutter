@@ -680,6 +680,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'The listening party has ended'**
   String get roomEnded;
+
+  /// No description provided for @controlledByHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Controlled by host'**
+  String get controlledByHost;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

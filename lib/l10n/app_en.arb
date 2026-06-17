@@ -133,5 +133,6 @@
   "roomCodeCopied": "Room code copied!",
   "hostControls": "HOST CONTROLS",
   "transferHost": "Make host",
-  "roomEnded": "The listening party has ended"
+  "roomEnded": "The listening party has ended",
+  "controlledByHost": "Controlled by host"
 }

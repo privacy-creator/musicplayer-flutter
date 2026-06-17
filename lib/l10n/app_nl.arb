@@ -113,5 +113,6 @@
   "roomCodeCopied": "Kamercode gekopieerd!",
   "hostControls": "HOSTBEDIENING",
   "transferHost": "Maak host",
-  "roomEnded": "Het luisterfeestje is beëindigd"
+  "roomEnded": "Het luisterfeestje is beëindigd",
+  "controlledByHost": "Bestuurd door host"
 }
