@@ -348,6 +348,34 @@ Future<void> _shareSong(BuildContext context, Song song) async {
   );
 }
 
+void _showSongMenu(BuildContext context, Song song) {
+  final l10n = AppL10n.of(context)!;
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (sheetCtx) => _SongMenuSheet(
+      song: song,
+      onQueue: () {
+        Navigator.pop(sheetCtx);
+        context.read<PlayerService>().addToQueue(song);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(l10n.addedToQueue(song.title)),
+          duration: const Duration(seconds: 2),
+        ));
+      },
+      onInfo: () {
+        Navigator.pop(sheetCtx);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => SongDetailScreen(song: song)));
+      },
+      onShare: () async {
+        Navigator.pop(sheetCtx);
+        await _shareSong(context, song);
+      },
+    ),
+  );
+}
+
 class _SongCard extends StatelessWidget {
   final Song song;
   final List<Song> playlist;
@@ -407,64 +435,16 @@ class _SongCard extends StatelessWidget {
                     Positioned(
                       top: 6,
                       right: 6,
-                      child: Builder(
-                        builder: (ctx) => PopupMenuButton<String>(
-                          padding: EdgeInsets.zero,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black54,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.more_vert,
-                                color: Colors.white, size: 20),
+                      child: GestureDetector(
+                        onTap: () => _showSongMenu(context, song),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          onSelected: (value) async {
-                            if (value == 'queue') {
-                              context.read<PlayerService>().addToQueue(song);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.addedToQueue(song.title)),
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
-                            } else if (value == 'info') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        SongDetailScreen(song: song)),
-                              );
-                            } else if (value == 'share') {
-                              await _shareSong(ctx, song);
-                            }
-                          },
-                          itemBuilder: (_) => [
-                            PopupMenuItem(
-                              value: 'queue',
-                              child: Row(children: [
-                                const Icon(Icons.playlist_add, size: 20),
-                                const SizedBox(width: 12),
-                                Text(l10n.btnAddToQueue),
-                              ]),
-                            ),
-                            PopupMenuItem(
-                              value: 'info',
-                              child: Row(children: [
-                                const Icon(Icons.info_outline, size: 20),
-                                const SizedBox(width: 12),
-                                Text(l10n.menuSongInfo),
-                              ]),
-                            ),
-                            PopupMenuItem(
-                              value: 'share',
-                              child: Row(children: [
-                                const Icon(Icons.share, size: 20),
-                                const SizedBox(width: 12),
-                                Text(l10n.tooltipShare),
-                              ]),
-                            ),
-                          ],
+                          child: const Icon(Icons.more_vert,
+                              color: Colors.white, size: 20),
                         ),
                       ),
                     ),
@@ -507,4 +487,151 @@ class _SongCard extends StatelessWidget {
         color: cs.surfaceContainerHighest,
         child: Icon(Icons.music_note, color: cs.primary, size: 48),
       );
+}
+
+class _SongMenuSheet extends StatelessWidget {
+  final Song song;
+  final VoidCallback onQueue;
+  final VoidCallback onInfo;
+  final VoidCallback onShare;
+
+  const _SongMenuSheet({
+    required this.song,
+    required this.onQueue,
+    required this.onInfo,
+    required this.onShare,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppL10n.of(context)!;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: song.imageUrl != null
+                      ? Image.network(
+                          song.imageUrl!,
+                          width: 54,
+                          height: 54,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => _thumb(colorScheme),
+                        )
+                      : _thumb(colorScheme),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        song.title,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        song.artist,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(
+              height: 1,
+              color: colorScheme.outline.withValues(alpha: 0.2)),
+          _SheetItem(
+            icon: Icons.playlist_add_outlined,
+            label: l10n.btnAddToQueue,
+            onTap: onQueue,
+          ),
+          _SheetItem(
+            icon: Icons.info_outline,
+            label: l10n.menuSongInfo,
+            onTap: onInfo,
+          ),
+          _SheetItem(
+            icon: Icons.share_outlined,
+            label: l10n.tooltipShare,
+            onTap: onShare,
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _thumb(ColorScheme cs) => Container(
+        width: 54,
+        height: 54,
+        color: cs.surfaceContainerHighest,
+        child: Icon(Icons.music_note, color: cs.primary, size: 28),
+      );
+}
+
+class _SheetItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _SheetItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: colorScheme.onSurface, size: 22),
+            const SizedBox(width: 18),
+            Text(
+              label,
+              style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
