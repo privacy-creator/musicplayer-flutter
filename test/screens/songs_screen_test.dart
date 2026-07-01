@@ -185,8 +185,15 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Two song cards, each with a share icon
-      expect(find.byIcon(Icons.share), findsNWidgets(2));
+      // Each card has a ⋮ menu button inside the GridView; tap one to reveal share
+      final cardMenuButtons = find.descendant(
+        of: find.byType(GridView),
+        matching: find.byIcon(Icons.more_vert),
+      );
+      expect(cardMenuButtons, findsNWidgets(2));
+      await tester.tap(cardMenuButtons.first);
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.share_outlined), findsOneWidget);
     });
 
     testWidgets('deel knop zichtbaar bij één nummer', (tester) async {
@@ -201,7 +208,15 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byIcon(Icons.share), findsOneWidget);
+      // Single card has a ⋮ menu button; tap it to reveal share
+      final cardMenuButtons = find.descendant(
+        of: find.byType(GridView),
+        matching: find.byIcon(Icons.more_vert),
+      );
+      expect(cardMenuButtons, findsOneWidget);
+      await tester.tap(cardMenuButtons.first);
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.share_outlined), findsOneWidget);
     });
 
     testWidgets('geen deel knop als lijst leeg is', (tester) async {
@@ -216,7 +231,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byIcon(Icons.share), findsNothing);
+      expect(find.descendant(
+        of: find.byType(GridView),
+        matching: find.byIcon(Icons.more_vert),
+      ), findsNothing);
     });
   });
 }

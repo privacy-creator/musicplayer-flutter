@@ -146,7 +146,7 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Language'));
+      await tester.tap(find.widgetWithText(ListTile, 'Language'));
       await tester.pumpAndSettle();
       expect(find.text('Nederlands'), findsAtLeastNWidgets(1));
       expect(find.text('English'), findsOneWidget);
@@ -158,7 +158,7 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Language'));
+      await tester.tap(find.widgetWithText(ListTile, 'Language'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('English'));
       await tester.pumpAndSettle();
@@ -170,7 +170,7 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
-      expect(find.text('v1.9.0'), findsOneWidget);
+      expect(find.text('v1.9.0', skipOffstage: false), findsOneWidget);
     });
 
     testWidgets('does not show hardcoded "alfa 0.6.0" label', (tester) async {

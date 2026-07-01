@@ -138,7 +138,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(find.byIcon(Icons.share), findsOneWidget);
+      // Share is inside the ⋮ menu; open it first
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.share_outlined), findsOneWidget);
     });
 
     testWidgets('download-knop zichtbaar in AppBar', (tester) async {
@@ -149,6 +152,9 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
+      // Download is inside the ⋮ menu; open it first
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
       expect(find.byIcon(Icons.download_outlined), findsOneWidget);
     });
 
