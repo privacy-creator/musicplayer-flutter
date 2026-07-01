@@ -405,65 +405,66 @@ class _SongCard extends StatelessWidget {
                         ),
                       ),
                     Positioned(
-                      bottom: 6,
-                      left: 6,
-                      child: GestureDetector(
-                        onTap: () {
-                          context.read<PlayerService>().addToQueue(song);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.addedToQueue(song.title)),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Icon(Icons.playlist_add,
-                              color: Colors.white70, size: 15),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 6,
-                      right: 6,
-                      child: GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => SongDetailScreen(song: song)),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Icon(Icons.info_outline,
-                              color: Colors.white70, size: 15),
-                        ),
-                      ),
-                    ),
-                    Positioned(
                       top: 6,
                       right: 6,
-                      child: Tooltip(
-                        message: l10n.tooltipShare,
-                        child: GestureDetector(
-                          onTap: () => _shareSong(context, song),
+                      child: Builder(
+                        builder: (ctx) => PopupMenuButton<String>(
+                          padding: EdgeInsets.zero,
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.black54,
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.share,
-                                color: Colors.white70, size: 15),
+                            child: const Icon(Icons.more_vert,
+                                color: Colors.white, size: 20),
                           ),
+                          onSelected: (value) async {
+                            if (value == 'queue') {
+                              context.read<PlayerService>().addToQueue(song);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l10n.addedToQueue(song.title)),
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            } else if (value == 'info') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        SongDetailScreen(song: song)),
+                              );
+                            } else if (value == 'share') {
+                              await _shareSong(ctx, song);
+                            }
+                          },
+                          itemBuilder: (_) => [
+                            PopupMenuItem(
+                              value: 'queue',
+                              child: Row(children: [
+                                const Icon(Icons.playlist_add, size: 20),
+                                const SizedBox(width: 12),
+                                Text(l10n.btnAddToQueue),
+                              ]),
+                            ),
+                            PopupMenuItem(
+                              value: 'info',
+                              child: Row(children: [
+                                const Icon(Icons.info_outline, size: 20),
+                                const SizedBox(width: 12),
+                                Text(l10n.menuSongInfo),
+                              ]),
+                            ),
+                            PopupMenuItem(
+                              value: 'share',
+                              child: Row(children: [
+                                const Icon(Icons.share, size: 20),
+                                const SizedBox(width: 12),
+                                Text(l10n.tooltipShare),
+                              ]),
+                            ),
+                          ],
                         ),
                       ),
                     ),

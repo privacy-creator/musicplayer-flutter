@@ -537,6 +537,12 @@ abstract class AppL10n {
   /// **'Share'**
   String get tooltipShare;
 
+  /// No description provided for @menuSongInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Song info'**
+  String get menuSongInfo;
+
   /// No description provided for @shareLinkCopied.
   ///
   /// In en, this message translates to:

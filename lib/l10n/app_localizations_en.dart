@@ -243,6 +243,9 @@ class AppL10nEn extends AppL10n {
   String get tooltipShare => 'Share';
 
   @override
+  String get menuSongInfo => 'Song info';
+
+  @override
   String get shareLinkCopied => 'Link copied!';
 
   @override
