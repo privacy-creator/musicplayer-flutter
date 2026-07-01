@@ -50,22 +50,74 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
       appBar: AppBar(
         title: Text(song.title),
         actions: [
-          IconButton(
-            tooltip: l10n.tooltipShare,
-            icon: const Icon(Icons.share),
-            onPressed: () async {
-              final url = '${AppConstants.websiteUrl}/song/${song.id}';
-              final box = context.findRenderObject() as RenderBox?;
-              await Share.share(
-                url,
-                subject: song.title,
-                sharePositionOrigin: box != null
-                    ? box.localToGlobal(Offset.zero) & box.size
-                    : null,
-              );
-            },
+          Builder(
+            builder: (ctx) => PopupMenuButton<String>(
+              iconSize: 28,
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) async {
+                if (value == 'share') {
+                  final url = '${AppConstants.websiteUrl}/song/${song.id}';
+                  final box = ctx.findRenderObject() as RenderBox?;
+                  await Share.share(
+                    url,
+                    subject: song.title,
+                    sharePositionOrigin: box != null
+                        ? box.localToGlobal(Offset.zero) & box.size
+                        : null,
+                  );
+                } else if (value == 'download') {
+                  downloads.download(song, context.read<ApiService>().dio);
+                } else if (value == 'delete_download') {
+                  downloads.delete(song.id);
+                }
+              },
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: 'share',
+                  child: Row(children: [
+                    const Icon(Icons.share, size: 20),
+                    const SizedBox(width: 12),
+                    Text(l10n.tooltipShare),
+                  ]),
+                ),
+                if (downloads.isDownloading(song.id))
+                  PopupMenuItem(
+                    enabled: false,
+                    child: Row(children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          value: downloads.getProgress(song.id),
+                          strokeWidth: 2.5,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(l10n.tooltipDownload),
+                    ]),
+                  )
+                else if (downloads.isDownloaded(song.id))
+                  PopupMenuItem(
+                    value: 'delete_download',
+                    child: Row(children: [
+                      Icon(Icons.download_done, size: 20, color: colorScheme.primary),
+                      const SizedBox(width: 12),
+                      Text(l10n.tooltipDeleteDownload),
+                    ]),
+                  )
+                else
+                  PopupMenuItem(
+                    value: 'download',
+                    child: Row(children: [
+                      const Icon(Icons.download_outlined, size: 20),
+                      const SizedBox(width: 12),
+                      Text(l10n.tooltipDownload),
+                    ]),
+                  ),
+              ],
+            ),
           ),
-          _DownloadButton(song: song, downloads: downloads),
         ],
       ),
       body: _loading
@@ -212,46 +264,4 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
 
   Widget _placeholder(ColorScheme cs) => Center(
       child: Icon(Icons.music_note, color: cs.primary, size: 80));
-}
-
-class _DownloadButton extends StatelessWidget {
-  final Song song;
-  final DownloadService downloads;
-
-  const _DownloadButton({required this.song, required this.downloads});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppL10n.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (downloads.isDownloading(song.id)) {
-      return Padding(
-        padding: const EdgeInsets.all(14),
-        child: SizedBox(
-          width: 22,
-          height: 22,
-          child: CircularProgressIndicator(
-            value: downloads.getProgress(song.id),
-            strokeWidth: 2.5,
-            color: colorScheme.primary,
-          ),
-        ),
-      );
-    }
-
-    if (downloads.isDownloaded(song.id)) {
-      return IconButton(
-        tooltip: l10n.tooltipDeleteDownload,
-        icon: Icon(Icons.download_done, color: colorScheme.primary),
-        onPressed: () => downloads.delete(song.id),
-      );
-    }
-
-    return IconButton(
-      tooltip: l10n.tooltipDownload,
-      icon: const Icon(Icons.download_outlined),
-      onPressed: () => downloads.download(song, context.read<ApiService>().dio),
-    );
-  }
 }
