@@ -698,8 +698,23 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Download all'**
   String get downloadAll;
+
+  /// No description provided for @deleteAllDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all downloads'**
   String get deleteAllDownloads;
+
+  /// No description provided for @allDownloadsRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'All downloads removed'**
   String get allDownloadsRemoved;
+
+  /// No description provided for @downloadingActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading'**
   String get downloadingActive;
 }
 

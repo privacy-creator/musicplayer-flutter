@@ -1,7 +1,7 @@
 name: music_player_flutter
 description: "Music player app"
 publish_to: 'none'
-version: 1.1.2+4
+version: 1.9.0+9
 
 environment:
   sdk: ^3.11.4

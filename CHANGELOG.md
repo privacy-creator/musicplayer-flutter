@@ -4,6 +4,20 @@ All release notes are written in English.
 
 ---
 
+## [1.9.0] — 2026-07-01
+
+### Changed
+- **Spotify-style bottom sheets** — all action menus (song cards, song detail, player, global app bar) now open as a full-width bottom sheet instead of a small popup. Each sheet shows a song header with thumbnail, title, and artist.
+- **Song card menu** — the three separate overlay buttons (share, queue, info) on each song card are replaced by a single ⋮ button that opens the new bottom sheet.
+
+### Added
+- **Download option in song card menu** — save or remove a song from offline storage directly from the song card bottom sheet.
+- **"Download all" in the global menu** — download all currently visible songs in one tap. When a filter is active the label shows the count, e.g. *Download all (5)*.
+- **Download progress banner** — a slim banner with a progress bar appears at the top of the Songs screen while downloads are in progress, and disappears automatically when all downloads finish.
+- **Delete all downloads** — new option in Settings → Downloads to remove all downloaded songs at once, with a confirmation dialog.
+
+---
+
 ## [1.8.0] — 2026-06-17
 
 ### Added
