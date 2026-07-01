@@ -61,6 +61,7 @@ class PlayerService extends ChangeNotifier {
         _downloadService = downloadService {
     _handler.onSkipToNext = () => playNext();
     _handler.onSkipToPrevious = () => playPrevious();
+    _handler.onSetShuffle = _applyShuffleFromSystem;
     _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
         playNext();
@@ -206,6 +207,26 @@ class PlayerService extends ChangeNotifier {
       _shuffleBag.clear();
     }
     _saveShuffleMode();
+    _handler.updateShuffleState(_shuffleMode);
+    unawaited(_updateHomeWidget());
+    notifyListeners();
+  }
+
+  /// Called by MusicAudioHandler when the system (notification shuffle button
+  /// or KEYCODE_MEDIA_SHUFFLE from the home widget) requests a specific state.
+  void _applyShuffleFromSystem(bool value) {
+    if (_shuffleMode == value) return;
+    _shuffleMode = value;
+    if (_shuffleMode && _playlist.isNotEmpty) {
+      _shuffleBag.clear();
+      _fillShuffleBag();
+      _shuffleBag.remove(_currentIndex);
+    } else {
+      _shuffleBag.clear();
+    }
+    _saveShuffleMode();
+    _handler.updateShuffleState(_shuffleMode);
+    unawaited(_updateHomeWidget());
     notifyListeners();
   }
 
@@ -215,6 +236,7 @@ class PlayerService extends ChangeNotifier {
     _shuffleBag.clear();
     _shuffleMode = true;
     _saveShuffleMode();
+    _handler.updateShuffleState(true);
     _playlist = playlist;
     final startIdx = _rng.nextInt(playlist.length);
     _currentIndex = startIdx;
@@ -237,6 +259,7 @@ class PlayerService extends ChangeNotifier {
       await HomeWidget.saveWidgetData<String>('title',  song?.title  ?? '');
       await HomeWidget.saveWidgetData<String>('artist', song?.artist ?? '');
       await HomeWidget.saveWidgetData<bool>('is_playing', _player.playing);
+      await HomeWidget.saveWidgetData<bool>('shuffle_mode', _shuffleMode);
 
       // Cache album art to a local file so the widget can display it.
       if (song?.imageUrl != null) {

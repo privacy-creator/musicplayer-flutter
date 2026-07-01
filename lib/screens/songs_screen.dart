@@ -334,29 +334,120 @@ class _Drop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isActive = value.isNotEmpty;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
+    return InkWell(
+      key: Key('filter_drop_$label'),
+      borderRadius: BorderRadius.circular(8),
+      onTap: () => _showSheet(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+        decoration: BoxDecoration(
+          color: isActive
+              ? colorScheme.primary.withValues(alpha: 0.12)
+              : colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+          border: isActive
+              ? Border.all(color: colorScheme.primary.withValues(alpha: 0.4))
+              : null,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                value.isEmpty ? label : value,
+                style: TextStyle(
+                  color: isActive
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                  fontSize: 13,
+                  fontWeight:
+                      isActive ? FontWeight.w500 : FontWeight.normal,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Icon(
+              Icons.arrow_drop_down,
+              size: 18,
+              color: isActive
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          dropdownColor: colorScheme.surfaceContainerHighest,
-          style: TextStyle(color: colorScheme.onSurface, fontSize: 13),
-          hint: Text(label,
-              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
-          isDense: true,
-          items: items
-              .map((e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e.isEmpty ? allLabel : e),
-                  ))
-              .toList(),
-          onChanged: onChanged,
+    );
+  }
+
+  void _showSheet(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetCtx) => Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 32,
+                height: 4,
+                margin: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        title: Text(allLabel),
+                        trailing: value.isEmpty
+                            ? Icon(Icons.check,
+                                color: colorScheme.primary, size: 18)
+                            : null,
+                        onTap: () {
+                          Navigator.pop(sheetCtx);
+                          onChanged('');
+                        },
+                      ),
+                      for (final item in items.where((e) => e.isNotEmpty))
+                        ListTile(
+                          title: Text(item),
+                          trailing: value == item
+                              ? Icon(Icons.check,
+                                  color: colorScheme.primary, size: 18)
+                              : null,
+                          onTap: () {
+                            Navigator.pop(sheetCtx);
+                            onChanged(item);
+                          },
+                        ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -478,7 +569,6 @@ class _SongCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = context.watch<PlayerService>();
     final isCurrent = player.currentSong?.id == song.id;
-    final l10n = AppL10n.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return GestureDetector(
@@ -766,7 +856,7 @@ class _SheetItem extends StatelessWidget {
                 style: TextStyle(color: color, fontSize: 16),
               ),
             ),
-            if (trailing != null) trailing!,
+            ?trailing,
           ],
         ),
       ),

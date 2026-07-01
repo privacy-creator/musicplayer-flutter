@@ -182,6 +182,12 @@ class AppL10nEn extends AppL10n {
   String get langEs => 'Spanish';
 
   @override
+  String get langDe => 'German';
+
+  @override
+  String get langIt => 'Italian';
+
+  @override
   String get navSettings => 'Settings';
 
   @override
@@ -331,4 +337,13 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get downloadingActive => 'Downloading';
+
+  @override
+  String get aboutSection => 'About';
+
+  @override
+  String get githubReleases => 'GitHub Releases';
+
+  @override
+  String get updateAvailable => 'Update available';
 }

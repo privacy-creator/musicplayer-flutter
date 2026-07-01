@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.view.KeyEvent
 import android.widget.RemoteViews
 import java.io.File
@@ -16,7 +17,13 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
         const val ACTION_PLAY_PAUSE = "com.example.music_player_flutter.PLAY_PAUSE"
         const val ACTION_SKIP_NEXT  = "com.example.music_player_flutter.SKIP_NEXT"
         const val ACTION_SKIP_PREV  = "com.example.music_player_flutter.SKIP_PREV"
+        const val ACTION_SHUFFLE    = "com.example.music_player_flutter.SHUFFLE"
         private const val PREFS_NAME = "HomeWidgetPreferences"
+
+        // KEYCODE_MEDIA_SHUFFLE (API 29+). Android's MediaButtonReceiver maps this
+        // to setShuffleMode on the active MediaSession, which routes to
+        // MusicAudioHandler.setShuffleMode() → PlayerService._applyShuffleFromSystem().
+        private const val KEYCODE_MEDIA_SHUFFLE = 134
     }
 
     override fun onUpdate(
@@ -33,6 +40,7 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
             ACTION_PLAY_PAUSE -> sendMediaKey(context, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
             ACTION_SKIP_NEXT  -> sendMediaKey(context, KeyEvent.KEYCODE_MEDIA_NEXT)
             ACTION_SKIP_PREV  -> sendMediaKey(context, KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+            ACTION_SHUFFLE    -> sendMediaKey(context, KEYCODE_MEDIA_SHUFFLE)
         }
     }
 
@@ -53,10 +61,11 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
         widgetId: Int
     ) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val title     = prefs.getString("title",     null) ?: context.getString(R.string.widget_not_playing)
-        val artist    = prefs.getString("artist",    "") ?: ""
-        val isPlaying = prefs.getBoolean("is_playing", false)
-        val artPath   = prefs.getString("art_path",  null)
+        val title        = prefs.getString("title",        null) ?: context.getString(R.string.widget_not_playing)
+        val artist       = prefs.getString("artist",       "") ?: ""
+        val isPlaying    = prefs.getBoolean("is_playing",  false)
+        val shuffleActive = prefs.getBoolean("shuffle_mode", false)
+        val artPath      = prefs.getString("art_path",     null)
 
         val views = RemoteViews(context.packageName, R.layout.now_playing_widget)
 
@@ -65,6 +74,12 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
         views.setImageViewResource(
             R.id.widget_play_pause,
             if (isPlaying) R.drawable.ic_widget_pause else R.drawable.ic_widget_play
+        )
+
+        // Shuffle icon: green when active, dimmed white when inactive
+        views.setInt(
+            R.id.widget_shuffle, "setColorFilter",
+            if (shuffleActive) Color.parseColor("#1DB954") else Color.parseColor("#99FFFFFF")
         )
 
         // Album art: show cached bitmap if available, else music-note placeholder
@@ -96,6 +111,10 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
         views.setOnClickPendingIntent(R.id.widget_title,  openApp)
         views.setOnClickPendingIntent(R.id.widget_artist, openApp)
 
+        views.setOnClickPendingIntent(
+            R.id.widget_shuffle,
+            broadcastIntent(context, ACTION_SHUFFLE, 4)
+        )
         views.setOnClickPendingIntent(
             R.id.widget_play_pause,
             broadcastIntent(context, ACTION_PLAY_PAUSE, 1)

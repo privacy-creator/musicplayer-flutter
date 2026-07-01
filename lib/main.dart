@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -12,6 +14,7 @@ import 'services/language_service.dart';
 import 'services/player_service.dart';
 import 'services/theme_service.dart';
 import 'services/translation_service.dart';
+import 'services/update_service.dart';
 import 'screens/listening_room_screen.dart';
 import 'screens/songs_screen.dart';
 import 'screens/playlists_screen.dart';
@@ -24,6 +27,9 @@ void main() async {
 
   final downloadService = DownloadService();
   await downloadService.init();
+
+  final updateService = UpdateService();
+  unawaited(updateService.init());
 
   final prefs = await SharedPreferences.getInstance();
   final languageService = LanguageService(prefs);
@@ -47,6 +53,7 @@ void main() async {
     languageService: languageService,
     themeService: themeService,
     translationService: translationService,
+    updateService: updateService,
   ));
 }
 
@@ -56,6 +63,7 @@ class MusicPlayerApp extends StatelessWidget {
   final LanguageService languageService;
   final ThemeService themeService;
   final TranslationService translationService;
+  final UpdateService updateService;
 
   const MusicPlayerApp({
     super.key,
@@ -64,6 +72,7 @@ class MusicPlayerApp extends StatelessWidget {
     required this.languageService,
     required this.themeService,
     required this.translationService,
+    required this.updateService,
   });
 
   @override
@@ -74,6 +83,7 @@ class MusicPlayerApp extends StatelessWidget {
         ChangeNotifierProvider<ThemeService>.value(value: themeService),
         Provider<TranslationService>.value(value: translationService),
         ChangeNotifierProvider<DownloadService>.value(value: downloadService),
+        ChangeNotifierProvider<UpdateService>.value(value: updateService),
         Provider<ApiService>(create: (_) => ApiService()),
         ChangeNotifierProxyProvider<ApiService, AuthService>(
           create: (ctx) => AuthService(ctx.read<ApiService>()),

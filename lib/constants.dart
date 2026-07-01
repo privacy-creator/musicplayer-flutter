@@ -3,6 +3,10 @@ class AppConstants {
   static const String apiUrl = '$baseUrl/api';
   static const String websiteUrl = 'https://www.awake-music.co';
   static const String wsUrl = 'wss://api.hiddebalestra.nl:8080';
+  static const String githubReleasesUrl =
+      'https://github.com/privacy-creator/musicplayer-flutter/releases';
+  static const String githubApiLatestUrl =
+      'https://api.github.com/repos/privacy-creator/musicplayer-flutter/releases/latest';
 
   // Rewrite legacy local dev URLs to the production server.
   // Replaces the full old base (host + /backend path) so the uploads path resolves correctly.

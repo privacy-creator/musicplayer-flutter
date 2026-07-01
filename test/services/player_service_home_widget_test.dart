@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
@@ -31,6 +32,7 @@ void main() {
 
   final recorded = <MethodCall>[];
   late MockAudioPlayer mockPlayer;
+  late MusicAudioHandler handler;
   late PlayerService playerService;
   late StreamController<PlayerState> stateCtrl;
 
@@ -68,7 +70,7 @@ void main() {
     when(() => mockPlayer.pause()).thenAnswer((_) async {});
     when(() => mockPlayer.dispose()).thenAnswer((_) async {});
 
-    final handler = MusicAudioHandler(player: mockPlayer);
+    handler = MusicAudioHandler(player: mockPlayer);
     playerService = PlayerService(handler: handler);
   });
 
@@ -182,6 +184,92 @@ void main() {
         completes,
       );
       await _pump();
+    });
+  });
+
+  // ─── Shuffle widget data ──────────────────────────────────────────────────
+
+  group('PlayerService → shuffle_mode widget data', () {
+    test('slaat shuffle_mode false op bij initieel playSong', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+
+      final calls = saves('shuffle_mode').toList();
+      expect(calls, isNotEmpty);
+      expect(calls.last.arguments['data'], isFalse);
+    });
+
+    test('slaat shuffle_mode true op na toggleShuffle', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+      recorded.clear();
+
+      playerService.toggleShuffle();
+      await _pump();
+
+      final calls = saves('shuffle_mode').toList();
+      expect(calls, isNotEmpty);
+      expect(calls.last.arguments['data'], isTrue);
+    });
+
+    test('slaat shuffle_mode false op na dubbel toggleShuffle', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+
+      playerService.toggleShuffle();
+      await _pump();
+      recorded.clear();
+
+      playerService.toggleShuffle();
+      await _pump();
+
+      final calls = saves('shuffle_mode').toList();
+      expect(calls, isNotEmpty);
+      expect(calls.last.arguments['data'], isFalse);
+    });
+
+    test('roept updateWidget aan na toggleShuffle', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+      recorded.clear();
+
+      playerService.toggleShuffle();
+      await _pump();
+
+      expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);
+    });
+
+    test('handler.setShuffleMode slaat shuffle_mode true op via onSetShuffle callback', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+      recorded.clear();
+
+      // Simulate notification shuffle button / KEYCODE_MEDIA_SHUFFLE from the
+      // home widget — both route through handler.setShuffleMode().
+      await handler.setShuffleMode(AudioServiceShuffleMode.all);
+      await _pump();
+
+      final calls = saves('shuffle_mode').toList();
+      expect(calls, isNotEmpty);
+      expect(calls.last.arguments['data'], isTrue);
+      expect(playerService.shuffleMode, isTrue);
+    });
+
+    test('handler.setShuffleMode negeert identieke waarde', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+      recorded.clear();
+
+      // shuffle is already false — requesting AudioServiceShuffleMode.none again
+      // should not trigger a widget update.
+      await handler.setShuffleMode(AudioServiceShuffleMode.none);
+      await _pump();
+
+      expect(
+        recorded.where((c) => c.method == 'updateWidget'),
+        isEmpty,
+        reason: 'Geen widget-update als shuffle-status niet verandert',
+      );
     });
   });
 

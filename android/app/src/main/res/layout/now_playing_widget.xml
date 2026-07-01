@@ -49,6 +49,16 @@
 
     </LinearLayout>
 
+    <!-- Shuffle -->
+    <ImageButton
+        android:id="@+id/widget_shuffle"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_widget_shuffle"
+        android:background="@android:color/transparent"
+        android:contentDescription="Shuffle"
+        android:scaleType="centerInside"/>
+
     <!-- Prev -->
     <ImageButton
         android:id="@+id/widget_prev"

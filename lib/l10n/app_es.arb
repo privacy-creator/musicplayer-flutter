@@ -68,6 +68,8 @@
   "langNl": "Holandés",
   "langEn": "Inglés",
   "langEs": "Español",
+  "langDe": "Alemán",
+  "langIt": "Italiano",
 
   "navSettings": "Configuración",
   "settingsTitle": "Configuración",
@@ -119,5 +121,8 @@
   "downloadAll": "Descargar todo",
   "deleteAllDownloads": "Eliminar todas las descargas",
   "allDownloadsRemoved": "Todas las descargas eliminadas",
-  "downloadingActive": "Descargando"
+  "downloadingActive": "Descargando",
+  "aboutSection": "Acerca de",
+  "githubReleases": "GitHub Releases",
+  "updateAvailable": "Actualización disponible"
 }

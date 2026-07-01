@@ -472,7 +472,7 @@ class _PlayerSheetItem extends StatelessWidget {
               child: Text(label,
                   style: TextStyle(color: color, fontSize: 16)),
             ),
-            if (trailing != null) trailing!,
+            ?trailing,
           ],
         ),
       ),

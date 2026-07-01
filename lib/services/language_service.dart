@@ -18,6 +18,8 @@ class LanguageService extends ChangeNotifier {
     Locale('nl'),
     Locale('en'),
     Locale('es'),
+    Locale('de'),
+    Locale('it'),
   ];
 
   Future<void> setLocale(Locale locale) async {

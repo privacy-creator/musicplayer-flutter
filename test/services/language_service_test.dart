@@ -52,15 +52,37 @@ void main() {
       expect(count, 0);
     });
 
-    test('supportedLocales bevat nl, en en es', () {
+    test('supportedLocales bevat nl, en, es, de en it', () {
       expect(LanguageService.supportedLocales, containsAll([
         const Locale('nl'),
         const Locale('en'),
         const Locale('es'),
+        const Locale('de'),
+        const Locale('it'),
       ]));
     });
 
-    test('alle drie locales kunnen worden ingesteld', () async {
+    test('supportedLocales bevat exact 5 locales', () {
+      expect(LanguageService.supportedLocales.length, 5);
+    });
+
+    test('setLocale naar Duits werkt', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final service = LanguageService(prefs);
+      await service.setLocale(const Locale('de'));
+      expect(service.locale, const Locale('de'));
+      expect(prefs.getString('app_locale'), 'de');
+    });
+
+    test('setLocale naar Italiaans werkt', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final service = LanguageService(prefs);
+      await service.setLocale(const Locale('it'));
+      expect(service.locale, const Locale('it'));
+      expect(prefs.getString('app_locale'), 'it');
+    });
+
+    test('alle vijf locales kunnen worden ingesteld', () async {
       final prefs = await SharedPreferences.getInstance();
       final service = LanguageService(prefs);
 

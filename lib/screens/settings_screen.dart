@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../constants.dart';
 import '../l10n/app_localizations.dart';
 import '../services/download_service.dart';
 import '../services/language_service.dart';
 import '../services/theme_service.dart';
 import '../services/translation_service.dart';
+import '../services/update_service.dart';
+import 'downloads_screen.dart';
 
 String _formatBytes(int bytes) {
   if (bytes == 0) return '0 B';
@@ -20,6 +24,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
     final theme = Theme.of(context);
+    final update = context.watch<UpdateService>();
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
@@ -35,11 +40,16 @@ class SettingsScreen extends StatelessWidget {
           _ClearCacheTile(),
           const Divider(height: 1, indent: 16, endIndent: 16),
           _SectionHeader(label: l10n.downloadsHeader),
-          _DownloadedSongsSection(),
+          _DownloadsTile(),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          _SectionHeader(label: l10n.aboutSection),
+          _GitHubTile(),
           const SizedBox(height: 32),
           Center(
             child: Text(
-              'alfa 0.6.0',
+              update.currentVersion.isNotEmpty
+                  ? 'v${update.currentVersion}'
+                  : '',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
               ),
@@ -165,6 +175,8 @@ class _LanguageTile extends StatelessWidget {
       ('nl', '🇳🇱', 'Nederlands'),
       ('en', '🇬🇧', 'English'),
       ('es', '🇪🇸', 'Español'),
+      ('de', '🇩🇪', 'Deutsch'),
+      ('it', '🇮🇹', 'Italiano'),
     ];
 
     final currentLabel = options
@@ -260,101 +272,50 @@ class _ClearCacheTileState extends State<_ClearCacheTile> {
   }
 }
 
-class _DownloadedSongsSection extends StatelessWidget {
+class _DownloadsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
     final downloads = context.watch<DownloadService>();
-    final songs = downloads.downloadedSongs;
-    final totalSize = _formatBytes(downloads.totalDownloadSizeBytes);
+    final count = downloads.downloadedSongs.length;
+    final size = _formatBytes(downloads.totalDownloadSizeBytes);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: Text(
-            '${songs.length} songs · $totalSize',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 12,
-            ),
-          ),
-        ),
-        if (songs.isEmpty)
-          ListTile(
-            leading: const Icon(Icons.download_outlined),
-            title: Text(l10n.noDownloads),
-          )
-        else ...[
-          for (final song in songs) _DownloadedSongTile(song: song),
-          ListTile(
-            leading: const Icon(Icons.delete_forever_outlined,
-                color: Colors.redAccent),
-            title: Text(l10n.deleteAllDownloads,
-                style: const TextStyle(color: Colors.redAccent)),
-            onTap: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: Text(l10n.deleteAllDownloads),
-                  content: Text(
-                      '${songs.length} ${l10n.songCount(songs.length)}'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: const Text('Cancel'),
-                    ),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                          backgroundColor: Colors.redAccent),
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(l10n.deleteAllDownloads),
-                    ),
-                  ],
-                ),
-              );
-              if (confirmed == true && context.mounted) {
-                await context.read<DownloadService>().deleteAll();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.allDownloadsRemoved)),
-                  );
-                }
-              }
-            },
-          ),
-        ],
-      ],
+    return ListTile(
+      leading: const Icon(Icons.download_done_outlined),
+      title: Text(l10n.downloadsHeader),
+      subtitle: Text('$count songs · $size'),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute<void>(builder: (_) => const DownloadsScreen()),
+      ),
     );
   }
 }
 
-class _DownloadedSongTile extends StatelessWidget {
-  final DownloadedSongInfo song;
-  const _DownloadedSongTile({required this.song});
-
+class _GitHubTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
-    final downloads = context.read<DownloadService>();
-    final sizeStr = _formatBytes(downloads.getFileSizeBytes(song.id));
+    final update = context.watch<UpdateService>();
 
     return ListTile(
-      leading: const Icon(Icons.music_note_outlined),
-      title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text('${song.artist} · $sizeStr'),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline),
-        tooltip: l10n.tooltipDeleteDownload,
-        onPressed: () async {
-          await downloads.delete(song.id);
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.downloadRemoved)),
-            );
-          }
-        },
+      leading: const Icon(Icons.new_releases_outlined),
+      title: Text(l10n.githubReleases),
+      subtitle: update.hasUpdate
+          ? Text(
+              l10n.updateAvailable,
+              style:
+                  TextStyle(color: Theme.of(context).colorScheme.primary),
+            )
+          : null,
+      trailing: update.hasUpdate
+          ? Icon(Icons.circle,
+              color: Theme.of(context).colorScheme.primary, size: 10)
+          : const Icon(Icons.open_in_new, size: 16),
+      onTap: () => launchUrl(
+        Uri.parse(AppConstants.githubReleasesUrl),
+        mode: LaunchMode.externalApplication,
       ),
     );
   }

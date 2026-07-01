@@ -58,6 +58,7 @@
                 <action android:name="com.example.music_player_flutter.PLAY_PAUSE" />
                 <action android:name="com.example.music_player_flutter.SKIP_NEXT" />
                 <action android:name="com.example.music_player_flutter.SKIP_PREV" />
+                <action android:name="com.example.music_player_flutter.SHUFFLE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -68,6 +69,10 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
         </intent>
     </queries>
 </manifest>

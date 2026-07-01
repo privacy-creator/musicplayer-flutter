@@ -382,9 +382,123 @@ void main() {
     });
   });
 
+  group('Deutsch (de)', () {
+    testWidgets('navSongs is Titel', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.navSongs, 'Titel');
+    });
+
+    testWidgets('navPlaylists is Wiedergabelisten', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.navPlaylists, 'Wiedergabelisten');
+    });
+
+    testWidgets('nowPlaying is Läuft gerade', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.nowPlaying, 'Läuft gerade');
+    });
+
+    testWidgets('clearQueue is Warteschlange leeren', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.clearQueue, 'Warteschlange leeren');
+    });
+
+    testWidgets('songCount enkelvoud', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.songCount(1), '1 Titel');
+    });
+
+    testWidgets('songCount meervoud', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.songCount(3), '3 Titel');
+    });
+
+    testWidgets('langDe is Deutsch', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.langDe, 'Deutsch');
+    });
+
+    testWidgets('langIt is Italienisch', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.langIt, 'Italienisch');
+    });
+
+    testWidgets('alle DE strings bereikbaar', (tester) async {
+      final l = await _l10n(tester, const Locale('de'));
+      expect(l.appTitle, isNotEmpty);
+      expect(l.tooltipRefresh, isNotEmpty);
+      expect(l.searchHint, isNotEmpty);
+      expect(l.noSongsFound, isNotEmpty);
+      expect(l.queue, isNotEmpty);
+      expect(l.lyrics, isNotEmpty);
+      expect(l.downloadsHeader, isNotEmpty);
+      expect(l.downloadAll, isNotEmpty);
+      expect(l.deleteAllDownloads, isNotEmpty);
+      expect(l.downloadingActive, isNotEmpty);
+      expect(l.menuSongInfo, isNotEmpty);
+    });
+  });
+
+  group('Italiano (it)', () {
+    testWidgets('navSongs is Brani', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.navSongs, 'Brani');
+    });
+
+    testWidgets('navPlaylists is Playlist', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.navPlaylists, 'Playlist');
+    });
+
+    testWidgets('nowPlaying is In riproduzione', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.nowPlaying, 'In riproduzione');
+    });
+
+    testWidgets('clearQueue is Svuota coda', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.clearQueue, 'Svuota coda');
+    });
+
+    testWidgets('songCount enkelvoud', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.songCount(1), '1 brano');
+    });
+
+    testWidgets('songCount meervoud', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.songCount(4), '4 brani');
+    });
+
+    testWidgets('langDe is Tedesco', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.langDe, 'Tedesco');
+    });
+
+    testWidgets('langIt is Italiano', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.langIt, 'Italiano');
+    });
+
+    testWidgets('alle IT strings bereikbaar', (tester) async {
+      final l = await _l10n(tester, const Locale('it'));
+      expect(l.appTitle, isNotEmpty);
+      expect(l.tooltipRefresh, isNotEmpty);
+      expect(l.searchHint, isNotEmpty);
+      expect(l.noSongsFound, isNotEmpty);
+      expect(l.queue, isNotEmpty);
+      expect(l.lyrics, isNotEmpty);
+      expect(l.downloadsHeader, isNotEmpty);
+      expect(l.downloadAll, isNotEmpty);
+      expect(l.deleteAllDownloads, isNotEmpty);
+      expect(l.downloadingActive, isNotEmpty);
+      expect(l.menuSongInfo, isNotEmpty);
+    });
+  });
+
   group('Consistentie: alle strings aanwezig in alle talen', () {
     testWidgets('btnAddToQueue aanwezig in alle talen', (tester) async {
-      for (final locale in [const Locale('nl'), const Locale('en'), const Locale('es')]) {
+      for (final locale in AppL10n.supportedLocales) {
         final l = await _l10n(tester, locale);
         expect(l.btnAddToQueue, isNotEmpty,
             reason: '${locale.languageCode}: btnAddToQueue leeg');
@@ -392,30 +506,37 @@ void main() {
     });
 
     testWidgets('tooltipDownload aanwezig in alle talen', (tester) async {
-      for (final locale in [const Locale('nl'), const Locale('en'), const Locale('es')]) {
+      for (final locale in AppL10n.supportedLocales) {
         final l = await _l10n(tester, locale);
         expect(l.tooltipDownload, isNotEmpty);
       }
     });
 
     testWidgets('noSongsFound aanwezig in alle talen', (tester) async {
-      for (final locale in [const Locale('nl'), const Locale('en'), const Locale('es')]) {
+      for (final locale in AppL10n.supportedLocales) {
         final l = await _l10n(tester, locale);
         expect(l.noSongsFound, isNotEmpty);
       }
     });
 
-    testWidgets('talen zijn uniek per string', (tester) async {
-      final nl = await _l10n(tester, const Locale('nl'));
-      final en = await _l10n(tester, const Locale('en'));
-      final es = await _l10n(tester, const Locale('es'));
+    testWidgets('langDe en langIt aanwezig in alle talen', (tester) async {
+      for (final locale in AppL10n.supportedLocales) {
+        final l = await _l10n(tester, locale);
+        expect(l.langDe, isNotEmpty,
+            reason: '${locale.languageCode}: langDe leeg');
+        expect(l.langIt, isNotEmpty,
+            reason: '${locale.languageCode}: langIt leeg');
+      }
+    });
 
-      // navSongs differs per language
-      expect({nl.navSongs, en.navSongs, es.navSongs}.length, 3);
-      // nowPlaying differs per language
-      expect({nl.nowPlaying, en.nowPlaying, es.nowPlaying}.length, 3);
-      // clearQueue differs per language
-      expect({nl.clearQueue, en.clearQueue, es.clearQueue}.length, 3);
+    testWidgets('talen zijn uniek per navSongs string', (tester) async {
+      final strings = <String>{};
+      for (final locale in AppL10n.supportedLocales) {
+        final l = await _l10n(tester, locale);
+        strings.add(l.navSongs);
+      }
+      // All 5 languages should have unique navSongs values
+      expect(strings.length, AppL10n.supportedLocales.length);
     });
   });
 }

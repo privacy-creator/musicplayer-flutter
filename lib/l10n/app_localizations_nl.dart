@@ -182,6 +182,12 @@ class AppL10nNl extends AppL10n {
   String get langEs => 'Spaans';
 
   @override
+  String get langDe => 'Duits';
+
+  @override
+  String get langIt => 'Italiaans';
+
+  @override
   String get navSettings => 'Instellingen';
 
   @override
@@ -332,4 +338,13 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get downloadingActive => 'Bezig met downloaden';
+
+  @override
+  String get aboutSection => 'Over';
+
+  @override
+  String get githubReleases => 'GitHub Releases';
+
+  @override
+  String get updateAvailable => 'Update beschikbaar';
 }

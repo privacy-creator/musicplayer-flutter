@@ -9,6 +9,12 @@ class MusicAudioHandler extends BaseAudioHandler with SeekHandler {
   void Function()? onSkipToNext;
   void Function()? onSkipToPrevious;
 
+  /// Called when the system (notification button or KEYCODE_MEDIA_SHUFFLE)
+  /// requests a specific shuffle state. The bool is true = shuffle on.
+  void Function(bool)? onSetShuffle;
+
+  bool _shuffleMode = false;
+
   MusicAudioHandler({AudioPlayer? player}) : player = player ?? AudioPlayer() {
     _setup();
     this.player.playerStateStream.listen(_broadcastState);
@@ -22,15 +28,33 @@ class MusicAudioHandler extends BaseAudioHandler with SeekHandler {
     } catch (_) {}
   }
 
+  /// Called by PlayerService whenever shuffle mode changes so the notification
+  /// icon and playback state reflect the current state.
+  void updateShuffleState(bool shuffleMode) {
+    _shuffleMode = shuffleMode;
+    _broadcastState(player.playerState);
+  }
+
   void _broadcastState(PlayerState state) {
     playbackState.add(playbackState.value.copyWith(
       controls: [
+        MediaControl(
+          androidIcon: _shuffleMode
+              ? 'drawable/ic_notification_shuffle_on'
+              : 'drawable/ic_notification_shuffle',
+          label: 'Shuffle',
+          action: MediaAction.setShuffleMode,
+        ),
         MediaControl.skipToPrevious,
         if (state.playing) MediaControl.pause else MediaControl.play,
         MediaControl.skipToNext,
       ],
-      systemActions: const {MediaAction.seek},
-      androidCompactActionIndices: const [0, 1, 2],
+      systemActions: const {MediaAction.seek, MediaAction.setShuffleMode},
+      // Compact view (lock screen): previous | play/pause | next
+      androidCompactActionIndices: const [1, 2, 3],
+      shuffleMode: _shuffleMode
+          ? AudioServiceShuffleMode.all
+          : AudioServiceShuffleMode.none,
       processingState: {
         ProcessingState.idle: AudioProcessingState.idle,
         ProcessingState.loading: AudioProcessingState.loading,
@@ -49,7 +73,10 @@ class MusicAudioHandler extends BaseAudioHandler with SeekHandler {
       id: song.audioUrl,
       title: song.title,
       artist: song.artist,
-      artUri: song.imageUrl != null ? Uri.tryParse(song.imageUrl!) : null,
+      artUri: song.imageUrl != null
+          ? Uri.tryParse(song.imageUrl!)
+          : Uri.parse(
+              'android.resource://com.example.music_player_flutter/mipmap/ic_launcher'),
       duration: Duration(seconds: song.duration),
     ));
   }
@@ -68,6 +95,11 @@ class MusicAudioHandler extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> skipToPrevious() async => onSkipToPrevious?.call();
+
+  @override
+  Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
+    onSetShuffle?.call(shuffleMode != AudioServiceShuffleMode.none);
+  }
 
   @override
   Future<void> stop() async {

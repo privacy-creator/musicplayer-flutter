@@ -5,8 +5,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
+import 'app_localizations_it.dart';
 import 'app_localizations_nl.dart';
 
 // ignore_for_file: type=lint
@@ -97,6 +99,8 @@ abstract class AppL10n {
     Locale('nl'),
     Locale('en'),
     Locale('es'),
+    Locale('de'),
+    Locale('it'),
   ];
 
   /// No description provided for @appTitle.
@@ -417,6 +421,18 @@ abstract class AppL10n {
   /// **'Spanish'**
   String get langEs;
 
+  /// No description provided for @langDe.
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get langDe;
+
+  /// No description provided for @langIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Italian'**
+  String get langIt;
+
   /// No description provided for @navSettings.
   ///
   /// In en, this message translates to:
@@ -716,6 +732,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Downloading'**
   String get downloadingActive;
+
+  /// No description provided for @aboutSection.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutSection;
+
+  /// No description provided for @githubReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub Releases'**
+  String get githubReleases;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get updateAvailable;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
@@ -728,7 +762,7 @@ class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'es', 'nl'].contains(locale.languageCode);
+      <String>['de', 'en', 'es', 'it', 'nl'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppL10nDelegate old) => false;
@@ -737,10 +771,14 @@ class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
 AppL10n lookupAppL10n(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'de':
+      return AppL10nDe();
     case 'en':
       return AppL10nEn();
     case 'es':
       return AppL10nEs();
+    case 'it':
+      return AppL10nIt();
     case 'nl':
       return AppL10nNl();
   }
