@@ -244,4 +244,77 @@ class AppL10nEs extends AppL10n {
 
   @override
   String get shareLinkCopied => '¡Enlace copiado!';
+
+  @override
+  String get downloadsHeader => 'Descargas';
+
+  @override
+  String get noDownloads => 'Sin canciones descargadas';
+
+  @override
+  String get downloadRemoved => 'Eliminado de las descargas';
+
+  @override
+  String get navLive => 'En vivo';
+
+  @override
+  String get liveListening => 'Escucha en vivo';
+
+  @override
+  String get createRoom => 'Iniciar fiesta de escucha';
+
+  @override
+  String get joinRoom => 'Unirse a una sala';
+
+  @override
+  String get roomCode => 'Código de sala';
+
+  @override
+  String get enterRoomCode => 'Ingresa el código de invitación';
+
+  @override
+  String get participants => 'Participantes';
+
+  @override
+  String get noParticipants => 'Aún no hay participantes';
+
+  @override
+  String get host => 'Anfitrión';
+
+  @override
+  String get nowPlayingLabel => 'REPRODUCIENDO AHORA';
+
+  @override
+  String get noSongPlaying => 'Ninguna canción seleccionada';
+
+  @override
+  String get leaveRoom => 'Salir';
+
+  @override
+  String get endRoom => 'Terminar fiesta';
+
+  @override
+  String get endRoomConfirm =>
+      'Esto terminará la fiesta para todos los oyentes.';
+
+  @override
+  String get syncNow => 'Sincronizar ahora';
+
+  @override
+  String get inviteCode => 'CÓDIGO DE INVITACIÓN';
+
+  @override
+  String get roomCodeCopied => '¡Código copiado!';
+
+  @override
+  String get hostControls => 'CONTROLES DEL ANFITRIÓN';
+
+  @override
+  String get transferHost => 'Hacer anfitrión';
+
+  @override
+  String get roomEnded => 'La fiesta de escucha ha terminado';
+
+  @override
+  String get controlledByHost => 'Controlado por el anfitrión';
 }

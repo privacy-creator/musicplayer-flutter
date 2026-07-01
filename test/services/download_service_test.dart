@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -205,6 +206,131 @@ void main() {
       await service2.init();
 
       expect(service2.isDownloaded(1), true);
+    });
+
+    test('init() migreert oud formaat {id: path} naar nieuw formaat', () async {
+      final filePath = '${tempDir.path}/1.mp3';
+      await File(filePath).writeAsBytes([1, 2, 3]);
+      SharedPreferences.setMockInitialValues({
+        'downloaded_songs_v1': jsonEncode({'1': filePath}),
+      });
+      final service2 = DownloadService(testBaseDir: tempDir.path);
+      await service2.init();
+      expect(service2.isDownloaded(1), true);
+      expect(service2.getLocalPath(1), filePath);
+    });
+
+    test('init() slaat metadata op bij nieuw formaat', () async {
+      when(() => mockDio.download(
+            any(), any(),
+            onReceiveProgress: any(named: 'onReceiveProgress'),
+            cancelToken: any(named: 'cancelToken'),
+            deleteOnError: any(named: 'deleteOnError'),
+            lengthHeader: any(named: 'lengthHeader'),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          )).thenAnswer((inv) async {
+        final path = inv.positionalArguments[1] as String;
+        await File(path).writeAsBytes([1, 2, 3]);
+        return Response(
+            requestOptions: RequestOptions(path: ''), statusCode: 200);
+      });
+
+      await service.download(makeSong(1), mockDio);
+
+      final service2 = DownloadService(testBaseDir: tempDir.path);
+      await service2.init();
+
+      final songs = service2.downloadedSongs;
+      expect(songs.length, 1);
+      expect(songs.first.title, 'Song 1');
+      expect(songs.first.artist, 'Artist');
+    });
+  });
+
+  group('downloadedSongs', () {
+    void stubDownload(MockDio dio) {
+      when(() => dio.download(
+            any(), any(),
+            onReceiveProgress: any(named: 'onReceiveProgress'),
+            cancelToken: any(named: 'cancelToken'),
+            deleteOnError: any(named: 'deleteOnError'),
+            lengthHeader: any(named: 'lengthHeader'),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          )).thenAnswer((inv) async {
+        final path = inv.positionalArguments[1] as String;
+        await File(path).writeAsBytes([1, 2, 3]);
+        return Response(
+            requestOptions: RequestOptions(path: ''), statusCode: 200);
+      });
+    }
+
+    test('is leeg bij aanmaak', () {
+      expect(service.downloadedSongs, isEmpty);
+    });
+
+    test('bevat één item na download', () async {
+      stubDownload(mockDio);
+      await service.download(makeSong(42), mockDio);
+      expect(service.downloadedSongs.length, 1);
+      expect(service.downloadedSongs.first.id, 42);
+      expect(service.downloadedSongs.first.title, 'Song 42');
+      expect(service.downloadedSongs.first.artist, 'Artist');
+    });
+
+    test('verwijdert item na delete()', () async {
+      stubDownload(mockDio);
+      await service.download(makeSong(1), mockDio);
+      await service.delete(1);
+      expect(service.downloadedSongs, isEmpty);
+    });
+  });
+
+  group('getFileSizeBytes / totalDownloadSizeBytes', () {
+    void stubDownload(MockDio dio, List<int> bytes) {
+      when(() => dio.download(
+            any(), any(),
+            onReceiveProgress: any(named: 'onReceiveProgress'),
+            cancelToken: any(named: 'cancelToken'),
+            deleteOnError: any(named: 'deleteOnError'),
+            lengthHeader: any(named: 'lengthHeader'),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          )).thenAnswer((inv) async {
+        final path = inv.positionalArguments[1] as String;
+        await File(path).writeAsBytes(bytes);
+        return Response(
+            requestOptions: RequestOptions(path: ''), statusCode: 200);
+      });
+    }
+
+    test('getFileSizeBytes() is 0 voor onbekend nummer', () {
+      expect(service.getFileSizeBytes(99), 0);
+    });
+
+    test('getFileSizeBytes() geeft juiste bestandsgrootte terug', () async {
+      stubDownload(mockDio, [1, 2, 3, 4, 5]);
+      await service.download(makeSong(1), mockDio);
+      expect(service.getFileSizeBytes(1), 5);
+    });
+
+    test('totalDownloadSizeBytes is 0 zonder downloads', () {
+      expect(service.totalDownloadSizeBytes, 0);
+    });
+
+    test('totalDownloadSizeBytes telt alle bestanden op', () async {
+      stubDownload(mockDio, [1, 2, 3]);
+      await service.download(makeSong(1), mockDio);
+      await service.download(makeSong(2), mockDio);
+      expect(service.totalDownloadSizeBytes, 6);
+    });
+
+    test('totalDownloadSizeBytes neemt af na verwijderen', () async {
+      stubDownload(mockDio, [1, 2, 3]);
+      await service.download(makeSong(1), mockDio);
+      await service.delete(1);
+      expect(service.totalDownloadSizeBytes, 0);
     });
   });
 }

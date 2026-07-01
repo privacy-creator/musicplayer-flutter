@@ -51,6 +51,51 @@ void main() {
       await expectLater(service.clearCache(), completes);
     });
 
+    test('cachedTranslationCount telt alleen vertaalsleutels', () async {
+      SharedPreferences.setMockInitialValues({
+        'lyrics_translation_1_en': 'hello',
+        'lyrics_translation_2_nl': 'dag',
+        'other_key': 'keep',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final service = TranslationService(prefs);
+      expect(service.cachedTranslationCount, 2);
+    });
+
+    test('cachedTranslationCount is 0 zonder cache', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final service = TranslationService(prefs);
+      expect(service.cachedTranslationCount, 0);
+    });
+
+    test('cacheSizeBytes is groter dan 0 wanneer er cache is', () async {
+      SharedPreferences.setMockInitialValues({
+        'lyrics_translation_1_en': 'hello world',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final service = TranslationService(prefs);
+      expect(service.cacheSizeBytes, greaterThan(0));
+    });
+
+    test('cacheSizeBytes is 0 zonder cache', () async {
+      final prefs = await SharedPreferences.getInstance();
+      final service = TranslationService(prefs);
+      expect(service.cacheSizeBytes, 0);
+    });
+
+    test('cachedTranslationCount en cacheSizeBytes zijn 0 na clearCache',
+        () async {
+      SharedPreferences.setMockInitialValues({
+        'lyrics_translation_1_en': 'hello',
+        'lyrics_translation_2_nl': 'dag',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final service = TranslationService(prefs);
+      await service.clearCache();
+      expect(service.cachedTranslationCount, 0);
+      expect(service.cacheSizeBytes, 0);
+    });
+
     test('translate returns cached result without network call', () async {
       const cached = 'cached translation';
       SharedPreferences.setMockInitialValues({

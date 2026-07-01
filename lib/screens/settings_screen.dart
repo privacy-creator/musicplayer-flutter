@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
+import '../services/download_service.dart';
 import '../services/language_service.dart';
 import '../services/theme_service.dart';
 import '../services/translation_service.dart';
+
+String _formatBytes(int bytes) {
+  if (bytes == 0) return '0 B';
+  if (bytes < 1024) return '$bytes B';
+  if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+  return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+}
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -25,6 +33,9 @@ class SettingsScreen extends StatelessWidget {
           const Divider(height: 1, indent: 16, endIndent: 16),
           _SectionHeader(label: l10n.storageSection),
           _ClearCacheTile(),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          _SectionHeader(label: l10n.downloadsHeader),
+          _DownloadedSongsSection(),
           const SizedBox(height: 32),
           Center(
             child: Text(
@@ -219,23 +230,95 @@ class _LanguageTile extends StatelessWidget {
   }
 }
 
-class _ClearCacheTile extends StatelessWidget {
+class _ClearCacheTile extends StatefulWidget {
+  @override
+  State<_ClearCacheTile> createState() => _ClearCacheTileState();
+}
+
+class _ClearCacheTileState extends State<_ClearCacheTile> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final trans = context.read<TranslationService>();
+    final count = trans.cachedTranslationCount;
+    final sizeStr = _formatBytes(trans.cacheSizeBytes);
 
     return ListTile(
       leading: const Icon(Icons.delete_sweep_outlined),
       title: Text(l10n.clearCache),
-      subtitle: const Text('Translation cache'),
+      subtitle: Text('$count translations · $sizeStr'),
       onTap: () async {
-        await context.read<TranslationService>().clearCache();
+        await trans.clearCache();
         if (context.mounted) {
+          setState(() {});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(l10n.cacheCleared)),
           );
         }
       },
+    );
+  }
+}
+
+class _DownloadedSongsSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    final downloads = context.watch<DownloadService>();
+    final songs = downloads.downloadedSongs;
+    final totalSize = _formatBytes(downloads.totalDownloadSizeBytes);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+          child: Text(
+            '${songs.length} songs · $totalSize',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        if (songs.isEmpty)
+          ListTile(
+            leading: const Icon(Icons.download_outlined),
+            title: Text(l10n.noDownloads),
+          )
+        else
+          for (final song in songs) _DownloadedSongTile(song: song),
+      ],
+    );
+  }
+}
+
+class _DownloadedSongTile extends StatelessWidget {
+  final DownloadedSongInfo song;
+  const _DownloadedSongTile({required this.song});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    final downloads = context.read<DownloadService>();
+    final sizeStr = _formatBytes(downloads.getFileSizeBytes(song.id));
+
+    return ListTile(
+      leading: const Icon(Icons.music_note_outlined),
+      title: Text(song.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text('${song.artist} · $sizeStr'),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete_outline),
+        tooltip: l10n.tooltipDeleteDownload,
+        onPressed: () async {
+          await downloads.delete(song.id);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.downloadRemoved)),
+            );
+          }
+        },
+      ),
     );
   }
 }

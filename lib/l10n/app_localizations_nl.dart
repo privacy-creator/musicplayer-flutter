@@ -244,4 +244,77 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get shareLinkCopied => 'Link gekopieerd!';
+
+  @override
+  String get downloadsHeader => 'Downloads';
+
+  @override
+  String get noDownloads => 'Geen gedownloade nummers';
+
+  @override
+  String get downloadRemoved => 'Verwijderd uit downloads';
+
+  @override
+  String get navLive => 'Live';
+
+  @override
+  String get liveListening => 'Live Luisteren';
+
+  @override
+  String get createRoom => 'Luisterfeestje starten';
+
+  @override
+  String get joinRoom => 'Kamer joinen';
+
+  @override
+  String get roomCode => 'Kamercode';
+
+  @override
+  String get enterRoomCode => 'Voer uitnodigingscode in';
+
+  @override
+  String get participants => 'Deelnemers';
+
+  @override
+  String get noParticipants => 'Nog geen deelnemers';
+
+  @override
+  String get host => 'Host';
+
+  @override
+  String get nowPlayingLabel => 'NU BEZIG';
+
+  @override
+  String get noSongPlaying => 'Geen nummer geselecteerd';
+
+  @override
+  String get leaveRoom => 'Verlaten';
+
+  @override
+  String get endRoom => 'Feestje beëindigen';
+
+  @override
+  String get endRoomConfirm =>
+      'Dit beëindigt het feestje voor alle luisteraars.';
+
+  @override
+  String get syncNow => 'Nu synchroniseren';
+
+  @override
+  String get inviteCode => 'UITNODIGINGSCODE';
+
+  @override
+  String get roomCodeCopied => 'Kamercode gekopieerd!';
+
+  @override
+  String get hostControls => 'HOSTBEDIENING';
+
+  @override
+  String get transferHost => 'Maak host';
+
+  @override
+  String get roomEnded => 'Het luisterfeestje is beëindigd';
+
+  @override
+  String get controlledByHost => 'Bestuurd door host';
 }

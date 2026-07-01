@@ -244,4 +244,76 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get shareLinkCopied => 'Link copied!';
+
+  @override
+  String get downloadsHeader => 'Downloads';
+
+  @override
+  String get noDownloads => 'No downloaded songs';
+
+  @override
+  String get downloadRemoved => 'Removed from downloads';
+
+  @override
+  String get navLive => 'Live';
+
+  @override
+  String get liveListening => 'Live Listening';
+
+  @override
+  String get createRoom => 'Start Listening Party';
+
+  @override
+  String get joinRoom => 'Join a Room';
+
+  @override
+  String get roomCode => 'Room Code';
+
+  @override
+  String get enterRoomCode => 'Enter invite code';
+
+  @override
+  String get participants => 'Participants';
+
+  @override
+  String get noParticipants => 'No participants yet';
+
+  @override
+  String get host => 'Host';
+
+  @override
+  String get nowPlayingLabel => 'NOW PLAYING';
+
+  @override
+  String get noSongPlaying => 'No song selected';
+
+  @override
+  String get leaveRoom => 'Leave';
+
+  @override
+  String get endRoom => 'End Party';
+
+  @override
+  String get endRoomConfirm => 'This will end the party for all listeners.';
+
+  @override
+  String get syncNow => 'Sync Now';
+
+  @override
+  String get inviteCode => 'INVITE CODE';
+
+  @override
+  String get roomCodeCopied => 'Room code copied!';
+
+  @override
+  String get hostControls => 'HOST CONTROLS';
+
+  @override
+  String get transferHost => 'Make host';
+
+  @override
+  String get roomEnded => 'The listening party has ended';
+
+  @override
+  String get controlledByHost => 'Controlled by host';
 }

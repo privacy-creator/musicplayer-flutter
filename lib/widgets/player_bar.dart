@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/player_service.dart';
+import '../services/streaming_service.dart';
 import '../screens/player_detail_screen.dart';
 
 class PlayerBar extends StatefulWidget {
@@ -52,6 +53,8 @@ class _PlayerBarState extends State<PlayerBar> {
     final song = player.currentSong;
     if (song == null) return const SizedBox.shrink();
 
+    final streaming = context.watch<StreamingService>();
+    final locked = streaming.inRoom && !streaming.isHost;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -62,9 +65,31 @@ class _PlayerBarState extends State<PlayerBar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (locked)
+            Container(
+              width: double.infinity,
+              color: colorScheme.primaryContainer.withValues(alpha: 0.4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.lock_outline,
+                      size: 11, color: colorScheme.onPrimaryContainer),
+                  const SizedBox(width: 5),
+                  Text(
+                    AppL10n.of(context)!.controlledByHost,
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: colorScheme.onPrimaryContainer),
+                  ),
+                ],
+              ),
+            ),
           StreamBuilder<Duration>(
             stream: player.positionStream,
-            builder: (_, snap) {
+            builder: (ctx, snap) {
               final pos = snap.data ?? Duration.zero;
               final dur = player.duration ?? Duration.zero;
               final pct = dur.inMilliseconds > 0
@@ -82,7 +107,19 @@ class _PlayerBarState extends State<PlayerBar> {
                 ),
                 child: Slider(
                   value: pct,
-                  onChanged: (v) => player.seek(dur * v),
+                  onChanged: locked ? null : (v) => player.seek(dur * v),
+                  onChangeEnd: locked
+                      ? null
+                      : (v) {
+                          final s = ctx.read<StreamingService>();
+                          if (s.isHost) {
+                            s.updateState(
+                              trackId: player.currentSong?.id,
+                              position: (dur * v).inMilliseconds / 1000.0,
+                              isPlaying: player.isPlaying,
+                            );
+                          }
+                        },
                 ),
               );
             },
@@ -145,30 +182,41 @@ class _PlayerBarState extends State<PlayerBar> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.skip_previous,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7)),
-                  onPressed: player.playPrevious,
-                ),
-                _PlayPauseButton(
-                  isPlaying: player.isPlaying,
-                  onTap: player.togglePlayPause,
-                  colorScheme: colorScheme,
-                ),
-                IconButton(
-                  icon: Icon(Icons.skip_next,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7)),
-                  onPressed: player.playNext,
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.shuffle,
-                    color: player.shuffleMode
-                        ? colorScheme.primary
-                        : colorScheme.onSurface.withValues(alpha: 0.45),
-                    size: 20,
+                Opacity(
+                  opacity: locked ? 0.35 : 1.0,
+                  child: IgnorePointer(
+                    ignoring: locked,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.skip_previous,
+                              color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                          onPressed: player.playPrevious,
+                        ),
+                        _PlayPauseButton(
+                          isPlaying: player.isPlaying,
+                          onTap: player.togglePlayPause,
+                          colorScheme: colorScheme,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.skip_next,
+                              color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                          onPressed: player.playNext,
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.shuffle,
+                            color: player.shuffleMode
+                                ? colorScheme.primary
+                                : colorScheme.onSurface.withValues(alpha: 0.45),
+                            size: 20,
+                          ),
+                          onPressed: player.toggleShuffle,
+                        ),
+                      ],
+                    ),
                   ),
-                  onPressed: player.toggleShuffle,
                 ),
               ],
             ),
