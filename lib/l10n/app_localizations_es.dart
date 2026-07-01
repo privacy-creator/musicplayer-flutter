@@ -317,7 +317,4 @@ class AppL10nEs extends AppL10n {
 
   @override
   String get controlledByHost => 'Controlado por el anfitrión';
-
-  @override
-  String get menuSongInfo => 'Info de la canción';
 }

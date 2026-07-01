@@ -114,5 +114,6 @@
   "hostControls": "HOSTBEDIENING",
   "transferHost": "Maak host",
   "roomEnded": "Het luisterfeestje is beëindigd",
-  "controlledByHost": "Bestuurd door host"
+  "controlledByHost": "Bestuurd door host",
+  "menuSongInfo": "Nummer info"
 }
