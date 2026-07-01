@@ -50,73 +50,11 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
       appBar: AppBar(
         title: Text(song.title),
         actions: [
-          Builder(
-            builder: (ctx) => PopupMenuButton<String>(
-              iconSize: 28,
-              icon: const Icon(Icons.more_vert),
-              onSelected: (value) async {
-                if (value == 'share') {
-                  final url = '${AppConstants.websiteUrl}/song/${song.id}';
-                  final box = ctx.findRenderObject() as RenderBox?;
-                  await Share.share(
-                    url,
-                    subject: song.title,
-                    sharePositionOrigin: box != null
-                        ? box.localToGlobal(Offset.zero) & box.size
-                        : null,
-                  );
-                } else if (value == 'download') {
-                  downloads.download(song, context.read<ApiService>().dio);
-                } else if (value == 'delete_download') {
-                  downloads.delete(song.id);
-                }
-              },
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  value: 'share',
-                  child: Row(children: [
-                    const Icon(Icons.share, size: 20),
-                    const SizedBox(width: 12),
-                    Text(l10n.tooltipShare),
-                  ]),
-                ),
-                if (downloads.isDownloading(song.id))
-                  PopupMenuItem(
-                    enabled: false,
-                    child: Row(children: [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          value: downloads.getProgress(song.id),
-                          strokeWidth: 2.5,
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(l10n.tooltipDownload),
-                    ]),
-                  )
-                else if (downloads.isDownloaded(song.id))
-                  PopupMenuItem(
-                    value: 'delete_download',
-                    child: Row(children: [
-                      Icon(Icons.download_done, size: 20, color: colorScheme.primary),
-                      const SizedBox(width: 12),
-                      Text(l10n.tooltipDeleteDownload),
-                    ]),
-                  )
-                else
-                  PopupMenuItem(
-                    value: 'download',
-                    child: Row(children: [
-                      const Icon(Icons.download_outlined, size: 20),
-                      const SizedBox(width: 12),
-                      Text(l10n.tooltipDownload),
-                    ]),
-                  ),
-              ],
-            ),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            iconSize: 28,
+            onPressed: () => _showSongDetailMenu(
+                context, song, downloads, l10n, colorScheme),
           ),
         ],
       ),
@@ -264,4 +202,229 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
 
   Widget _placeholder(ColorScheme cs) => Center(
       child: Icon(Icons.music_note, color: cs.primary, size: 80));
+}
+
+void _showSongDetailMenu(
+  BuildContext context,
+  Song song,
+  DownloadService downloads,
+  AppL10n l10n,
+  ColorScheme colorScheme,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (sheetCtx) => _SongDetailMenuSheet(
+      song: song,
+      downloads: downloads,
+      l10n: l10n,
+      colorScheme: colorScheme,
+      onShare: () async {
+        Navigator.pop(sheetCtx);
+        final url = '${AppConstants.websiteUrl}/song/${song.id}';
+        final box = context.findRenderObject() as RenderBox?;
+        await Share.share(
+          url,
+          subject: song.title,
+          sharePositionOrigin:
+              box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+        );
+      },
+      onDownload: () {
+        Navigator.pop(sheetCtx);
+        downloads.download(song, context.read<ApiService>().dio);
+      },
+      onDeleteDownload: () {
+        Navigator.pop(sheetCtx);
+        downloads.delete(song.id);
+      },
+    ),
+  );
+}
+
+class _SongDetailMenuSheet extends StatelessWidget {
+  final Song song;
+  final DownloadService downloads;
+  final dynamic l10n;
+  final ColorScheme colorScheme;
+  final VoidCallback onShare;
+  final VoidCallback onDownload;
+  final VoidCallback onDeleteDownload;
+
+  const _SongDetailMenuSheet({
+    required this.song,
+    required this.downloads,
+    required this.l10n,
+    required this.colorScheme,
+    required this.onShare,
+    required this.onDownload,
+    required this.onDeleteDownload,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDownloading = downloads.isDownloading(song.id);
+    final isDownloaded = downloads.isDownloaded(song.id);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: song.imageUrl != null
+                      ? Image.network(
+                          song.imageUrl!,
+                          width: 54,
+                          height: 54,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => _thumb(),
+                        )
+                      : _thumb(),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        song.title,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        song.artist,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(
+              height: 1,
+              color: colorScheme.outline.withValues(alpha: 0.2)),
+          _DetailSheetItem(
+            icon: Icons.share_outlined,
+            label: l10n.tooltipShare,
+            colorScheme: colorScheme,
+            onTap: onShare,
+          ),
+          if (isDownloading)
+            _DetailSheetItem(
+              icon: Icons.downloading_outlined,
+              label: l10n.tooltipDownload,
+              colorScheme: colorScheme,
+              enabled: false,
+              trailing: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  value: downloads.getProgress(song.id),
+                  strokeWidth: 2,
+                  color: colorScheme.primary,
+                ),
+              ),
+              onTap: () {},
+            )
+          else if (isDownloaded)
+            _DetailSheetItem(
+              icon: Icons.download_done,
+              label: l10n.tooltipDeleteDownload,
+              colorScheme: colorScheme,
+              iconColor: colorScheme.primary,
+              onTap: onDeleteDownload,
+            )
+          else
+            _DetailSheetItem(
+              icon: Icons.download_outlined,
+              label: l10n.tooltipDownload,
+              colorScheme: colorScheme,
+              onTap: onDownload,
+            ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _thumb() => Container(
+        width: 54,
+        height: 54,
+        color: colorScheme.surfaceContainerHighest,
+        child: Icon(Icons.music_note, color: colorScheme.primary, size: 28),
+      );
+}
+
+class _DetailSheetItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final ColorScheme colorScheme;
+  final VoidCallback onTap;
+  final bool enabled;
+  final Color? iconColor;
+  final Widget? trailing;
+
+  const _DetailSheetItem({
+    required this.icon,
+    required this.label,
+    required this.colorScheme,
+    required this.onTap,
+    this.enabled = true,
+    this.iconColor,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = enabled
+        ? colorScheme.onSurface
+        : colorScheme.onSurface.withValues(alpha: 0.4);
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor ?? color, size: 22),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Text(label,
+                  style: TextStyle(color: color, fontSize: 16)),
+            ),
+            if (trailing != null) trailing!,
+          ],
+        ),
+      ),
+    );
+  }
 }
