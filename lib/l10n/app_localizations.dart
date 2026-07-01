@@ -537,12 +537,6 @@ abstract class AppL10n {
   /// **'Share'**
   String get tooltipShare;
 
-  /// No description provided for @menuSongInfo.
-  ///
-  /// In en, this message translates to:
-  /// **'Song info'**
-  String get menuSongInfo;
-
   /// No description provided for @shareLinkCopied.
   ///
   /// In en, this message translates to:
@@ -692,6 +686,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Controlled by host'**
   String get controlledByHost;
+
+  /// No description provided for @menuSongInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Song info'**
+  String get menuSongInfo;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

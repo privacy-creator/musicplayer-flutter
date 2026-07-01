@@ -243,9 +243,6 @@ class AppL10nEn extends AppL10n {
   String get tooltipShare => 'Share';
 
   @override
-  String get menuSongInfo => 'Song info';
-
-  @override
   String get shareLinkCopied => 'Link copied!';
 
   @override
@@ -319,4 +316,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get controlledByHost => 'Controlled by host';
+
+  @override
+  String get menuSongInfo => 'Song info';
 }
