@@ -47,41 +47,11 @@ class PlayerDetailScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: l10n.tooltipQueue,
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(Icons.queue_music, color: colorScheme.onSurface),
-                if (context.watch<PlayerService>().queue.isNotEmpty)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${context.read<PlayerService>().queue.length}',
-                          style: const TextStyle(
-                              fontSize: 9,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const QueueScreen()),
-            ),
+            icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
+            iconSize: 28,
+            onPressed: () => _showPlayerMenu(
+                context, song, downloads, player, l10n, colorScheme),
           ),
-          _DownloadButton(song: song, downloads: downloads),
         ],
       ),
       body: SafeArea(
@@ -285,44 +255,227 @@ class PlayerDetailScreen extends StatelessWidget {
       child: Icon(Icons.music_note, color: cs.primary, size: 80));
 }
 
-class _DownloadButton extends StatelessWidget {
+void _showPlayerMenu(
+  BuildContext context,
+  Song song,
+  DownloadService downloads,
+  PlayerService player,
+  AppL10n l10n,
+  ColorScheme colorScheme,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (sheetCtx) => _PlayerMenuSheet(
+      song: song,
+      downloads: downloads,
+      player: player,
+      l10n: l10n,
+      colorScheme: colorScheme,
+      onQueue: () {
+        Navigator.pop(sheetCtx);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const QueueScreen()));
+      },
+      onDownload: () {
+        Navigator.pop(sheetCtx);
+        downloads.download(song, context.read<ApiService>().dio);
+      },
+      onDeleteDownload: () {
+        Navigator.pop(sheetCtx);
+        downloads.delete(song.id);
+      },
+    ),
+  );
+}
+
+class _PlayerMenuSheet extends StatelessWidget {
   final Song song;
   final DownloadService downloads;
+  final PlayerService player;
+  final AppL10n l10n;
+  final ColorScheme colorScheme;
+  final VoidCallback onQueue;
+  final VoidCallback onDownload;
+  final VoidCallback onDeleteDownload;
 
-  const _DownloadButton({required this.song, required this.downloads});
+  const _PlayerMenuSheet({
+    required this.song,
+    required this.downloads,
+    required this.player,
+    required this.l10n,
+    required this.colorScheme,
+    required this.onQueue,
+    required this.onDownload,
+    required this.onDeleteDownload,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppL10n.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
+    final isDownloading = downloads.isDownloading(song.id);
+    final isDownloaded = downloads.isDownloaded(song.id);
+    final queueCount = player.queue.length;
 
-    if (downloads.isDownloading(song.id)) {
-      return Padding(
-        padding: const EdgeInsets.all(14),
-        child: SizedBox(
-          width: 22,
-          height: 22,
-          child: CircularProgressIndicator(
-            value: downloads.getProgress(song.id),
-            strokeWidth: 2.5,
-            color: colorScheme.primary,
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: song.imageUrl != null
+                      ? Image.network(
+                          song.imageUrl!,
+                          width: 54,
+                          height: 54,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => _thumb(),
+                        )
+                      : _thumb(),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        song.title,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        song.artist,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(
+              height: 1, color: colorScheme.outline.withValues(alpha: 0.2)),
+          _PlayerSheetItem(
+            icon: Icons.queue_music_outlined,
+            label: queueCount > 0
+                ? '${l10n.tooltipQueue} ($queueCount)'
+                : l10n.tooltipQueue,
+            colorScheme: colorScheme,
+            onTap: onQueue,
+          ),
+          if (isDownloading)
+            _PlayerSheetItem(
+              icon: Icons.downloading_outlined,
+              label: l10n.tooltipDownload,
+              colorScheme: colorScheme,
+              enabled: false,
+              trailing: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  value: downloads.getProgress(song.id),
+                  strokeWidth: 2,
+                  color: colorScheme.primary,
+                ),
+              ),
+              onTap: () {},
+            )
+          else if (isDownloaded)
+            _PlayerSheetItem(
+              icon: Icons.download_done,
+              label: l10n.tooltipDeleteDownload,
+              colorScheme: colorScheme,
+              iconColor: colorScheme.primary,
+              onTap: onDeleteDownload,
+            )
+          else
+            _PlayerSheetItem(
+              icon: Icons.download_outlined,
+              label: l10n.tooltipDownload,
+              colorScheme: colorScheme,
+              onTap: onDownload,
+            ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _thumb() => Container(
+        width: 54,
+        height: 54,
+        color: colorScheme.surfaceContainerHighest,
+        child: Icon(Icons.music_note, color: colorScheme.primary, size: 28),
+      );
+}
+
+class _PlayerSheetItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final ColorScheme colorScheme;
+  final VoidCallback onTap;
+  final bool enabled;
+  final Color? iconColor;
+  final Widget? trailing;
+
+  const _PlayerSheetItem({
+    required this.icon,
+    required this.label,
+    required this.colorScheme,
+    required this.onTap,
+    this.enabled = true,
+    this.iconColor,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = enabled
+        ? colorScheme.onSurface
+        : colorScheme.onSurface.withValues(alpha: 0.4);
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor ?? color, size: 22),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Text(label,
+                  style: TextStyle(color: color, fontSize: 16)),
+            ),
+            if (trailing != null) trailing!,
+          ],
         ),
-      );
-    }
-
-    if (downloads.isDownloaded(song.id)) {
-      return IconButton(
-        tooltip: l10n.tooltipDeleteDownload,
-        icon: Icon(Icons.download_done, color: colorScheme.primary),
-        onPressed: () => downloads.delete(song.id),
-      );
-    }
-
-    return IconButton(
-      tooltip: l10n.tooltipDownload,
-      icon: const Icon(Icons.download_outlined),
-      onPressed: () => downloads.download(song, context.read<ApiService>().dio),
+      ),
     );
   }
 }
