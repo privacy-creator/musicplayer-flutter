@@ -191,6 +191,7 @@ class _LanguageTile extends StatelessWidget {
       onTap: () {
         showModalBottomSheet<void>(
           context: context,
+          isScrollControlled: true,
           builder: (ctx) => SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -205,33 +206,44 @@ class _LanguageTile extends StatelessWidget {
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  for (final (code, flag, label) in options)
-                    ListTile(
-                      leading: Text(flag,
-                          style: const TextStyle(fontSize: 24)),
-                      title: Text(
-                        label,
-                        style: TextStyle(
-                          color: code == lang.locale.languageCode
-                              ? Theme.of(context).colorScheme.primary
-                              : null,
-                          fontWeight: code == lang.locale.languageCode
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final (code, flag, label) in options)
+                            ListTile(
+                              leading: Text(flag,
+                                  style: const TextStyle(fontSize: 24)),
+                              title: Text(
+                                label,
+                                style: TextStyle(
+                                  color: code == lang.locale.languageCode
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                  fontWeight: code == lang.locale.languageCode
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                              trailing: code == lang.locale.languageCode
+                                  ? Icon(Icons.check,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
+                                      size: 18)
+                                  : null,
+                              onTap: () {
+                                context
+                                    .read<LanguageService>()
+                                    .setLocale(Locale(code));
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                        ],
                       ),
-                      trailing: code == lang.locale.languageCode
-                          ? Icon(Icons.check,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 18)
-                          : null,
-                      onTap: () {
-                        context
-                            .read<LanguageService>()
-                            .setLocale(Locale(code));
-                        Navigator.pop(ctx);
-                      },
                     ),
+                  ),
                 ],
               ),
             ),

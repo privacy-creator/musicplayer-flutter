@@ -147,10 +147,7 @@ void main() {
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(ListTile, 'Language'));
-      await tester.pump();
-      // Use a fixed duration instead of pumpAndSettle to avoid font-load
-      // loops triggered by emoji flag characters in the language list.
-      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
       expect(find.text('Nederlands'), findsAtLeastNWidgets(1));
       expect(find.text('English'), findsOneWidget);
       expect(find.text('Español'), findsOneWidget);
@@ -162,8 +159,7 @@ void main() {
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(ListTile, 'Language'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('English'));
       await tester.pumpAndSettle();
       expect(lang.locale, const Locale('en'));
