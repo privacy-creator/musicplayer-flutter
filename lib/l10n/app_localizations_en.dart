@@ -316,4 +316,10 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get controlledByHost => 'Controlled by host';
+
+  @override
+  String get menuSongInfo => 'Song info';
+
+  @override
+  String get downloadAll => 'Download all';
 }

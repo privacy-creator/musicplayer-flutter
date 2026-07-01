@@ -6,6 +6,7 @@ import '../constants.dart';
 import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
+import '../services/download_service.dart';
 import '../services/player_service.dart';
 import '../services/streaming_service.dart';
 import '../widgets/global_app_bar_actions.dart';
@@ -108,6 +109,16 @@ class _SongsScreenState extends State<SongsScreen> {
     }
   }
 
+  void _downloadAll() {
+    final downloads = context.read<DownloadService>();
+    final api = context.read<ApiService>();
+    for (final song in _songs) {
+      if (!downloads.isDownloaded(song.id) && !downloads.isDownloading(song.id)) {
+        downloads.download(song, api.dio);
+      }
+    }
+  }
+
   Future<void> _refreshOnline() async {
     final online = await _hasInternet();
     if (!online) {
@@ -134,7 +145,21 @@ class _SongsScreenState extends State<SongsScreen> {
       appBar: AppBar(
         title: Text(l10n.navSongs),
         actions: [
-          const GlobalAppBarActions(),
+          GlobalAppBarActions(
+            extraItems: _songs.isEmpty
+                ? []
+                : [
+                    AppBarMenuItem(
+                      icon: Icons.download_for_offline_outlined,
+                      label: (_searchCtrl.text.isNotEmpty ||
+                              _language.isNotEmpty ||
+                              _genre.isNotEmpty)
+                          ? '${l10n.downloadAll} (${_songs.length})'
+                          : l10n.downloadAll,
+                      onTap: _downloadAll,
+                    ),
+                  ],
+          ),
           IconButton(
             tooltip: l10n.tooltipRefresh,
             icon: const Icon(Icons.refresh),

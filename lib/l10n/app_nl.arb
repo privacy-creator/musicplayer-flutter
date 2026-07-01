@@ -115,5 +115,6 @@
   "transferHost": "Maak host",
   "roomEnded": "Het luisterfeestje is beëindigd",
   "controlledByHost": "Bestuurd door host",
-  "menuSongInfo": "Nummer info"
+  "menuSongInfo": "Nummer info",
+  "downloadAll": "Alles downloaden"
 }

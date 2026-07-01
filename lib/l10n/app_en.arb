@@ -135,5 +135,6 @@
   "transferHost": "Make host",
   "roomEnded": "The listening party has ended",
   "controlledByHost": "Controlled by host",
-  "menuSongInfo": "Song info"
+  "menuSongInfo": "Song info",
+  "downloadAll": "Download all"
 }
