@@ -375,11 +375,14 @@ Future<void> _shareSong(BuildContext context, Song song) async {
 
 void _showSongMenu(BuildContext context, Song song) {
   final l10n = AppL10n.of(context)!;
+  final downloads = context.read<DownloadService>();
+  final api = context.read<ApiService>();
   showModalBottomSheet<void>(
     context: context,
     backgroundColor: Colors.transparent,
     builder: (sheetCtx) => _SongMenuSheet(
       song: song,
+      downloads: downloads,
       onQueue: () {
         Navigator.pop(sheetCtx);
         context.read<PlayerService>().addToQueue(song);
@@ -396,6 +399,14 @@ void _showSongMenu(BuildContext context, Song song) {
       onShare: () async {
         Navigator.pop(sheetCtx);
         await _shareSong(context, song);
+      },
+      onDownload: () {
+        Navigator.pop(sheetCtx);
+        downloads.download(song, api.dio);
+      },
+      onDeleteDownload: () {
+        Navigator.pop(sheetCtx);
+        downloads.delete(song.id);
       },
     ),
   );
@@ -516,15 +527,21 @@ class _SongCard extends StatelessWidget {
 
 class _SongMenuSheet extends StatelessWidget {
   final Song song;
+  final DownloadService downloads;
   final VoidCallback onQueue;
   final VoidCallback onInfo;
   final VoidCallback onShare;
+  final VoidCallback onDownload;
+  final VoidCallback onDeleteDownload;
 
   const _SongMenuSheet({
     required this.song,
+    required this.downloads,
     required this.onQueue,
     required this.onInfo,
     required this.onShare,
+    required this.onDownload,
+    required this.onDeleteDownload,
   });
 
   @override
@@ -614,6 +631,35 @@ class _SongMenuSheet extends StatelessWidget {
             label: l10n.tooltipShare,
             onTap: onShare,
           ),
+          if (downloads.isDownloading(song.id))
+            _SheetItem(
+              icon: Icons.downloading_outlined,
+              label: l10n.tooltipDownload,
+              enabled: false,
+              trailing: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  value: downloads.getProgress(song.id),
+                  strokeWidth: 2,
+                  color: colorScheme.primary,
+                ),
+              ),
+              onTap: () {},
+            )
+          else if (downloads.isDownloaded(song.id))
+            _SheetItem(
+              icon: Icons.download_done,
+              label: l10n.tooltipDeleteDownload,
+              iconColor: colorScheme.primary,
+              onTap: onDeleteDownload,
+            )
+          else
+            _SheetItem(
+              icon: Icons.download_outlined,
+              label: l10n.tooltipDownload,
+              onTap: onDownload,
+            ),
           SizedBox(height: MediaQuery.of(context).padding.bottom + 12),
         ],
       ),
@@ -632,28 +678,40 @@ class _SheetItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool enabled;
+  final Color? iconColor;
+  final Widget? trailing;
 
   const _SheetItem({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.enabled = true,
+    this.iconColor,
+    this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final color = enabled
+        ? colorScheme.onSurface
+        : colorScheme.onSurface.withValues(alpha: 0.4);
     return InkWell(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
-            Icon(icon, color: colorScheme.onSurface, size: 22),
+            Icon(icon, color: iconColor ?? color, size: 22),
             const SizedBox(width: 18),
-            Text(
-              label,
-              style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(color: color, fontSize: 16),
+              ),
             ),
+            if (trailing != null) trailing!,
           ],
         ),
       ),
