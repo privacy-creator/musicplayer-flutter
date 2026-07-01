@@ -323,4 +323,13 @@ class AppL10nEs extends AppL10n {
 
   @override
   String get downloadAll => 'Descargar todo';
+
+  @override
+  String get deleteAllDownloads => 'Eliminar todas las descargas';
+
+  @override
+  String get allDownloadsRemoved => 'Todas las descargas eliminadas';
+
+  @override
+  String get downloadingActive => 'Descargando';
 }

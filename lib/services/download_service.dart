@@ -35,6 +35,8 @@ class DownloadService extends ChangeNotifier {
   String? getLocalPath(int songId) => _downloads[songId]?['path'];
   bool isDownloading(int songId) => _progress.containsKey(songId);
   double getProgress(int songId) => _progress[songId] ?? 0.0;
+  bool get hasActiveDownloads => _progress.isNotEmpty;
+  Map<int, double> get activeDownloads => Map.unmodifiable(_progress);
 
   List<DownloadedSongInfo> get downloadedSongs => _downloads.entries
       .map((e) => DownloadedSongInfo(
@@ -127,6 +129,20 @@ class DownloadService extends ChangeNotifier {
       _progress.remove(song.id);
       notifyListeners();
     }
+  }
+
+  Future<void> deleteAll() async {
+    for (final entry in _downloads.values) {
+      final path = entry['path'];
+      if (path != null) {
+        final f = File(path);
+        if (f.existsSync()) f.deleteSync();
+      }
+    }
+    _downloads.clear();
+    _sizes.clear();
+    await _persist();
+    notifyListeners();
   }
 
   Future<void> delete(int songId) async {

@@ -116,5 +116,8 @@
   "roomEnded": "La fiesta de escucha ha terminado",
   "controlledByHost": "Controlado por el anfitrión",
   "menuSongInfo": "Info de la canción",
-  "downloadAll": "Descargar todo"
+  "downloadAll": "Descargar todo",
+  "deleteAllDownloads": "Eliminar todas las descargas",
+  "allDownloadsRemoved": "Todas las descargas eliminadas",
+  "downloadingActive": "Descargando"
 }

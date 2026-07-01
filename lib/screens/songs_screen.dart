@@ -185,6 +185,7 @@ class _SongsScreenState extends State<SongsScreen> {
       ),
       body: Column(
         children: [
+          const _DownloadProgressBanner(),
           if (_offline)
             Container(
               width: double.infinity,
@@ -371,6 +372,60 @@ Future<void> _shareSong(BuildContext context, Song song) async {
     sharePositionOrigin:
         box != null ? box.localToGlobal(Offset.zero) & box.size : null,
   );
+}
+
+class _DownloadProgressBanner extends StatelessWidget {
+  const _DownloadProgressBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final downloads = context.watch<DownloadService>();
+    if (!downloads.hasActiveDownloads) return const SizedBox.shrink();
+
+    final active = downloads.activeDownloads;
+    final count = active.length;
+    final avgProgress =
+        active.values.fold(0.0, (s, v) => s + v) / count;
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppL10n.of(context)!;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: double.infinity,
+          color: colorScheme.primaryContainer,
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+          child: Row(
+            children: [
+              Icon(Icons.download_outlined,
+                  color: colorScheme.onPrimaryContainer, size: 14),
+              const SizedBox(width: 6),
+              Text(
+                '${l10n.downloadingActive} ($count)',
+                style: TextStyle(
+                    color: colorScheme.onPrimaryContainer, fontSize: 12),
+              ),
+              const Spacer(),
+              Text(
+                '${(avgProgress * 100).toInt()}%',
+                style: TextStyle(
+                    color: colorScheme.onPrimaryContainer, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        LinearProgressIndicator(
+          value: avgProgress,
+          minHeight: 3,
+          backgroundColor:
+              colorScheme.primaryContainer,
+          valueColor:
+              AlwaysStoppedAnimation(colorScheme.primary),
+        ),
+      ],
+    );
+  }
 }
 
 void _showSongMenu(BuildContext context, Song song) {

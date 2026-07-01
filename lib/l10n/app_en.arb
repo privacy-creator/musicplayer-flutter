@@ -136,5 +136,8 @@
   "roomEnded": "The listening party has ended",
   "controlledByHost": "Controlled by host",
   "menuSongInfo": "Song info",
-  "downloadAll": "Download all"
+  "downloadAll": "Download all",
+  "deleteAllDownloads": "Delete all downloads",
+  "allDownloadsRemoved": "All downloads removed",
+  "downloadingActive": "Downloading"
 }

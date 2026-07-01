@@ -116,5 +116,8 @@
   "roomEnded": "Het luisterfeestje is beëindigd",
   "controlledByHost": "Bestuurd door host",
   "menuSongInfo": "Nummer info",
-  "downloadAll": "Alles downloaden"
+  "downloadAll": "Alles downloaden",
+  "deleteAllDownloads": "Alle downloads verwijderen",
+  "allDownloadsRemoved": "Alle downloads verwijderd",
+  "downloadingActive": "Bezig met downloaden"
 }

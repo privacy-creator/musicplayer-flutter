@@ -286,8 +286,45 @@ class _DownloadedSongsSection extends StatelessWidget {
             leading: const Icon(Icons.download_outlined),
             title: Text(l10n.noDownloads),
           )
-        else
+        else ...[
           for (final song in songs) _DownloadedSongTile(song: song),
+          ListTile(
+            leading: const Icon(Icons.delete_forever_outlined,
+                color: Colors.redAccent),
+            title: Text(l10n.deleteAllDownloads,
+                style: const TextStyle(color: Colors.redAccent)),
+            onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(l10n.deleteAllDownloads),
+                  content: Text(
+                      '${songs.length} ${l10n.songCount(songs.length)}'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                          backgroundColor: Colors.redAccent),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(l10n.deleteAllDownloads),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true && context.mounted) {
+                await context.read<DownloadService>().deleteAll();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.allDownloadsRemoved)),
+                  );
+                }
+              }
+            },
+          ),
+        ],
       ],
     );
   }

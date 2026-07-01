@@ -698,6 +698,9 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Download all'**
   String get downloadAll;
+  String get deleteAllDownloads;
+  String get allDownloadsRemoved;
+  String get downloadingActive;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
