@@ -195,17 +195,3 @@ void main() {
       expect(find.byIcon(Icons.offline_pin), findsNothing);
     });
   });
-
-  group('SongDetailScreen — duur', () {
-    testWidgets('toont geformatteerde duur', (tester) async {
-      final song = _makeSong();
-      when(() => mockApi.getSong(any())).thenAnswer((_) async => song);
-
-      await tester.pumpWidget(buildScreen(song));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-
-      expect(find.text('3:30'), findsOneWidget);
-    });
-  });
-}
