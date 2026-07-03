@@ -67,7 +67,7 @@ void main() {
       });
 
       final dl = DownloadService(testBaseDir: tempDir.path);
-      await dl.init();
+      await tester.runAsync(() => dl.init());
 
       await tester.pumpWidget(_buildDownloads(dl));
       await tester.pump();
@@ -92,7 +92,7 @@ void main() {
       });
 
       final dl = DownloadService(testBaseDir: tempDir.path);
-      await dl.init();
+      await tester.runAsync(() => dl.init());
 
       await tester.pumpWidget(_buildDownloads(dl));
       await tester.pump();
@@ -116,7 +116,7 @@ void main() {
       });
 
       final dl = DownloadService(testBaseDir: tempDir.path);
-      await dl.init();
+      await tester.runAsync(() => dl.init());
 
       await tester.pumpWidget(_buildDownloads(dl));
       await tester.pump();
@@ -149,7 +149,7 @@ void main() {
       });
 
       final dl = DownloadService(testBaseDir: tempDir.path);
-      await dl.init();
+      await tester.runAsync(() => dl.init());
 
       await tester.pumpWidget(_buildDownloads(dl));
       await tester.pump();

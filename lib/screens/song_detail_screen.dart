@@ -66,25 +66,31 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Album art
-                  Container(
-                    width: 220,
-                    height: 220,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: colorScheme.surfaceContainerHighest,
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.primary.withValues(alpha: 0.25),
-                          blurRadius: 40,
-                          offset: const Offset(0, 12),
+                  LayoutBuilder(
+                    builder: (_, c) {
+                      final size = (c.maxWidth * 0.6).clamp(160.0, 320.0);
+                      return Container(
+                        width: size,
+                        height: size,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: colorScheme.surfaceContainerHighest,
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withValues(alpha: 0.25),
+                              blurRadius: 40,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    clipBehavior: Clip.hardEdge,
-                    child: song.imageUrl != null
-                        ? Image.network(song.imageUrl!, fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => _placeholder(colorScheme))
-                        : _placeholder(colorScheme),
+                        clipBehavior: Clip.hardEdge,
+                        child: song.imageUrl != null
+                            ? Image.network(song.imageUrl!, fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) =>
+                                    _placeholder(colorScheme))
+                            : _placeholder(colorScheme),
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
 
@@ -106,11 +112,6 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                     ].join(' • '),
                     style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
                     textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    song.formattedDuration,
-                    style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
                   ),
 
                   // Offline badge
@@ -138,57 +139,63 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
                   const SizedBox(height: 28),
 
                   // Play button
-                  SizedBox(
-                    width: 200,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      icon: Icon(isCurrent && player.isPlaying
-                          ? Icons.pause
-                          : Icons.play_arrow),
-                      label: Text(isCurrent && player.isPlaying
-                          ? l10n.btnPause
-                          : l10n.btnPlay),
-                      onPressed: () =>
-                          context.read<PlayerService>().playSong(song, [song], 0),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 320),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton.icon(
+                        icon: Icon(isCurrent && player.isPlaying
+                            ? Icons.pause
+                            : Icons.play_arrow),
+                        label: Text(isCurrent && player.isPlaying
+                            ? l10n.btnPause
+                            : l10n.btnPlay),
+                        onPressed: () =>
+                            context.read<PlayerService>().playSong(song, [song], 0),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   // Add to queue button
-                  SizedBox(
-                    width: 200,
-                    height: 44,
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.playlist_add, size: 20),
-                      label: Text(l10n.btnAddToQueue),
-                      onPressed: () {
-                        context.read<PlayerService>().addToQueue(song);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.songAdded(song.title)),
-                            action: SnackBarAction(
-                              label: l10n.queue,
-                              textColor: colorScheme.primary,
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const QueueScreen()),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 320),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 44,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.playlist_add, size: 20),
+                        label: Text(l10n.btnAddToQueue),
+                        onPressed: () {
+                          context.read<PlayerService>().addToQueue(song);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.songAdded(song.title)),
+                              action: SnackBarAction(
+                                label: l10n.queue,
+                                textColor: colorScheme.primary,
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const QueueScreen()),
+                                ),
                               ),
+                              duration: const Duration(seconds: 3),
                             ),
-                            duration: const Duration(seconds: 3),
-                          ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colorScheme.primary,
-                        side: BorderSide(color: colorScheme.primary),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colorScheme.primary,
+                          side: BorderSide(color: colorScheme.primary),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                        ),
                       ),
                     ),
                   ),

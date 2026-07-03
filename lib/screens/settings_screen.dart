@@ -1,3 +1,4 @@
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -172,11 +173,11 @@ class _LanguageTile extends StatelessWidget {
     final lang = context.watch<LanguageService>();
 
     final options = [
-      ('nl', '🇳🇱', 'Nederlands'),
-      ('en', '🇬🇧', 'English'),
-      ('es', '🇪🇸', 'Español'),
-      ('de', '🇩🇪', 'Deutsch'),
-      ('it', '🇮🇹', 'Italiano'),
+      ('nl', 'NL', 'Nederlands'),
+      ('en', 'GB', 'English'),
+      ('es', 'ES', 'Español'),
+      ('de', 'DE', 'Deutsch'),
+      ('it', 'IT', 'Italiano'),
     ];
 
     final currentLabel = options
@@ -213,8 +214,8 @@ class _LanguageTile extends StatelessWidget {
                         children: [
                           for (final (code, flag, label) in options)
                             ListTile(
-                              leading: Text(flag,
-                                  style: const TextStyle(fontSize: 24)),
+                              leading: CountryFlag.fromCountryCode(
+                                  flag, height: 22, width: 30),
                               title: Text(
                                 label,
                                 style: TextStyle(

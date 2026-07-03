@@ -55,201 +55,255 @@ class PlayerDetailScreen extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-
-              // Album art
-              Center(
-                child: Container(
-                  width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 300, maxHeight: 300),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: colorScheme.surfaceContainerHighest,
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.2),
-                        blurRadius: 60,
-                        offset: const Offset(0, 20),
-                      ),
-                    ],
-                  ),
-                  clipBehavior: Clip.hardEdge,
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: song.imageUrl != null
-                        ? Image.network(song.imageUrl!, fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => _placeholder(colorScheme))
-                        : _placeholder(colorScheme),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // Title + artist + shuffle
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          song.title,
-                          style: TextStyle(
-                              color: colorScheme.onSurface,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          song.artist,
-                          style: TextStyle(
-                              color: colorScheme.onSurfaceVariant, fontSize: 15),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.shuffle,
-                      color: locked
-                          ? colorScheme.onSurface.withValues(alpha: 0.2)
-                          : player.shuffleMode
-                              ? colorScheme.primary
-                              : colorScheme.onSurface.withValues(alpha: 0.45),
-                    ),
-                    onPressed: locked ? null : player.toggleShuffle,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Progress bar + time
-              StreamBuilder<Duration>(
-                stream: player.positionStream,
-                builder: (ctx, snap) {
-                  final pos = snap.data ?? Duration.zero;
-                  final dur = player.duration ?? Duration.zero;
-                  final pct = dur.inMilliseconds > 0
-                      ? (pos.inMilliseconds / dur.inMilliseconds)
-                          .clamp(0.0, 1.0)
-                      : 0.0;
-                  return Column(
-                    children: [
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          trackHeight: 4,
-                          thumbShape:
-                              const RoundSliderThumbShape(enabledThumbRadius: 7),
-                          overlayShape:
-                              const RoundSliderOverlayShape(overlayRadius: 16),
-                          activeTrackColor: colorScheme.primary,
-                          inactiveTrackColor:
-                              colorScheme.onSurface.withValues(alpha: 0.12),
-                          thumbColor: colorScheme.onSurface,
-                          overlayColor:
-                              colorScheme.onSurface.withValues(alpha: 0.12),
-                        ),
-                        child: Slider(
-                          value: pct,
-                          onChanged: locked ? null : (v) => player.seek(dur * v),
-                          onChangeEnd: locked
-                              ? null
-                              : (v) {
-                                  final s = ctx.read<StreamingService>();
-                                  if (s.isHost) {
-                                    s.updateState(
-                                      trackId: player.currentSong?.id,
-                                      position:
-                                          (dur * v).inMilliseconds / 1000.0,
-                                      isPlaying: player.isPlaying,
-                                    );
-                                  }
-                                },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(_fmt(pos),
-                                style: TextStyle(
-                                    color: colorScheme.onSurfaceVariant,
-                                    fontSize: 12)),
-                            Text(_fmt(dur),
-                                style: TextStyle(
-                                    color: colorScheme.onSurfaceVariant,
-                                    fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              // Controls
-              Opacity(
-                opacity: locked ? 0.35 : 1.0,
-                child: IgnorePointer(
-                  ignoring: locked,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        iconSize: 36,
-                        icon: Icon(Icons.skip_previous,
-                            color: colorScheme.onSurface.withValues(alpha: 0.8)),
-                        onPressed: player.playPrevious,
-                      ),
-                      GestureDetector(
-                        onTap: player.togglePlayPause,
-                        child: Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            player.isPlaying ? Icons.pause : Icons.play_arrow,
-                            color: Colors.black,
-                            size: 36,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        iconSize: 36,
-                        icon: Icon(Icons.skip_next,
-                            color: colorScheme.onSurface.withValues(alpha: 0.8)),
-                        onPressed: player.playNext,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              LyricsSection(song: song),
-
-              const SizedBox(height: 36),
-            ],
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isTablet = constraints.maxWidth >= 600;
+            return isTablet
+                ? _tabletBody(context, song, player, locked, l10n, colorScheme)
+                : _phoneBody(context, song, player, locked, l10n, colorScheme);
+          },
         ),
       ),
     );
   }
+
+  Widget _albumArt(Song song, ColorScheme colorScheme, double size) =>
+      Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: colorScheme.surfaceContainerHighest,
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.primary.withValues(alpha: 0.2),
+              blurRadius: 60,
+              offset: const Offset(0, 20),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: song.imageUrl != null
+            ? Image.network(song.imageUrl!, fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => _placeholder(colorScheme))
+            : _placeholder(colorScheme),
+      );
+
+  Widget _controls(
+    BuildContext context,
+    Song song,
+    PlayerService player,
+    bool locked,
+    AppL10n l10n,
+    ColorScheme colorScheme,
+  ) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      song.title,
+                      style: TextStyle(
+                          color: colorScheme.onSurface,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      song.artist,
+                      style: TextStyle(
+                          color: colorScheme.onSurfaceVariant, fontSize: 15),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.shuffle,
+                  color: locked
+                      ? colorScheme.onSurface.withValues(alpha: 0.2)
+                      : player.shuffleMode
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.45),
+                ),
+                onPressed: locked ? null : player.toggleShuffle,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          StreamBuilder<Duration>(
+            stream: player.positionStream,
+            builder: (ctx, snap) {
+              final pos = snap.data ?? Duration.zero;
+              final dur = player.duration ?? Duration.zero;
+              final pct = dur.inMilliseconds > 0
+                  ? (pos.inMilliseconds / dur.inMilliseconds).clamp(0.0, 1.0)
+                  : 0.0;
+              return Column(
+                children: [
+                  SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      trackHeight: 4,
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 7),
+                      overlayShape:
+                          const RoundSliderOverlayShape(overlayRadius: 16),
+                      activeTrackColor: colorScheme.primary,
+                      inactiveTrackColor:
+                          colorScheme.onSurface.withValues(alpha: 0.12),
+                      thumbColor: colorScheme.onSurface,
+                      overlayColor:
+                          colorScheme.onSurface.withValues(alpha: 0.12),
+                    ),
+                    child: Slider(
+                      value: pct,
+                      onChanged: locked ? null : (v) => player.seek(dur * v),
+                      onChangeEnd: locked
+                          ? null
+                          : (v) {
+                              final s = ctx.read<StreamingService>();
+                              if (s.isHost) {
+                                s.updateState(
+                                  trackId: player.currentSong?.id,
+                                  position:
+                                      (dur * v).inMilliseconds / 1000.0,
+                                  isPlaying: player.isPlaying,
+                                );
+                              }
+                            },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_fmt(pos),
+                            style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12)),
+                        Text(_fmt(dur),
+                            style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          Opacity(
+            opacity: locked ? 0.35 : 1.0,
+            child: IgnorePointer(
+              ignoring: locked,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    iconSize: 36,
+                    icon: Icon(Icons.skip_previous,
+                        color: colorScheme.onSurface.withValues(alpha: 0.8)),
+                    onPressed: player.playPrevious,
+                  ),
+                  GestureDetector(
+                    onTap: player.togglePlayPause,
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        player.isPlaying ? Icons.pause : Icons.play_arrow,
+                        color: Colors.black,
+                        size: 36,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    iconSize: 36,
+                    icon: Icon(Icons.skip_next,
+                        color: colorScheme.onSurface.withValues(alpha: 0.8)),
+                    onPressed: player.playNext,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+
+  Widget _phoneBody(
+    BuildContext context,
+    Song song,
+    PlayerService player,
+    bool locked,
+    AppL10n l10n,
+    ColorScheme colorScheme,
+  ) =>
+      SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            Center(
+              child: LayoutBuilder(
+                builder: (_, c) => _albumArt(
+                    song, colorScheme, c.maxWidth.clamp(0.0, 300.0)),
+              ),
+            ),
+            const SizedBox(height: 28),
+            _controls(context, song, player, locked, l10n, colorScheme),
+            LyricsSection(song: song),
+            const SizedBox(height: 36),
+          ],
+        ),
+      );
+
+  Widget _tabletBody(
+    BuildContext context,
+    Song song,
+    PlayerService player,
+    bool locked,
+    AppL10n l10n,
+    ColorScheme colorScheme,
+  ) =>
+      SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(40, 32, 40, 40),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _albumArt(song, colorScheme, 340),
+                    const SizedBox(width: 40),
+                    Expanded(
+                      child: _controls(
+                          context, song, player, locked, l10n, colorScheme),
+                    ),
+                  ],
+                ),
+                LyricsSection(song: song),
+              ],
+            ),
+          ),
+        ),
+      );
 
   Widget _placeholder(ColorScheme cs) => Center(
       child: Icon(Icons.music_note, color: cs.primary, size: 80));

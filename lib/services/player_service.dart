@@ -301,7 +301,11 @@ class PlayerService extends ChangeNotifier {
   @override
   void dispose() {
     _errorController.close();
-    _player.dispose();
+    // just_audio calls disposeAllPlayers() internally which is unimplemented on
+    // Windows/Linux/macOS desktop — swallow any MissingPluginException.
+    try {
+      _player.dispose();
+    } catch (_) {}
     super.dispose();
   }
 }

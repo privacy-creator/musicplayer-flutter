@@ -73,10 +73,7 @@ class MusicAudioHandler extends BaseAudioHandler with SeekHandler {
       id: song.audioUrl,
       title: song.title,
       artist: song.artist,
-      artUri: song.imageUrl != null
-          ? Uri.tryParse(song.imageUrl!)
-          : Uri.parse(
-              'android.resource://com.example.music_player_flutter/mipmap/ic_launcher'),
+      artUri: song.imageUrl != null ? Uri.tryParse(song.imageUrl!) : null,
       duration: Duration(seconds: song.duration),
     ));
   }

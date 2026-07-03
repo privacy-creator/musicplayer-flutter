@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +24,7 @@ import 'widgets/player_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   await Permission.notification.request();
 
   final downloadService = DownloadService();
@@ -235,9 +237,53 @@ class _MainShellState extends State<_MainShell> {
   int _index = 0;
   static const _pages = [SongsScreen(), PlaylistsScreen(), ListeningRoomScreen()];
 
+  static const _kTablet = 600.0;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context)!;
+    final primary = Theme.of(context).colorScheme.primary;
+    final isTablet = MediaQuery.of(context).size.width >= _kTablet;
+
+    if (isTablet) {
+      return Scaffold(
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _index,
+              onDestinationSelected: (i) => setState(() => _index = i),
+              labelType: NavigationRailLabelType.all,
+              destinations: [
+                NavigationRailDestination(
+                  icon: const Icon(Icons.music_note_outlined),
+                  selectedIcon: Icon(Icons.music_note, color: primary),
+                  label: Text(l10n.navSongs),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.queue_music_outlined),
+                  selectedIcon: Icon(Icons.queue_music, color: primary),
+                  label: Text(l10n.navPlaylists),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.people_alt_outlined),
+                  selectedIcon: Icon(Icons.people_alt, color: primary),
+                  label: Text(l10n.navLive),
+                ),
+              ],
+            ),
+            const VerticalDivider(width: 1, thickness: 1),
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(child: _pages[_index]),
+                  const PlayerBar(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       body: _pages[_index],
@@ -252,20 +298,17 @@ class _MainShellState extends State<_MainShell> {
             destinations: [
               NavigationDestination(
                 icon: const Icon(Icons.music_note_outlined),
-                selectedIcon: Icon(Icons.music_note,
-                    color: Theme.of(context).colorScheme.primary),
+                selectedIcon: Icon(Icons.music_note, color: primary),
                 label: l10n.navSongs,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.queue_music_outlined),
-                selectedIcon: Icon(Icons.queue_music,
-                    color: Theme.of(context).colorScheme.primary),
+                selectedIcon: Icon(Icons.queue_music, color: primary),
                 label: l10n.navPlaylists,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.people_alt_outlined),
-                selectedIcon: Icon(Icons.people_alt,
-                    color: Theme.of(context).colorScheme.primary),
+                selectedIcon: Icon(Icons.people_alt, color: primary),
                 label: l10n.navLive,
               ),
             ],

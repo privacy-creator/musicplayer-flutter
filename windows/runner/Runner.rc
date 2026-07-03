@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "music_player_flutter" "\0"
+            VALUE "CompanyName", "hiddebalestra.nl" "\0"
+            VALUE "FileDescription", "Music Player" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "music_player_flutter" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "music_player_flutter.exe" "\0"
-            VALUE "ProductName", "music_player_flutter" "\0"
+            VALUE "InternalName", "Music Player" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 hiddebalestra.nl. All rights reserved." "\0"
+            VALUE "OriginalFilename", "Music Player.exe" "\0"
+            VALUE "ProductName", "Music Player" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

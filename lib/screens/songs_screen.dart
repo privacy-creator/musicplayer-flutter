@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -218,18 +219,35 @@ class _SongsScreenState extends State<SongsScreen> {
                     ? Center(
                         child: Text(l10n.noSongsFound,
                             style: TextStyle(color: colorScheme.onSurfaceVariant)))
-                    : GridView.builder(
-                        padding: const EdgeInsets.all(12),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.72,
-                        ),
-                        itemCount: _songs.length,
-                        itemBuilder: (_, i) =>
-                            _SongCard(song: _songs[i], playlist: _songs, index: i),
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          final cols = switch (constraints.maxWidth) {
+                            >= 900.0 => 4,
+                            >= 600.0 => 3,
+                            _ => 2,
+                          };
+                          // Keep card height ≈ constant across column counts
+                          final ratio = switch (cols) {
+                            4 => 1.05,
+                            3 => 0.88,
+                            _ => 0.72,
+                          };
+                          return GridView.builder(
+                            padding: const EdgeInsets.all(12),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: cols,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: ratio,
+                            ),
+                            itemCount: _songs.length,
+                            itemBuilder: (_, i) => _SongCard(
+                                song: _songs[i],
+                                playlist: _songs,
+                                index: i),
+                          );
+                        },
                       ),
           ),
         ],
@@ -296,6 +314,14 @@ class _Filters extends StatelessWidget {
                   value: language,
                   items: languages,
                   onChanged: onLanguage,
+                  flagMap: const {
+                    'English': 'GB',
+                    'Dutch': 'NL',
+                    'Spanish': 'ES',
+                    'Italian': 'IT',
+                    'German': 'DE',
+                    'French': 'FR',
+                  },
                 ),
               ),
               const SizedBox(width: 8),
@@ -322,6 +348,7 @@ class _Drop extends StatelessWidget {
   final String value;
   final List<String> items;
   final ValueChanged<String?> onChanged;
+  final Map<String, String>? flagMap;
 
   const _Drop({
     required this.label,
@@ -329,6 +356,7 @@ class _Drop extends StatelessWidget {
     required this.value,
     required this.items,
     required this.onChanged,
+    this.flagMap,
   });
 
   @override
@@ -383,70 +411,81 @@ class _Drop extends StatelessWidget {
 
   void _showSheet(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final maxHeight = MediaQuery.of(context).size.height * 0.6;
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (sheetCtx) => Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 32,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
+      builder: (sheetCtx) => ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 32,
+                  height: 4,
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: Text(allLabel),
-                        trailing: value.isEmpty
-                            ? Icon(Icons.check,
-                                color: colorScheme.primary, size: 18)
-                            : null,
-                        onTap: () {
-                          Navigator.pop(sheetCtx);
-                          onChanged('');
-                        },
-                      ),
-                      for (final item in items.where((e) => e.isNotEmpty))
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         ListTile(
-                          title: Text(item),
-                          trailing: value == item
+                          title: Text(allLabel),
+                          trailing: value.isEmpty
                               ? Icon(Icons.check,
                                   color: colorScheme.primary, size: 18)
                               : null,
                           onTap: () {
                             Navigator.pop(sheetCtx);
-                            onChanged(item);
+                            onChanged('');
                           },
                         ),
-                      const SizedBox(height: 8),
-                    ],
+                        for (final item in items.where((e) => e.isNotEmpty))
+                          ListTile(
+                            leading: flagMap?[item] != null
+                                ? CountryFlag.fromCountryCode(
+                                    flagMap![item]!,
+                                    height: 20,
+                                    width: 28,
+                                  )
+                                : null,
+                            title: Text(item),
+                            trailing: value == item
+                                ? Icon(Icons.check,
+                                    color: colorScheme.primary, size: 18)
+                                : null,
+                            onTap: () {
+                              Navigator.pop(sheetCtx);
+                              onChanged(item);
+                            },
+                          ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
