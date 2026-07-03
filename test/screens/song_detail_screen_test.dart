@@ -195,3 +195,4 @@ void main() {
       expect(find.byIcon(Icons.offline_pin), findsNothing);
     });
   });
+}
