@@ -102,8 +102,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.runAsync(
-          () => playerService.playSong(_testSong, [_testSong], 0));
+      await playerService.playSong(_testSong, [_testSong], 0);
 
       await tester.pumpWidget(buildScreen());
       await tester.pump();
@@ -122,8 +121,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.runAsync(
-          () => playerService.playSong(_testSong, [_testSong], 0));
+      await playerService.playSong(_testSong, [_testSong], 0);
 
       await tester.pumpWidget(buildScreen());
       await tester.pump();
