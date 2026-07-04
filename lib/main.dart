@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:media_kit/media_kit.dart';
+import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,7 +24,9 @@ import 'widgets/player_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MediaKit.ensureInitialized();
+  // Registers the media_kit backend for just_audio on Windows/Linux only;
+  // no-op on Android/iOS, which use just_audio's own native implementation.
+  JustAudioMediaKit.ensureInitialized();
   await Permission.notification.request();
 
   final downloadService = DownloadService();

@@ -18,7 +18,7 @@ dependencies:
   cookie_jar: ^4.0.8
   path_provider: ^2.1.5
   just_audio: ^0.10.5
-  just_audio_media_kit: ^1.0.0    # Windows + Linux audio backend
+  just_audio_media_kit: ^2.1.0    # Windows + Linux audio backend
   media_kit: ^1.1.0
   media_kit_libs_windows_audio: ^1.0.0
   media_kit_libs_linux: ^1.0.0
