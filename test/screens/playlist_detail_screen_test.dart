@@ -150,10 +150,16 @@ void main() {
       await tester.pumpWidget(buildScreen(playlist));
       await tester.pumpAndSettle();
 
-      // runAsync zodat de echte file-I/O van de download kan voltooien.
+      // runAsync zodat de echte file-I/O van de download kan voltooien;
+      // poll tot de downloads klaar zijn in plaats van een vaste delay.
       await tester.runAsync(() async {
         await tester.tap(find.byIcon(Icons.download_for_offline_outlined));
-        await Future<void>.delayed(const Duration(milliseconds: 300));
+        final deadline = DateTime.now().add(const Duration(seconds: 10));
+        while (!(downloadService.isDownloaded(1) &&
+                downloadService.isDownloaded(2)) &&
+            DateTime.now().isBefore(deadline)) {
+          await Future<void>.delayed(const Duration(milliseconds: 25));
+        }
       });
       await tester.pumpAndSettle();
 
@@ -166,7 +172,9 @@ void main() {
       for (final s in songs) {
         stubDownload(s.audioUrl);
       }
-      await downloadService.downloadAll(songs, mockDio);
+      // runAsync: echte file-I/O mag niet in de fake-async testzone draaien.
+      await tester.runAsync(
+          () => downloadService.downloadAll(songs, mockDio));
 
       final playlist = makePlaylist(songs);
       await tester.pumpWidget(buildScreen(playlist));
