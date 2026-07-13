@@ -188,6 +188,8 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('GitHub Releases'), 100,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text('GitHub Releases'), findsOneWidget);
     });
 
@@ -203,10 +205,12 @@ void main() {
     testWidgets('shows update indicator when newer version available',
         (tester) async {
       final (theme, lang, trans, dl, update) =
-          await makeServices(latestTag: 'v2.0.0');
+          await makeServices(latestTag: 'v9.9.9');
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Update available'), 100,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text('Update available'), findsOneWidget);
     });
 

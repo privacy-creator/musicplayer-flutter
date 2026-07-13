@@ -150,7 +150,11 @@ void main() {
       await tester.pumpWidget(buildScreen(playlist));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byIcon(Icons.download_for_offline_outlined));
+      // runAsync zodat de echte file-I/O van de download kan voltooien.
+      await tester.runAsync(() async {
+        await tester.tap(find.byIcon(Icons.download_for_offline_outlined));
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      });
       await tester.pumpAndSettle();
 
       expect(downloadService.isDownloaded(1), isTrue);

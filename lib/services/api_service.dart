@@ -207,8 +207,9 @@ class ApiService {
       final res = await _dio.get('/songs.php',
           queryParameters: params.isEmpty ? null : params);
       final songs = (res.data as List).map((e) => Song.fromJson(e)).toList();
-      // Only cache the unfiltered full list
-      if (params.isEmpty) _saveSongsCache(songs);
+      // Only cache the unfiltered full list; await so the cache and its
+      // timestamp are guaranteed written when getSongs() completes.
+      if (params.isEmpty) await _saveSongsCache(songs);
       return songs;
     } catch (_) {
       final cached = await _loadSongsCache();
