@@ -272,11 +272,15 @@ void main() {
       service.toggleShuffle();
       await service.playNext();
 
+      // Kies bewust een ander nummer dan wat er nu speelt: playSong op
+      // hetzelfde nummer doet alleen play/pause en reset niets.
+      final targetIndex = service.currentSong!.id == 4 ? 2 : 3;
+
       // Nieuw nummer aangetikt → historie hoort leeg te zijn en previous
-      // valt terug op sequentieel gedrag (index - 1).
-      await service.playSong(songs[3], songs, 3);
+      // valt terug op sequentieel gedrag (index - 1), dus id == targetIndex.
+      await service.playSong(songs[targetIndex], songs, targetIndex);
       await service.playPrevious();
-      expect(service.currentSong!.id, 3);
+      expect(service.currentSong!.id, targetIndex);
     });
 
     test('shufflePlay wist de historie', () async {
