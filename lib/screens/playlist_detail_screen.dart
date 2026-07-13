@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/playlist.dart';
 import '../services/api_service.dart';
+import '../services/download_service.dart';
 import '../services/player_service.dart';
 import 'song_detail_screen.dart';
 
@@ -37,14 +40,46 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   Widget build(BuildContext context) {
     final pl = _playlist ?? widget.playlist;
     final player = context.watch<PlayerService>();
+    final downloads = context.watch<DownloadService>();
     final l10n = AppL10n.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
+    final allDownloaded =
+        pl.songs.isNotEmpty && pl.songs.every((s) => downloads.isDownloaded(s.id));
+    final downloading =
+        pl.songs.any((s) => downloads.isDownloading(s.id));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(pl.name),
         actions: [
           if (pl.songs.isNotEmpty) ...[
+            IconButton(
+              tooltip: allDownloaded ? l10n.downloadsHeader : l10n.downloadAll,
+              icon: downloading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: colorScheme.primary),
+                    )
+                  : Icon(
+                      allDownloaded
+                          ? Icons.download_done
+                          : Icons.download_for_offline_outlined,
+                      color: allDownloaded ? colorScheme.primary : null,
+                    ),
+              onPressed: allDownloaded || downloading
+                  ? null
+                  : () {
+                      final api = context.read<ApiService>();
+                      unawaited(context
+                          .read<DownloadService>()
+                          .downloadAll(pl.songs, api.dio));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.downloadingActive)),
+                      );
+                    },
+            ),
             IconButton(
               tooltip: l10n.tooltipPlayAll,
               icon: Icon(Icons.play_arrow, color: colorScheme.primary),

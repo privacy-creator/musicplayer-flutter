@@ -66,6 +66,8 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
         val isPlaying    = prefs.getBoolean("is_playing",  false)
         val shuffleActive = prefs.getBoolean("shuffle_mode", false)
         val artPath      = prefs.getString("art_path",     null)
+        val position     = getIntCompat(prefs, "position", 0)
+        val duration     = getIntCompat(prefs, "duration", 0)
 
         val views = RemoteViews(context.packageName, R.layout.now_playing_widget)
 
@@ -82,21 +84,23 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
             if (shuffleActive) Color.parseColor("#1DB954") else Color.parseColor("#99FFFFFF")
         )
 
-        // Album art: show cached bitmap if available, else music-note placeholder
-        if (!artPath.isNullOrEmpty()) {
-            val f = File(artPath)
-            if (f.exists()) {
-                val bmp = BitmapFactory.decodeFile(artPath)
-                if (bmp != null) {
-                    views.setImageViewBitmap(R.id.widget_art, bmp)
-                } else {
-                    views.setImageViewResource(R.id.widget_art, R.drawable.ic_widget_music)
-                }
-            } else {
-                views.setImageViewResource(R.id.widget_art, R.drawable.ic_widget_music)
-            }
+        // Playback progress (seconds); hide motion when nothing is known yet
+        if (duration > 0) {
+            views.setProgressBar(
+                R.id.widget_progress, duration, position.coerceIn(0, duration), false
+            )
         } else {
-            views.setImageViewResource(R.id.widget_art, R.drawable.ic_widget_music)
+            views.setProgressBar(R.id.widget_progress, 100, 0, false)
+        }
+
+        // Album art: show cached bitmap if available, else the app logo
+        val bmp = artPath?.takeIf { it.isNotEmpty() }
+            ?.let { File(it) }?.takeIf { it.exists() }
+            ?.let { BitmapFactory.decodeFile(it.path) }
+        if (bmp != null) {
+            views.setImageViewBitmap(R.id.widget_art, bmp)
+        } else {
+            views.setImageViewResource(R.id.widget_art, R.mipmap.ic_launcher)
         }
 
         // Tap card → open app
@@ -129,6 +133,15 @@ class NowPlayingWidgetProvider : AppWidgetProvider() {
         )
 
         appWidgetManager.updateAppWidget(widgetId, views)
+    }
+
+    // home_widget stores Dart ints as Int or Long depending on size; read both.
+    private fun getIntCompat(
+        prefs: android.content.SharedPreferences, key: String, def: Int
+    ): Int = try {
+        prefs.getInt(key, def)
+    } catch (e: ClassCastException) {
+        prefs.getLong(key, def.toLong()).toInt()
     }
 
     private fun broadcastIntent(context: Context, action: String, reqCode: Int): PendingIntent =

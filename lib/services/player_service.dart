@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:home_widget/home_widget.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,12 +24,18 @@ class PlayerService extends ChangeNotifier {
   int _currentIndex = 0;
   bool _shuffleMode = false;
   bool _lastWidgetPlaying = false;
+  DateTime _lastWidgetProgressPush = DateTime.fromMillisecondsSinceEpoch(0);
 
   // Wachtrij: songs die voor de volgende playlist-song spelen
   final List<Song> _queue = [];
 
   // Smart shuffle: gevulde zak met indices; huidige song staat altijd achteraan
   final List<int> _shuffleBag = [];
+
+  // Historie van gespeelde playlist-indices, zodat "vorige" in shuffle-mode
+  // echt teruggaat naar wat er speelde in plaats van een willekeurig nummer.
+  final List<int> _history = [];
+  static const _maxHistory = 100;
 
   Song? get currentSong => _currentSong;
   bool get isPlaying => _player.playing;
@@ -74,8 +81,38 @@ class PlayerService extends ChangeNotifier {
         unawaited(_updateHomeWidget());
       }
     });
-    _player.positionStream.listen((_) => notifyListeners());
+    _player.positionStream.listen((_) {
+      notifyListeners();
+      _maybePushWidgetProgress();
+    });
     _loadShuffleMode();
+    unawaited(_prepareFallbackArt());
+  }
+
+  /// Kopieert het app-logo naar een tijdelijk bestand zodat de lockscreen-
+  /// notificatie het kan tonen als een nummer geen eigen artwork heeft.
+  Future<void> _prepareFallbackArt() async {
+    try {
+      final data = await rootBundle.load('assets/logo.png');
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/fallback_art.png');
+      await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+      _handler.fallbackArtUri = Uri.file(file.path);
+    } catch (_) {
+      // Geen logo beschikbaar (bijv. in tests) — notificatie valt terug op
+      // het standaard witte vlak.
+    }
+  }
+
+  /// Ververst de widget-progressbar hooguit elke 5 seconden tijdens afspelen.
+  void _maybePushWidgetProgress() {
+    if (!_player.playing) return;
+    final now = DateTime.now();
+    if (now.difference(_lastWidgetProgressPush) < const Duration(seconds: 5)) {
+      return;
+    }
+    _lastWidgetProgressPush = now;
+    unawaited(_updateHomeWidget());
   }
 
   Future<void> _loadShuffleMode() async {
@@ -130,6 +167,7 @@ class PlayerService extends ChangeNotifier {
     }
     _playlist = playlist;
     _currentIndex = index;
+    _history.clear();
     if (_shuffleMode) {
       _shuffleBag.clear();
       _fillShuffleBag();
@@ -162,6 +200,8 @@ class PlayerService extends ChangeNotifier {
     if (_shuffleMode) {
       if (_shuffleBag.isEmpty) _fillShuffleBag();
       nextIdx = _shuffleBag.removeAt(0);
+      _history.add(_currentIndex);
+      if (_history.length > _maxHistory) _history.removeAt(0);
     } else {
       nextIdx = (_currentIndex + 1) % _playlist.length;
     }
@@ -171,6 +211,15 @@ class PlayerService extends ChangeNotifier {
 
   Future<void> playPrevious() async {
     if (_playlist.isEmpty) return;
+    if (_shuffleMode && _history.isNotEmpty) {
+      // Ga terug naar wat er echt speelde; het huidige nummer komt vooraan in
+      // de zak zodat "volgende" weer terugkeert naar waar de gebruiker was.
+      final prev = _history.removeLast();
+      _shuffleBag.insert(0, _currentIndex);
+      _currentIndex = prev;
+      await _loadAndPlay(_playlist[prev]);
+      return;
+    }
     final prev = _currentIndex > 0 ? _currentIndex - 1 : _playlist.length - 1;
     _currentIndex = prev;
     await _loadAndPlay(_playlist[prev]);
@@ -234,6 +283,7 @@ class PlayerService extends ChangeNotifier {
     if (playlist.isEmpty) return;
     _queue.clear();
     _shuffleBag.clear();
+    _history.clear();
     _shuffleMode = true;
     _saveShuffleMode();
     _handler.updateShuffleState(true);
@@ -247,6 +297,7 @@ class PlayerService extends ChangeNotifier {
 
   Future<void> seek(Duration position) async {
     await _player.seek(position);
+    unawaited(_updateHomeWidget());
   }
 
   // ── Home-screen widget ───────────────────────────────────────────────────────
@@ -260,6 +311,11 @@ class PlayerService extends ChangeNotifier {
       await HomeWidget.saveWidgetData<String>('artist', song?.artist ?? '');
       await HomeWidget.saveWidgetData<bool>('is_playing', _player.playing);
       await HomeWidget.saveWidgetData<bool>('shuffle_mode', _shuffleMode);
+      final durationSecs =
+          _player.duration?.inSeconds ?? song?.duration ?? 0;
+      await HomeWidget.saveWidgetData<int>(
+          'position', _player.position.inSeconds);
+      await HomeWidget.saveWidgetData<int>('duration', durationSecs);
 
       // Cache album art to a local file so the widget can display it.
       if (song?.imageUrl != null) {
@@ -279,8 +335,8 @@ class PlayerService extends ChangeNotifier {
   Future<void> _cacheArtForWidget(String url) async {
     try {
       final dir  = await getTemporaryDirectory();
-      final file = File('${dir.path}/widget_art.jpg');
-      // Re-use cached file if it already exists from same song.
+      // Filename includes the URL hash so a new song gets fresh art.
+      final file = File('${dir.path}/widget_art_${url.hashCode}.jpg');
       if (!file.existsSync()) {
         final client   = HttpClient();
         final request  = await client.getUrl(Uri.parse(url));

@@ -32,6 +32,9 @@ void main() async {
   final downloadService = DownloadService();
   await downloadService.init();
 
+  final apiService = ApiService();
+  apiService.startDailyCacheRefresh();
+
   final updateService = UpdateService();
   unawaited(updateService.init());
 
@@ -53,6 +56,7 @@ void main() async {
   );
   runApp(MusicPlayerApp(
     audioHandler: handler,
+    apiService: apiService,
     downloadService: downloadService,
     languageService: languageService,
     themeService: themeService,
@@ -63,6 +67,7 @@ void main() async {
 
 class MusicPlayerApp extends StatelessWidget {
   final MusicAudioHandler audioHandler;
+  final ApiService apiService;
   final DownloadService downloadService;
   final LanguageService languageService;
   final ThemeService themeService;
@@ -72,6 +77,7 @@ class MusicPlayerApp extends StatelessWidget {
   const MusicPlayerApp({
     super.key,
     required this.audioHandler,
+    required this.apiService,
     required this.downloadService,
     required this.languageService,
     required this.themeService,
@@ -88,7 +94,7 @@ class MusicPlayerApp extends StatelessWidget {
         Provider<TranslationService>.value(value: translationService),
         ChangeNotifierProvider<DownloadService>.value(value: downloadService),
         ChangeNotifierProvider<UpdateService>.value(value: updateService),
-        Provider<ApiService>(create: (_) => ApiService()),
+        Provider<ApiService>.value(value: apiService),
         ChangeNotifierProxyProvider<ApiService, AuthService>(
           create: (ctx) => AuthService(ctx.read<ApiService>()),
           update: (_, api, prev) => prev ?? AuthService(api),

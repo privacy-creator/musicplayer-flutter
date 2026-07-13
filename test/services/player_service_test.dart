@@ -207,6 +207,94 @@ void main() {
     });
   });
 
+  group('playPrevious in shuffle mode (historie)', () {
+    test('gaat terug naar het nummer dat hiervoor speelde', () async {
+      final songs = List.generate(8, (i) => makeSong(i + 1));
+      await service.playSong(songs[0], songs, 0);
+      service.toggleShuffle();
+
+      final visited = <int>[service.currentSong!.id];
+      await service.playNext();
+      visited.add(service.currentSong!.id);
+      await service.playNext();
+
+      await service.playPrevious();
+      expect(service.currentSong!.id, visited[1]);
+    });
+
+    test('gaat meerdere stappen terug in omgekeerde volgorde', () async {
+      final songs = List.generate(8, (i) => makeSong(i + 1));
+      await service.playSong(songs[0], songs, 0);
+      service.toggleShuffle();
+
+      final visited = <int>[service.currentSong!.id];
+      for (var i = 0; i < 3; i++) {
+        await service.playNext();
+        visited.add(service.currentSong!.id);
+      }
+
+      await service.playPrevious();
+      expect(service.currentSong!.id, visited[2]);
+      await service.playPrevious();
+      expect(service.currentSong!.id, visited[1]);
+      await service.playPrevious();
+      expect(service.currentSong!.id, visited[0]);
+    });
+
+    test('playNext na playPrevious keert terug naar waar de gebruiker was',
+        () async {
+      final songs = List.generate(8, (i) => makeSong(i + 1));
+      await service.playSong(songs[0], songs, 0);
+      service.toggleShuffle();
+
+      await service.playNext();
+      final current = service.currentSong!.id;
+
+      await service.playPrevious();
+      expect(service.currentSong!.id, isNot(current));
+
+      await service.playNext();
+      expect(service.currentSong!.id, current);
+    });
+
+    test('valt terug op sequentieel gedrag zonder historie', () async {
+      final songs = [makeSong(1), makeSong(2), makeSong(3)];
+      await service.playSong(songs[2], songs, 2);
+      service.toggleShuffle();
+
+      await service.playPrevious();
+      expect(service.currentSong!.id, 2);
+    });
+
+    test('playSong wist de historie', () async {
+      final songs = List.generate(5, (i) => makeSong(i + 1));
+      await service.playSong(songs[0], songs, 0);
+      service.toggleShuffle();
+      await service.playNext();
+
+      // Nieuw nummer aangetikt → historie hoort leeg te zijn en previous
+      // valt terug op sequentieel gedrag (index - 1).
+      await service.playSong(songs[3], songs, 3);
+      await service.playPrevious();
+      expect(service.currentSong!.id, 3);
+    });
+
+    test('shufflePlay wist de historie', () async {
+      final songs = List.generate(5, (i) => makeSong(i + 1));
+      await service.playSong(songs[0], songs, 0);
+      service.toggleShuffle();
+      await service.playNext();
+
+      await service.shufflePlay(songs);
+      final startId = service.currentSong!.id;
+
+      // Zonder historie: previous valt terug op sequentieel (index - 1),
+      // dus nooit hetzelfde nummer met 5 nummers in de lijst.
+      await service.playPrevious();
+      expect(service.currentSong!.id, isNot(startId));
+    });
+  });
+
   group('shufflePlay', () {
     test('doet niets bij lege lijst', () async {
       await service.shufflePlay([]);

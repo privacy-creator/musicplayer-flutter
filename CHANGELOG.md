@@ -4,6 +4,28 @@ All release notes are written in English.
 
 ---
 
+## [2.2.0] — 2026-07-13
+
+### Added
+- **Shuffle history** — pressing "previous" in shuffle mode now returns to the songs that actually played, in reverse order. Pressing "next" afterwards takes you forward again to where you were.
+- **Download a whole playlist** — new download button in the playlist screen saves every song in the playlist for offline playback; it shows a spinner while downloading and a checkmark once everything is stored.
+- **Song cache toggle** — new switch in Settings → Storage to disable the offline song list cache. Turning it off also wipes the stored cache.
+- **Daily cache refresh** — the cached song list is refreshed automatically once a day, so offline data stays at most a day behind the server.
+- **Progress bar on the home-screen widget** — a slim progress bar below the controls shows the playback position, updated every few seconds while playing.
+
+### Changed
+- **Lock-screen artwork fallback** — songs without artwork now show the app logo on the lock screen and in the media notification instead of a blank square. The home-screen widget uses the app logo as placeholder too.
+- **Lock-screen progress** — the media notification now picks up the real track duration from the player, so the progress bar and seeking stay accurate even when the server reports a wrong duration.
+- **Widget artwork refresh** — the home-screen widget no longer keeps showing the artwork of the first played song; art is cached per song.
+
+### Fixed
+- **macOS release build** — the macOS CI job now selects the latest stable Xcode, fixing the `connectivity_plus` build failure (`NWPath.isUltraConstrained`).
+
+### Tests
+- New test coverage for shuffle history, playlist download-all, the songs cache (toggle, staleness, offline fallback), lock-screen media item updates, and the widget progress data.
+
+---
+
 ## [1.9.0] — 2026-07-01
 
 ### Changed

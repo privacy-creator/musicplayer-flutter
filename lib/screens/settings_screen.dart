@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 import '../l10n/app_localizations.dart';
+import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/language_service.dart';
 import '../services/theme_service.dart';
@@ -39,6 +40,7 @@ class SettingsScreen extends StatelessWidget {
           const Divider(height: 1, indent: 16, endIndent: 16),
           _SectionHeader(label: l10n.storageSection),
           _ClearCacheTile(),
+          _SongCacheTile(),
           const Divider(height: 1, indent: 16, endIndent: 16),
           _SectionHeader(label: l10n.downloadsHeader),
           _DownloadsTile(),
@@ -280,6 +282,39 @@ class _ClearCacheTileState extends State<_ClearCacheTile> {
             SnackBar(content: Text(l10n.cacheCleared)),
           );
         }
+      },
+    );
+  }
+}
+
+class _SongCacheTile extends StatefulWidget {
+  @override
+  State<_SongCacheTile> createState() => _SongCacheTileState();
+}
+
+class _SongCacheTileState extends State<_SongCacheTile> {
+  bool _enabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<ApiService>().isCacheEnabled().then((v) {
+      if (mounted) setState(() => _enabled = v);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+
+    return SwitchListTile(
+      secondary: const Icon(Icons.cached_outlined),
+      title: Text(l10n.songCache),
+      subtitle: Text(l10n.songCacheSubtitle),
+      value: _enabled,
+      onChanged: (v) async {
+        setState(() => _enabled = v);
+        await context.read<ApiService>().setCacheEnabled(v);
       },
     );
   }

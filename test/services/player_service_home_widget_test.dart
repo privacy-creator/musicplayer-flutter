@@ -68,6 +68,7 @@ void main() {
     when(() => mockPlayer.setUrl(any())).thenAnswer((_) async => null);
     when(() => mockPlayer.play()).thenAnswer((_) async {});
     when(() => mockPlayer.pause()).thenAnswer((_) async {});
+    when(() => mockPlayer.seek(any())).thenAnswer((_) async {});
     when(() => mockPlayer.dispose()).thenAnswer((_) async {});
 
     handler = MusicAudioHandler(player: mockPlayer);
@@ -184,6 +185,52 @@ void main() {
         completes,
       );
       await _pump();
+    });
+  });
+
+  // ─── Progressbar widget data ──────────────────────────────────────────────
+
+  group('PlayerService → progress widget data', () {
+    test('slaat position en duration op na playSong', () async {
+      when(() => mockPlayer.position)
+          .thenReturn(const Duration(seconds: 42));
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+
+      final positions = saves('position').toList();
+      final durations = saves('duration').toList();
+      expect(positions, isNotEmpty);
+      expect(positions.last.arguments['data'], 42);
+      expect(durations, isNotEmpty);
+      // Speler kent nog geen duur → valt terug op song.duration (180).
+      expect(durations.last.arguments['data'], 180);
+    });
+
+    test('gebruikt de duur van de speler wanneer die bekend is', () async {
+      when(() => mockPlayer.duration)
+          .thenReturn(const Duration(seconds: 200));
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+
+      final durations = saves('duration').toList();
+      expect(durations, isNotEmpty);
+      expect(durations.last.arguments['data'], 200);
+    });
+
+    test('seek stuurt een widget-update met nieuwe positie', () async {
+      await playerService.playSong(_song(1), [_song(1)], 0);
+      await _pump();
+      recorded.clear();
+
+      when(() => mockPlayer.position)
+          .thenReturn(const Duration(seconds: 90));
+      await playerService.seek(const Duration(seconds: 90));
+      await _pump();
+
+      final positions = saves('position').toList();
+      expect(positions, isNotEmpty);
+      expect(positions.last.arguments['data'], 90);
+      expect(recorded.where((c) => c.method == 'updateWidget'), isNotEmpty);
     });
   });
 

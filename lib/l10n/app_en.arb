@@ -108,6 +108,8 @@
   "translatedLyrics": "Translation",
   "clearCache": "Clear cache",
   "cacheCleared": "Cache cleared",
+  "songCache": "Song list cache",
+  "songCacheSubtitle": "Refreshed once a day and used when offline",
   "showOriginal": "Show original",
   "translationDisclaimer": "Translation may be inaccurate and contain errors",
   "tooltipShare": "Share",

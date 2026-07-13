@@ -88,6 +88,8 @@
   "translatedLyrics": "Vertaling",
   "clearCache": "Cache wissen",
   "cacheCleared": "Cache gewist",
+  "songCache": "Nummerlijst-cache",
+  "songCacheSubtitle": "Wordt dagelijks ververst en offline gebruikt",
   "showOriginal": "Origineel tonen",
   "translationDisclaimer": "Vertaling kan onnauwkeurig zijn en fouten bevatten",
   "tooltipShare": "Delen",

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -37,11 +38,21 @@ List<Song> filterSongs(
 
 class ApiService {
   static const _cacheKey = 'songs_cache_v1';
+  static const _cacheTimeKey = 'songs_cache_time_v1';
+  static const _cacheEnabledKey = 'songs_cache_enabled_v1';
+  static const cacheMaxAge = Duration(hours: 24);
 
   late final Dio _dio;
   bool _ready = false;
+  Timer? _cacheRefreshTimer;
 
-  ApiService() {
+  /// [dio] injectable for tests; skips cookie-jar setup when provided.
+  ApiService({Dio? dio}) {
+    if (dio != null) {
+      _dio = dio;
+      _ready = true;
+      return;
+    }
     _dio = Dio(BaseOptions(
       baseUrl: AppConstants.apiUrl,
       connectTimeout: const Duration(seconds: 10),
@@ -74,16 +85,69 @@ class ApiService {
 
   // ── Songs cache ───────────────────────────────────────────
 
+  Future<bool> isCacheEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_cacheEnabledKey) ?? true;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Turning the cache off also wipes what was already stored.
+  Future<void> setCacheEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_cacheEnabledKey, enabled);
+    if (!enabled) {
+      await prefs.remove(_cacheKey);
+      await prefs.remove(_cacheTimeKey);
+    }
+  }
+
+  /// Re-fetches the song list when the cached copy is older than
+  /// [cacheMaxAge], so offline data stays at most a day behind the server.
+  Future<void> refreshCacheIfStale() async {
+    try {
+      if (!await isCacheEnabled()) return;
+      final prefs = await SharedPreferences.getInstance();
+      final savedAt = prefs.getInt(_cacheTimeKey) ?? 0;
+      final age = DateTime.now().millisecondsSinceEpoch - savedAt;
+      if (prefs.containsKey(_cacheKey) && age < cacheMaxAge.inMilliseconds) {
+        return;
+      }
+      await getSongs();
+    } catch (_) {}
+  }
+
+  /// Checks staleness now and then once a day for as long as the app runs.
+  void startDailyCacheRefresh() {
+    _cacheRefreshTimer?.cancel();
+    _cacheRefreshTimer = Timer.periodic(
+      const Duration(hours: 24),
+      (_) => refreshCacheIfStale(),
+    );
+    unawaited(refreshCacheIfStale());
+  }
+
+  void stopDailyCacheRefresh() {
+    _cacheRefreshTimer?.cancel();
+    _cacheRefreshTimer = null;
+  }
+
   Future<void> _saveSongsCache(List<Song> songs) async {
     try {
+      if (!await isCacheEnabled()) return;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
           _cacheKey, jsonEncode(songs.map((s) => s.toJson()).toList()));
+      await prefs.setInt(
+          _cacheTimeKey, DateTime.now().millisecondsSinceEpoch);
     } catch (_) {}
   }
 
   Future<List<Song>?> _loadSongsCache() async {
     try {
+      if (!await isCacheEnabled()) return null;
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_cacheKey);
       if (raw == null) return null;

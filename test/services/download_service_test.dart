@@ -333,4 +333,92 @@ void main() {
       expect(service.totalDownloadSizeBytes, 0);
     });
   });
+
+  group('downloadAll()', () {
+    void stubDownloadFor(String url, {bool fail = false}) {
+      final stub = when(() => mockDio.download(
+            url,
+            any(),
+            onReceiveProgress: any(named: 'onReceiveProgress'),
+            cancelToken: any(named: 'cancelToken'),
+            deleteOnError: any(named: 'deleteOnError'),
+            lengthHeader: any(named: 'lengthHeader'),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          ));
+      if (fail) {
+        stub.thenThrow(DioException(
+          requestOptions: RequestOptions(path: ''),
+          type: DioExceptionType.connectionError,
+        ));
+      } else {
+        stub.thenAnswer((inv) async {
+          final path = inv.positionalArguments[1] as String;
+          await File(path).writeAsBytes([1, 2, 3]);
+          return Response(
+              requestOptions: RequestOptions(path: ''), statusCode: 200);
+        });
+      }
+    }
+
+    test('downloadt alle nummers uit de lijst', () async {
+      final songs = [makeSong(1), makeSong(2), makeSong(3)];
+      for (final s in songs) {
+        stubDownloadFor(s.audioUrl);
+      }
+
+      await service.downloadAll(songs, mockDio);
+
+      for (final song in songs) {
+        expect(service.isDownloaded(song.id), true);
+      }
+    });
+
+    test('slaat al gedownloade nummers over', () async {
+      stubDownloadFor(makeSong(1).audioUrl);
+      stubDownloadFor(makeSong(2).audioUrl);
+      await service.download(makeSong(1), mockDio);
+      clearInteractions(mockDio);
+      stubDownloadFor(makeSong(1).audioUrl);
+      stubDownloadFor(makeSong(2).audioUrl);
+
+      await service.downloadAll([makeSong(1), makeSong(2)], mockDio);
+
+      verifyNever(() => mockDio.download(
+            makeSong(1).audioUrl,
+            any(),
+            onReceiveProgress: any(named: 'onReceiveProgress'),
+            cancelToken: any(named: 'cancelToken'),
+            deleteOnError: any(named: 'deleteOnError'),
+            lengthHeader: any(named: 'lengthHeader'),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          ));
+      expect(service.isDownloaded(2), true);
+    });
+
+    test('doet niets met een lege lijst', () async {
+      await service.downloadAll([], mockDio);
+      verifyNever(() => mockDio.download(
+            any(),
+            any(),
+            onReceiveProgress: any(named: 'onReceiveProgress'),
+            cancelToken: any(named: 'cancelToken'),
+            deleteOnError: any(named: 'deleteOnError'),
+            lengthHeader: any(named: 'lengthHeader'),
+            data: any(named: 'data'),
+            options: any(named: 'options'),
+          ));
+    });
+
+    test('gaat verder na een mislukte download', () async {
+      stubDownloadFor(makeSong(1).audioUrl, fail: true);
+      stubDownloadFor(makeSong(2).audioUrl);
+
+      await service.downloadAll([makeSong(1), makeSong(2)], mockDio);
+
+      expect(service.isDownloaded(1), false);
+      expect(service.isDownloaded(2), true);
+    });
+  });
 }

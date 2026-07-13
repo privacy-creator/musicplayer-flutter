@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/screens/settings_screen.dart';
+import 'package:music_player_flutter/services/api_service.dart';
 import 'package:music_player_flutter/services/download_service.dart';
 import 'package:music_player_flutter/services/language_service.dart';
 import 'package:music_player_flutter/services/theme_service.dart';
@@ -25,6 +26,7 @@ Widget _buildSettings(
       Provider<TranslationService>.value(value: translationService),
       ChangeNotifierProvider<DownloadService>.value(value: downloadService),
       ChangeNotifierProvider<UpdateService>.value(value: updateService),
+      Provider<ApiService>(create: (_) => ApiService()),
     ],
     child: MaterialApp(
       locale: const Locale('en'),
@@ -235,6 +237,51 @@ void main() {
       await tester.tap(find.byIcon(Icons.chevron_right));
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsWidgets);
+    });
+
+    testWidgets('shows Song list cache toggle switched on by default',
+        (tester) async {
+      final (theme, lang, trans, dl, update) = await makeServices();
+      await tester.pumpWidget(
+          _buildSettings(theme, lang, trans, dl, update));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Song list cache'), findsOneWidget);
+      final tile = tester.widget<SwitchListTile>(find.byType(SwitchListTile));
+      expect(tile.value, isTrue);
+    });
+
+    testWidgets('toggling song cache switch persists the preference',
+        (tester) async {
+      final (theme, lang, trans, dl, update) = await makeServices();
+      await tester.pumpWidget(
+          _buildSettings(theme, lang, trans, dl, update));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(SwitchListTile));
+      await tester.pumpAndSettle();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('songs_cache_enabled_v1'), isFalse);
+    });
+
+    testWidgets('disabling the song cache wipes the cached songs',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'songs_cache_v1': '[]',
+        'songs_cache_time_v1': 123,
+      });
+      final (theme, lang, trans, dl, update) = await makeServices();
+      await tester.pumpWidget(
+          _buildSettings(theme, lang, trans, dl, update));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(SwitchListTile));
+      await tester.pumpAndSettle();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('songs_cache_v1'), isNull);
+      expect(prefs.getInt('songs_cache_time_v1'), isNull);
     });
 
     testWidgets('cache tile shows translation count and size', (tester) async {

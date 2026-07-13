@@ -239,6 +239,13 @@ class AppL10nNl extends AppL10n {
   String get cacheCleared => 'Cache gewist';
 
   @override
+  String get songCache => 'Nummerlijst-cache';
+
+  @override
+  String get songCacheSubtitle =>
+      'Wordt dagelijks ververst en offline gebruikt';
+
+  @override
   String get showOriginal => 'Origineel tonen';
 
   @override

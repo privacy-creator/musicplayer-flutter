@@ -535,6 +535,18 @@ abstract class AppL10n {
   /// **'Cache cleared'**
   String get cacheCleared;
 
+  /// No description provided for @songCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Song list cache'**
+  String get songCache;
+
+  /// No description provided for @songCacheSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshed once a day and used when offline'**
+  String get songCacheSubtitle;
+
   /// No description provided for @showOriginal.
   ///
   /// In en, this message translates to:

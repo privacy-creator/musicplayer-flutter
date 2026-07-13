@@ -131,6 +131,16 @@ class DownloadService extends ChangeNotifier {
     }
   }
 
+  /// Downloadt alle nog niet opgeslagen nummers één voor één, zodat de
+  /// server niet wordt overspoeld met parallelle downloads.
+  Future<void> downloadAll(List<Song> songs, Dio dio) async {
+    for (final song in songs) {
+      if (!isDownloaded(song.id) && !isDownloading(song.id)) {
+        await download(song, dio);
+      }
+    }
+  }
+
   Future<void> deleteAll() async {
     for (final entry in _downloads.values) {
       final path = entry['path'];

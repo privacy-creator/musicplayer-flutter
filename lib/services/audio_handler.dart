@@ -13,12 +13,25 @@ class MusicAudioHandler extends BaseAudioHandler with SeekHandler {
   /// requests a specific shuffle state. The bool is true = shuffle on.
   void Function(bool)? onSetShuffle;
 
+  /// Artwork shown on the lock screen when a song has no image of its own
+  /// (app logo instead of the default blank square). Set by PlayerService.
+  Uri? fallbackArtUri;
+
   bool _shuffleMode = false;
 
   MusicAudioHandler({AudioPlayer? player}) : player = player ?? AudioPlayer() {
     _setup();
     this.player.playerStateStream.listen(_broadcastState);
     this.player.positionStream.listen((_) => _broadcastState(this.player.playerState));
+    // Songs from the API sometimes have a wrong/missing duration; once the
+    // player knows the real one, update the media item so the lock-screen
+    // progress bar and seek position are correct.
+    this.player.durationStream.listen((d) {
+      final item = mediaItem.value;
+      if (d != null && item != null && item.duration != d) {
+        mediaItem.add(item.copyWith(duration: d));
+      }
+    });
   }
 
   Future<void> _setup() async {
@@ -73,7 +86,9 @@ class MusicAudioHandler extends BaseAudioHandler with SeekHandler {
       id: song.audioUrl,
       title: song.title,
       artist: song.artist,
-      artUri: song.imageUrl != null ? Uri.tryParse(song.imageUrl!) : null,
+      artUri: song.imageUrl != null
+          ? Uri.tryParse(song.imageUrl!) ?? fallbackArtUri
+          : fallbackArtUri,
       duration: Duration(seconds: song.duration),
     ));
   }

@@ -112,6 +112,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # connectivity_plus >= 7.1 uses NWPath.isUltraConstrained, which needs
+      # a newer macOS SDK than the runner's default Xcode ships with.
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}

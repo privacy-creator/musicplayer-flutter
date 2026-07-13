@@ -1,7 +1,7 @@
 name: music_player_flutter
 description: "Music player app"
 publish_to: 'none'
-version: 2.1.0+11
+version: 2.2.0+12
 
 environment:
   sdk: ^3.11.4
@@ -44,3 +44,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/logo.png

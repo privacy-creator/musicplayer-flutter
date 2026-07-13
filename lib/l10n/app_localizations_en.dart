@@ -239,6 +239,12 @@ class AppL10nEn extends AppL10n {
   String get cacheCleared => 'Cache cleared';
 
   @override
+  String get songCache => 'Song list cache';
+
+  @override
+  String get songCacheSubtitle => 'Refreshed once a day and used when offline';
+
+  @override
   String get showOriginal => 'Show original';
 
   @override
