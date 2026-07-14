@@ -34,6 +34,18 @@ jobs:
           channel: stable
           cache: true
 
+      # Fixed upload keystore so every release APK has the same signature
+      # and Android accepts it as an update over the previous version.
+      - name: Set up release signing
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/upload-keystore.jks
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
       - run: flutter pub get
       - run: flutter build apk --release
 

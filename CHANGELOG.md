@@ -4,6 +4,14 @@ All release notes are written in English.
 
 ---
 
+## [2.2.2] — 2026-07-14
+
+### Fixed
+- **Android updates failing with "App not installed"** — release APKs were signed with a throwaway debug key that changed on every CI run, so Android rejected each new version as an update. Releases are now signed with a fixed upload keystore (via GitHub secrets), so future updates install normally.
+  - **One-time action required:** because the signing key changed, updating from any older version requires uninstalling the app once and installing v2.2.2 fresh. Downloads and settings on the device are reset by the uninstall. After that, updates work in place again.
+
+---
+
 ## [2.2.0] — 2026-07-13
 
 ### Added
