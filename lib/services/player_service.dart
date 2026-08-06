@@ -180,11 +180,11 @@ class PlayerService extends ChangeNotifier {
         await _player.setUrl(song.audioUrl);
       }
       if (crossfadeEnabled) {
-        await _player.setVolume(0);
+        await _safeSetVolume(0);
         await _player.play();
         _fade(from: 0, to: 1, duration: Duration(seconds: crossfadeSeconds));
       } else {
-        await _player.setVolume(1);
+        await _safeSetVolume(1);
         await _player.play();
       }
     } catch (_) {
@@ -192,6 +192,16 @@ class PlayerService extends ChangeNotifier {
     }
     notifyListeners();
     unawaited(_updateHomeWidget());
+  }
+
+  /// Volume changes are a non-essential nicety for crossfade — if setVolume
+  /// fails (e.g. platform quirk, or not stubbed in a test double) playback
+  /// must still start, so failures here are swallowed rather than bubbling
+  /// up into the caller's try/catch and skipping play().
+  Future<void> _safeSetVolume(double volume) async {
+    try {
+      await _player.setVolume(volume);
+    } catch (_) {}
   }
 
   /// Speelt een nummer af vanuit de UI (bijv. tik op song card).
@@ -390,7 +400,7 @@ class PlayerService extends ChangeNotifier {
     if (!value) {
       _fadeTicker?.cancel();
       _fadingOut = false;
-      unawaited(_player.setVolume(1));
+      unawaited(_safeSetVolume(1));
     }
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
@@ -426,7 +436,7 @@ class PlayerService extends ChangeNotifier {
   }) {
     _fadeTicker?.cancel();
     if (duration <= Duration.zero) {
-      unawaited(_player.setVolume(to.clamp(0.0, 1.0).toDouble()));
+      unawaited(_safeSetVolume(to.clamp(0.0, 1.0).toDouble()));
       return;
     }
     const steps = 20;
@@ -436,7 +446,7 @@ class PlayerService extends ChangeNotifier {
     _fadeTicker = Timer.periodic(Duration(milliseconds: stepMs), (timer) {
       i++;
       final v = from + (to - from) * (i / steps);
-      unawaited(_player.setVolume(v.clamp(0.0, 1.0).toDouble()));
+      unawaited(_safeSetVolume(v.clamp(0.0, 1.0).toDouble()));
       if (i >= steps) timer.cancel();
     });
   }
