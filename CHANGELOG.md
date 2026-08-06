@@ -4,11 +4,18 @@ All release notes are written in English.
 
 ---
 
+## [2.3.1] — 2026-08-06
+
+### Changed
+- **Recently played moved to the Queue screen** — it was crowding the Songs screen alongside search, filters, and search history; it now lives on the Queue tab instead, which shows it even when the queue itself is empty.
+
+---
+
 ## [2.3.0] — 2026-08-06
 
 ### Added
 - **Liked songs** — tap the heart on a song card, song detail, or the player to like it. Liked songs get their own pinned "Liked Songs" playlist on the Playlists tab.
-- **Recently played** — a "Recently played" row appears on the Songs screen after you've played a couple of songs; hidden while a search or filter is active.
+- **Recently played** — shows songs you've recently played so you can jump back to them.
 - **Sleep timer** — new moon icon in the full-screen player; pick a preset (5/15/30/45/60 min) and playback pauses automatically when it runs out.
 - **Search history** — recent search terms show as tappable chips when you focus the (empty) search field.
 - **Crossfade** — new Settings → Playback section. When enabled, the end of a track fades out and the next fades in, with a configurable duration (2/4/6/8s). This is a fade transition, not a true overlapping crossfade — the audio player is tied to a single lock-screen/notification session, so only one track plays at a time.
