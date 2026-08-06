@@ -12,7 +12,6 @@ import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/download_service.dart';
 import 'package:music_player_flutter/services/liked_songs_service.dart';
 import 'package:music_player_flutter/services/player_service.dart';
-import 'package:music_player_flutter/services/recently_played_service.dart';
 import 'package:music_player_flutter/services/search_history_service.dart';
 import 'package:music_player_flutter/screens/songs_screen.dart';
 
@@ -68,8 +67,6 @@ void main() {
           ChangeNotifierProvider<DownloadService>.value(value: downloadService),
           ChangeNotifierProvider<LikedSongsService>.value(
               value: LikedSongsService()),
-          ChangeNotifierProvider<RecentlyPlayedService>.value(
-              value: RecentlyPlayedService()),
           ChangeNotifierProvider<SearchHistoryService>.value(
               value: SearchHistoryService()),
           Provider<ApiService>.value(value: mockApi),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/player_service.dart';
+import '../services/recently_played_service.dart';
 
 class QueueScreen extends StatelessWidget {
   const QueueScreen({super.key});
@@ -13,10 +14,14 @@ class QueueScreen extends StatelessWidget {
     final queue = player.queue;
     final upcoming = player.upcomingInPlaylist;
     final current = player.currentSong;
+    final recentlyPlayed = context.watch<RecentlyPlayedService>().recentSongs;
     final l10n = AppL10n.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final isEmpty = current == null && queue.isEmpty && upcoming.isEmpty;
+    final isEmpty = current == null &&
+        queue.isEmpty &&
+        upcoming.isEmpty &&
+        recentlyPlayed.isEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -64,6 +69,17 @@ class QueueScreen extends StatelessWidget {
                   _SectionHeader(l10n.sectionUpNext),
                   ...upcoming.take(15).map((s) => _QueueTile(song: s)),
                 ],
+                if (recentlyPlayed.isNotEmpty) ...[
+                  _SectionHeader(l10n.recentlyPlayed),
+                  ...recentlyPlayed.asMap().entries.map(
+                        (e) => _QueueTile(
+                          song: e.value,
+                          onTap: () => context
+                              .read<PlayerService>()
+                              .playSong(e.value, recentlyPlayed, e.key),
+                        ),
+                      ),
+                ],
                 const SizedBox(height: 16),
               ],
             ),
@@ -96,11 +112,13 @@ class _QueueTile extends StatelessWidget {
   final Song song;
   final bool isCurrent;
   final VoidCallback? onRemove;
+  final VoidCallback? onTap;
 
   const _QueueTile({
     required this.song,
     this.isCurrent = false,
     this.onRemove,
+    this.onTap,
   });
 
   @override
@@ -108,6 +126,7 @@ class _QueueTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ListTile(
+      onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(6),

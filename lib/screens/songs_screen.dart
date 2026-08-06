@@ -9,7 +9,6 @@ import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
-import '../services/recently_played_service.dart';
 import '../services/search_history_service.dart';
 import '../services/streaming_service.dart';
 import '../widgets/global_app_bar_actions.dart';
@@ -235,11 +234,6 @@ class _SongsScreenState extends State<SongsScreen> {
           ),
           if (_searchFocused && _searchCtrl.text.isEmpty)
             _SearchHistoryChips(onSelect: _searchFor),
-          if (!_searchFocused &&
-              _searchCtrl.text.isEmpty &&
-              _language.isEmpty &&
-              _genre.isEmpty)
-            const _RecentlyPlayedSection(),
           Expanded(
             child: _loading
                 ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
@@ -555,89 +549,6 @@ class _SearchHistoryChips extends StatelessWidget {
       ),
     );
   }
-}
-
-class _RecentlyPlayedSection extends StatelessWidget {
-  const _RecentlyPlayedSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final songs = context.watch<RecentlyPlayedService>().recentSongs;
-    if (songs.isEmpty) return const SizedBox.shrink();
-    final l10n = AppL10n.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      color: colorScheme.surface,
-      padding: const EdgeInsets.only(top: 4, bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-            child: Text(
-              l10n.recentlyPlayed,
-              style: TextStyle(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 96,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: songs.length,
-              itemBuilder: (_, i) {
-                final song = songs[i];
-                return GestureDetector(
-                  onTap: () =>
-                      context.read<PlayerService>().playSong(song, songs, i),
-                  child: Container(
-                    width: 72,
-                    margin: const EdgeInsets.only(right: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: SizedBox(
-                            width: 72,
-                            height: 72,
-                            child: song.imageUrl != null
-                                ? Image.network(song.imageUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) =>
-                                        _recentPlaceholder(colorScheme))
-                                : _recentPlaceholder(colorScheme),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          song.title,
-                          style: TextStyle(
-                              color: colorScheme.onSurface, fontSize: 11),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _recentPlaceholder(ColorScheme cs) => Container(
-        color: cs.surfaceContainerHighest,
-        child: Icon(Icons.music_note, color: cs.primary, size: 28),
-      );
 }
 
 Future<void> _shareSong(BuildContext context, Song song) async {
