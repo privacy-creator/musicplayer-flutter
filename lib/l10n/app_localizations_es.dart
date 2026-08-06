@@ -65,6 +65,18 @@ class AppL10nEs extends AppL10n {
   String get btnAddToQueue => 'Añadir a la cola';
 
   @override
+  String get likedSongs => 'Me gusta';
+
+  @override
+  String get noLikedSongs => 'Aún no hay canciones con me gusta';
+
+  @override
+  String get tooltipLike => 'Me gusta';
+
+  @override
+  String get tooltipUnlike => 'Quitar me gusta';
+
+  @override
   String songAdded(String title) {
     return '$title añadida';
   }

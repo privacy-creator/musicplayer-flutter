@@ -10,6 +10,7 @@ import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/models/song.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/download_service.dart';
+import 'package:music_player_flutter/services/liked_songs_service.dart';
 import 'package:music_player_flutter/services/player_service.dart';
 import 'package:music_player_flutter/services/streaming_service.dart';
 import 'package:music_player_flutter/screens/player_detail_screen.dart';
@@ -82,6 +83,8 @@ void main() {
   Widget buildScreen() => MultiProvider(
         providers: [
           ChangeNotifierProvider<DownloadService>.value(value: downloadService),
+          ChangeNotifierProvider<LikedSongsService>.value(
+              value: LikedSongsService()),
           ChangeNotifierProvider<PlayerService>.value(value: playerService),
           ChangeNotifierProvider<StreamingService>.value(value: streamingService),
         ],

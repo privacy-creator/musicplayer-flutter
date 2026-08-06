@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/playlist.dart';
 import '../services/api_service.dart';
+import '../services/liked_songs_service.dart';
 import '../widgets/global_app_bar_actions.dart';
+import 'liked_songs_screen.dart';
 import 'playlist_detail_screen.dart';
 
 class PlaylistsScreen extends StatefulWidget {
@@ -43,21 +45,94 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
         title: Text(l10n.navPlaylists),
         actions: const [GlobalAppBarActions()],
       ),
-      body: _loading
-          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
-          : _playlists.isEmpty
-              ? Center(
-                  child: Text(l10n.noPlaylists,
-                      style: TextStyle(color: colorScheme.onSurfaceVariant)))
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  color: colorScheme.primary,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: _playlists.length,
-                    itemBuilder: (_, i) => _PlaylistCard(playlist: _playlists[i]),
-                  ),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: _LikedSongsCard(),
+          ),
+          Expanded(
+            child: _loading
+                ? Center(
+                    child:
+                        CircularProgressIndicator(color: colorScheme.primary))
+                : _playlists.isEmpty
+                    ? Center(
+                        child: Text(l10n.noPlaylists,
+                            style:
+                                TextStyle(color: colorScheme.onSurfaceVariant)))
+                    : RefreshIndicator(
+                        onRefresh: _load,
+                        color: colorScheme.primary,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: _playlists.length,
+                          itemBuilder: (_, i) =>
+                              _PlaylistCard(playlist: _playlists[i]),
+                        ),
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LikedSongsCard extends StatelessWidget {
+  const _LikedSongsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final count = context.watch<LikedSongsService>().likedSongs.length;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LikedSongsScreen()),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                child: const Icon(Icons.favorite, color: Colors.red, size: 28),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.likedSongs,
+                        style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15)),
+                    const SizedBox(height: 3),
+                    Text(
+                      l10n.songCount(count),
+                      style: TextStyle(
+                          color: colorScheme.onSurfaceVariant, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

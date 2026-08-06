@@ -24,6 +24,11 @@
   "offlineBadge": "Disponibile offline",
   "btnAddToQueue": "Aggiungi alla coda",
 
+  "likedSongs": "Brani che mi piacciono",
+  "noLikedSongs": "Nessun brano preferito ancora",
+  "tooltipLike": "Mi piace",
+  "tooltipUnlike": "Rimuovi mi piace",
+
   "songAdded": "{title} aggiunto",
 
   "queue": "Coda",

@@ -24,6 +24,11 @@
   "offlineBadge": "Disponible sin conexión",
   "btnAddToQueue": "Añadir a la cola",
 
+  "likedSongs": "Me gusta",
+  "noLikedSongs": "Aún no hay canciones con me gusta",
+  "tooltipLike": "Me gusta",
+  "tooltipUnlike": "Quitar me gusta",
+
   "songAdded": "{title} añadida",
 
   "queue": "Cola",

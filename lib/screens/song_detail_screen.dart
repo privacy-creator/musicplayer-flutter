@@ -7,6 +7,7 @@ import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/player_service.dart';
+import '../widgets/like_button.dart';
 import '../widgets/lyrics_section.dart';
 import 'queue_screen.dart';
 
@@ -50,6 +51,7 @@ class _SongDetailScreenState extends State<SongDetailScreen> {
       appBar: AppBar(
         title: Text(song.title),
         actions: [
+          LikeButton(song: song, size: 26),
           IconButton(
             icon: const Icon(Icons.more_vert),
             iconSize: 28,

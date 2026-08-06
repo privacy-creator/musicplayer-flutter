@@ -65,6 +65,18 @@ class AppL10nNl extends AppL10n {
   String get btnAddToQueue => 'Aan wachtrij toevoegen';
 
   @override
+  String get likedSongs => 'Leuke nummers';
+
+  @override
+  String get noLikedSongs => 'Nog geen leuke nummers';
+
+  @override
+  String get tooltipLike => 'Leuk vinden';
+
+  @override
+  String get tooltipUnlike => 'Niet meer leuk vinden';
+
+  @override
   String songAdded(String title) {
     return '$title toegevoegd';
   }

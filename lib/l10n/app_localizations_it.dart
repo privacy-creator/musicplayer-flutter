@@ -65,6 +65,18 @@ class AppL10nIt extends AppL10n {
   String get btnAddToQueue => 'Aggiungi alla coda';
 
   @override
+  String get likedSongs => 'Brani che mi piacciono';
+
+  @override
+  String get noLikedSongs => 'Nessun brano preferito ancora';
+
+  @override
+  String get tooltipLike => 'Mi piace';
+
+  @override
+  String get tooltipUnlike => 'Rimuovi mi piace';
+
+  @override
   String songAdded(String title) {
     return '$title aggiunto';
   }

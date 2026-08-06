@@ -24,6 +24,11 @@
   "offlineBadge": "Offline verfügbar",
   "btnAddToQueue": "Zur Warteschlange hinzufügen",
 
+  "likedSongs": "Lieblingssongs",
+  "noLikedSongs": "Noch keine Lieblingssongs",
+  "tooltipLike": "Gefällt mir",
+  "tooltipUnlike": "Gefällt mir entfernen",
+
   "songAdded": "{title} hinzugefügt",
 
   "queue": "Warteschlange",

@@ -11,6 +11,7 @@ import '../services/download_service.dart';
 import '../services/player_service.dart';
 import '../services/streaming_service.dart';
 import '../widgets/global_app_bar_actions.dart';
+import '../widgets/like_button.dart';
 import 'song_detail_screen.dart';
 
 Future<bool> _confirmLeaveStream(BuildContext context) async {
@@ -665,6 +666,23 @@ class _SongCard extends StatelessWidget {
                           ),
                           child: const Icon(Icons.more_vert,
                               color: Colors.white, size: 20),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: LikeButton(
+                          song: song,
+                          size: 18,
+                          color: Colors.white,
+                          padding: const EdgeInsets.all(6),
+                          constraints: const BoxConstraints(),
                         ),
                       ),
                     ),

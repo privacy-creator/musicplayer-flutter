@@ -65,6 +65,18 @@ class AppL10nDe extends AppL10n {
   String get btnAddToQueue => 'Zur Warteschlange hinzufügen';
 
   @override
+  String get likedSongs => 'Lieblingssongs';
+
+  @override
+  String get noLikedSongs => 'Noch keine Lieblingssongs';
+
+  @override
+  String get tooltipLike => 'Gefällt mir';
+
+  @override
+  String get tooltipUnlike => 'Gefällt mir entfernen';
+
+  @override
   String songAdded(String title) {
     return '$title hinzugefügt';
   }

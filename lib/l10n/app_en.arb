@@ -29,6 +29,11 @@
   "offlineBadge": "Available offline",
   "btnAddToQueue": "Add to queue",
 
+  "likedSongs": "Liked Songs",
+  "noLikedSongs": "No liked songs yet",
+  "tooltipLike": "Like",
+  "tooltipUnlike": "Remove like",
+
   "songAdded": "{title} added",
   "@songAdded": {
     "placeholders": {

@@ -65,6 +65,18 @@ class AppL10nEn extends AppL10n {
   String get btnAddToQueue => 'Add to queue';
 
   @override
+  String get likedSongs => 'Liked Songs';
+
+  @override
+  String get noLikedSongs => 'No liked songs yet';
+
+  @override
+  String get tooltipLike => 'Like';
+
+  @override
+  String get tooltipUnlike => 'Remove like';
+
+  @override
   String songAdded(String title) {
     return '$title added';
   }

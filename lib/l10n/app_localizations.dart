@@ -211,6 +211,30 @@ abstract class AppL10n {
   /// **'Add to queue'**
   String get btnAddToQueue;
 
+  /// No description provided for @likedSongs.
+  ///
+  /// In en, this message translates to:
+  /// **'Liked Songs'**
+  String get likedSongs;
+
+  /// No description provided for @noLikedSongs.
+  ///
+  /// In en, this message translates to:
+  /// **'No liked songs yet'**
+  String get noLikedSongs;
+
+  /// No description provided for @tooltipLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get tooltipLike;
+
+  /// No description provided for @tooltipUnlike.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove like'**
+  String get tooltipUnlike;
+
   /// No description provided for @songAdded.
   ///
   /// In en, this message translates to:

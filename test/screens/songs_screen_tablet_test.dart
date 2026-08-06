@@ -10,6 +10,7 @@ import 'package:music_player_flutter/services/api_service.dart';
 import 'package:music_player_flutter/services/auth_service.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/download_service.dart';
+import 'package:music_player_flutter/services/liked_songs_service.dart';
 import 'package:music_player_flutter/services/player_service.dart';
 import 'package:music_player_flutter/screens/songs_screen.dart';
 
@@ -63,6 +64,8 @@ void main() {
   Widget buildScreen() => MultiProvider(
         providers: [
           ChangeNotifierProvider<DownloadService>.value(value: downloadService),
+          ChangeNotifierProvider<LikedSongsService>.value(
+              value: LikedSongsService()),
           Provider<ApiService>.value(value: mockApi),
           ChangeNotifierProvider<AuthService>(
             create: (ctx) => AuthService(ctx.read<ApiService>()),

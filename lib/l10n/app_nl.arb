@@ -24,6 +24,11 @@
   "offlineBadge": "Offline beschikbaar",
   "btnAddToQueue": "Aan wachtrij toevoegen",
 
+  "likedSongs": "Leuke nummers",
+  "noLikedSongs": "Nog geen leuke nummers",
+  "tooltipLike": "Leuk vinden",
+  "tooltipUnlike": "Niet meer leuk vinden",
+
   "songAdded": "{title} toegevoegd",
 
   "queue": "Wachtrij",

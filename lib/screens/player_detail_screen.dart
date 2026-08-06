@@ -6,6 +6,7 @@ import '../services/download_service.dart';
 import '../services/player_service.dart';
 import '../services/streaming_service.dart';
 import '../models/song.dart';
+import '../widgets/like_button.dart';
 import '../widgets/lyrics_section.dart';
 import 'queue_screen.dart';
 
@@ -46,6 +47,7 @@ class PlayerDetailScreen extends StatelessWidget {
             style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
         centerTitle: true,
         actions: [
+          LikeButton(song: song, size: 24, color: colorScheme.onSurface),
           IconButton(
             icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
             iconSize: 28,
