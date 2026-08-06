@@ -47,6 +47,16 @@ class PlayerDetailScreen extends StatelessWidget {
             style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
         centerTitle: true,
         actions: [
+          IconButton(
+            tooltip: l10n.tooltipSleepTimer,
+            icon: Icon(
+              Icons.bedtime_outlined,
+              color: player.sleepTimerRemaining != null
+                  ? colorScheme.primary
+                  : colorScheme.onSurface,
+            ),
+            onPressed: () => _showSleepTimerSheet(context, player, l10n, colorScheme),
+          ),
           LikeButton(song: song, size: 24, color: colorScheme.onSurface),
           IconButton(
             icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
@@ -309,6 +319,87 @@ class PlayerDetailScreen extends StatelessWidget {
 
   Widget _placeholder(ColorScheme cs) => Center(
       child: Icon(Icons.music_note, color: cs.primary, size: 80));
+}
+
+const _sleepTimerPresets = [5, 15, 30, 45, 60];
+
+String _formatSleepRemaining(Duration d) {
+  final m = d.inMinutes;
+  final s = (d.inSeconds % 60).toString().padLeft(2, '0');
+  return '$m:$s';
+}
+
+void _showSleepTimerSheet(
+  BuildContext context,
+  PlayerService player,
+  AppL10n l10n,
+  ColorScheme colorScheme,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (sheetCtx) => Consumer<PlayerService>(
+      builder: (_, p, _) => Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHigh,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 4),
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: Text(
+                  l10n.tooltipSleepTimer,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (p.sleepTimerRemaining != null) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  child: Text(
+                    _formatSleepRemaining(p.sleepTimerRemaining!),
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.stop_circle_outlined),
+                  title: Text(l10n.sleepTimerOff),
+                  onTap: () {
+                    p.cancelSleepTimer();
+                    Navigator.pop(sheetCtx);
+                  },
+                ),
+              ] else
+                for (final minutes in _sleepTimerPresets)
+                  ListTile(
+                    leading: const Icon(Icons.bedtime_outlined),
+                    title: Text('$minutes min'),
+                    onTap: () {
+                      p.startSleepTimer(Duration(minutes: minutes));
+                      Navigator.pop(sheetCtx);
+                    },
+                  ),
+              SizedBox(height: MediaQuery.of(sheetCtx).padding.bottom + 12),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 void _showPlayerMenu(

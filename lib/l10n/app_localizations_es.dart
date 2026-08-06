@@ -77,6 +77,28 @@ class AppL10nEs extends AppL10n {
   String get tooltipUnlike => 'Quitar me gusta';
 
   @override
+  String get recentlyPlayed => 'Reproducido recientemente';
+
+  @override
+  String get tooltipSleepTimer => 'Temporizador de apagado';
+
+  @override
+  String get sleepTimerOff => 'Desactivar temporizador';
+
+  @override
+  String get playbackSection => 'Reproducción';
+
+  @override
+  String get crossfade => 'Crossfade';
+
+  @override
+  String get crossfadeSubtitle =>
+      'Atenúa el final de una canción y sube el volumen de la siguiente';
+
+  @override
+  String get crossfadeDuration => 'Duración del crossfade';
+
+  @override
   String songAdded(String title) {
     return '$title añadida';
   }

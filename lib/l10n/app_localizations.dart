@@ -235,6 +235,48 @@ abstract class AppL10n {
   /// **'Remove like'**
   String get tooltipUnlike;
 
+  /// No description provided for @recentlyPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently played'**
+  String get recentlyPlayed;
+
+  /// No description provided for @tooltipSleepTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep timer'**
+  String get tooltipSleepTimer;
+
+  /// No description provided for @sleepTimerOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off timer'**
+  String get sleepTimerOff;
+
+  /// No description provided for @playbackSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback'**
+  String get playbackSection;
+
+  /// No description provided for @crossfade.
+  ///
+  /// In en, this message translates to:
+  /// **'Crossfade'**
+  String get crossfade;
+
+  /// No description provided for @crossfadeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fade out the end of a track and fade in the next'**
+  String get crossfadeSubtitle;
+
+  /// No description provided for @crossfadeDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Crossfade duration'**
+  String get crossfadeDuration;
+
   /// No description provided for @songAdded.
   ///
   /// In en, this message translates to:

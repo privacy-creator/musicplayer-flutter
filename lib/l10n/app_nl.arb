@@ -29,6 +29,14 @@
   "tooltipLike": "Leuk vinden",
   "tooltipUnlike": "Niet meer leuk vinden",
 
+  "recentlyPlayed": "Onlangs afgespeeld",
+  "tooltipSleepTimer": "Slaaptimer",
+  "sleepTimerOff": "Timer uitzetten",
+  "playbackSection": "Afspelen",
+  "crossfade": "Crossfade",
+  "crossfadeSubtitle": "Faded het einde van een nummer uit en het volgende in",
+  "crossfadeDuration": "Crossfade-duur",
+
   "songAdded": "{title} toegevoegd",
 
   "queue": "Wachtrij",

@@ -77,6 +77,28 @@ class AppL10nDe extends AppL10n {
   String get tooltipUnlike => 'Gefällt mir entfernen';
 
   @override
+  String get recentlyPlayed => 'Zuletzt gespielt';
+
+  @override
+  String get tooltipSleepTimer => 'Einschlaftimer';
+
+  @override
+  String get sleepTimerOff => 'Timer ausschalten';
+
+  @override
+  String get playbackSection => 'Wiedergabe';
+
+  @override
+  String get crossfade => 'Crossfade';
+
+  @override
+  String get crossfadeSubtitle =>
+      'Blendet das Ende eines Titels aus und den nächsten ein';
+
+  @override
+  String get crossfadeDuration => 'Crossfade-Dauer';
+
+  @override
   String songAdded(String title) {
     return '$title hinzugefügt';
   }

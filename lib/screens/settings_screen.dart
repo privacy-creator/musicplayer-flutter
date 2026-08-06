@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/language_service.dart';
+import '../services/player_service.dart';
 import '../services/theme_service.dart';
 import '../services/translation_service.dart';
 import '../services/update_service.dart';
@@ -32,6 +33,9 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         children: [
+          _SectionHeader(label: l10n.playbackSection),
+          _CrossfadeTile(),
+          const Divider(height: 1, indent: 16, endIndent: 16),
           _SectionHeader(label: l10n.appearanceSection),
           _ThemeTile(),
           const Divider(height: 1, indent: 16, endIndent: 16),
@@ -82,6 +86,70 @@ class _SectionHeader extends StatelessWidget {
           letterSpacing: 1.2,
         ),
       ),
+    );
+  }
+}
+
+const _crossfadeSecondsOptions = [2, 4, 6, 8];
+
+class _CrossfadeTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    final player = context.watch<PlayerService>();
+
+    return Column(
+      children: [
+        SwitchListTile(
+          secondary: const Icon(Icons.graphic_eq),
+          title: Text(l10n.crossfade),
+          subtitle: Text(l10n.crossfadeSubtitle),
+          value: player.crossfadeEnabled,
+          onChanged: (v) => player.setCrossfadeEnabled(v),
+        ),
+        if (player.crossfadeEnabled)
+          ListTile(
+            leading: const SizedBox(width: 24),
+            title: Text(l10n.crossfadeDuration),
+            subtitle: Text('${player.crossfadeSeconds}s'),
+            onTap: () {
+              showModalBottomSheet<void>(
+                context: context,
+                builder: (ctx) => SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                          child: Text(
+                            l10n.crossfadeDuration,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        for (final seconds in _crossfadeSecondsOptions)
+                          ListTile(
+                            title: Text('${seconds}s'),
+                            trailing: seconds == player.crossfadeSeconds
+                                ? Icon(Icons.check,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    size: 18)
+                                : null,
+                            onTap: () {
+                              player.setCrossfadeSeconds(seconds);
+                              Navigator.pop(ctx);
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 }

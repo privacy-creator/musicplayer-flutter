@@ -1,24 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/screens/settings_screen.dart';
 import 'package:music_player_flutter/services/api_service.dart';
+import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/download_service.dart';
 import 'package:music_player_flutter/services/language_service.dart';
+import 'package:music_player_flutter/services/player_service.dart';
 import 'package:music_player_flutter/services/theme_service.dart';
 import 'package:music_player_flutter/services/translation_service.dart';
 import 'package:music_player_flutter/services/update_service.dart';
+
+class MockAudioPlayer extends Mock implements AudioPlayer {}
+
+// SettingsScreen's crossfade tile reads PlayerService; these tests don't
+// exercise playback, so a minimal mock-backed instance is enough to satisfy
+// the provider lookup.
+PlayerService _testPlayerService() {
+  final mockPlayer = MockAudioPlayer();
+  when(() => mockPlayer.playerStateStream)
+      .thenAnswer((_) => const Stream.empty());
+  when(() => mockPlayer.positionStream)
+      .thenAnswer((_) => const Stream.empty());
+  when(() => mockPlayer.durationStream)
+      .thenAnswer((_) => const Stream.empty());
+  when(() => mockPlayer.playing).thenReturn(false);
+  when(() => mockPlayer.position).thenReturn(Duration.zero);
+  when(() => mockPlayer.duration).thenReturn(null);
+  when(() => mockPlayer.bufferedPosition).thenReturn(Duration.zero);
+  when(() => mockPlayer.playerState)
+      .thenReturn(PlayerState(false, ProcessingState.idle));
+  when(() => mockPlayer.setVolume(any())).thenAnswer((_) async {});
+  when(() => mockPlayer.dispose()).thenAnswer((_) async {});
+  return PlayerService(handler: MusicAudioHandler(player: mockPlayer));
+}
 
 Widget _buildSettings(
   ThemeService themeService,
   LanguageService langService,
   TranslationService translationService,
   DownloadService downloadService,
-  UpdateService updateService,
-) {
+  UpdateService updateService, {
+  PlayerService? playerService,
+}) {
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<ThemeService>.value(value: themeService),
@@ -26,6 +55,8 @@ Widget _buildSettings(
       Provider<TranslationService>.value(value: translationService),
       ChangeNotifierProvider<DownloadService>.value(value: downloadService),
       ChangeNotifierProvider<UpdateService>.value(value: updateService),
+      ChangeNotifierProvider<PlayerService>.value(
+          value: playerService ?? _testPlayerService()),
       Provider<ApiService>(create: (_) => ApiService()),
     ],
     child: MaterialApp(
