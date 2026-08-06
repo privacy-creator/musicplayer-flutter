@@ -6,15 +6,19 @@ import '../models/song.dart';
 class LikedSongsService extends ChangeNotifier {
   static const _prefKey = 'liked_songs_v1';
 
-  // songId → {song: Song.toJson(), likedAt: epochMillis}
+  // songId → {song: Song.toJson(), likedAt: epochMillis, seq: monotonic order}
   final Map<int, Map<String, dynamic>> _liked = {};
+
+  // likedAt (wall-clock millis) isn't precise enough to order likes that
+  // happen within the same millisecond, so ordering uses this counter
+  // instead; likedAt is kept only as informational metadata.
+  int _nextSeq = 0;
 
   bool isLiked(int songId) => _liked.containsKey(songId);
 
   List<Song> get likedSongs {
     final entries = _liked.values.toList()
-      ..sort((a, b) =>
-          (b['likedAt'] as int).compareTo(a['likedAt'] as int));
+      ..sort((a, b) => (b['seq'] as int).compareTo(a['seq'] as int));
     return entries
         .map((e) => Song.fromJson(e['song'] as Map<String, dynamic>))
         .toList();
@@ -28,7 +32,10 @@ class LikedSongsService extends ChangeNotifier {
     for (final entry in map.entries) {
       final id = int.tryParse(entry.key);
       if (id == null) continue;
-      _liked[id] = entry.value as Map<String, dynamic>;
+      final value = entry.value as Map<String, dynamic>;
+      _liked[id] = value;
+      final seq = value['seq'] as int? ?? 0;
+      if (seq >= _nextSeq) _nextSeq = seq + 1;
     }
     notifyListeners();
   }
@@ -38,6 +45,7 @@ class LikedSongsService extends ChangeNotifier {
     _liked[song.id] = {
       'song': song.toJson(),
       'likedAt': DateTime.now().millisecondsSinceEpoch,
+      'seq': _nextSeq++,
     };
     notifyListeners();
     await _persist();
