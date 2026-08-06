@@ -121,7 +121,11 @@ void main() {
       expect(find.text('APPEARANCE'), findsOneWidget);
       expect(find.text('LANGUAGE'), findsOneWidget);
       expect(find.text('STORAGE'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('DOWNLOADS'), 100,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text('DOWNLOADS'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('ABOUT'), 100,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text('ABOUT'), findsOneWidget);
     });
 
@@ -251,6 +255,8 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byIcon(Icons.chevron_right), 100,
+          scrollable: find.byType(Scrollable).first);
       expect(find.byIcon(Icons.chevron_right), findsOneWidget);
     });
 
@@ -260,6 +266,8 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('0 songs · 0 B'), 100,
+          scrollable: find.byType(Scrollable).first);
       expect(find.text('0 songs · 0 B'), findsOneWidget);
     });
 
@@ -269,6 +277,8 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byIcon(Icons.chevron_right), 100,
+          scrollable: find.byType(Scrollable).first);
       await tester.tap(find.byIcon(Icons.chevron_right));
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsWidgets);
@@ -282,7 +292,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Song list cache'), findsOneWidget);
-      final tile = tester.widget<SwitchListTile>(find.byType(SwitchListTile));
+      final tile = tester.widget<SwitchListTile>(
+          find.widgetWithText(SwitchListTile, 'Song list cache'));
       expect(tile.value, isTrue);
     });
 
@@ -293,7 +304,7 @@ void main() {
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(find.widgetWithText(SwitchListTile, 'Song list cache'));
       await tester.pumpAndSettle();
 
       final prefs = await SharedPreferences.getInstance();
@@ -311,7 +322,7 @@ void main() {
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(find.widgetWithText(SwitchListTile, 'Song list cache'));
       await tester.pumpAndSettle();
 
       final prefs = await SharedPreferences.getInstance();

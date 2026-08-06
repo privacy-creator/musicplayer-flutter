@@ -88,10 +88,21 @@ void main() {
     });
   });
 
+  // PlayerService subscribes to positionStream once, at construction time.
+  // fakeAsync only fakes Timers/microtasks scheduled *within* its zone, so a
+  // service built in setUp() (outside any fakeAsync zone) never gets its
+  // stream-delivery microtask flushed by async.flushMicrotasks() — the
+  // listener silently never fires. Building a fresh instance inside each
+  // fakeAsync callback keeps construction (and thus the subscription) in
+  // the faked zone.
+  PlayerService buildFakeAsyncService() =>
+      PlayerService(handler: MusicAudioHandler(player: mockPlayer));
+
   group('fade-out bij het einde van een nummer', () {
     test('verlaagt het volume geleidelijk naar 0', () {
       fakeAsync((async) {
-        service.setCrossfadeEnabled(true);
+        final fadeService = buildFakeAsyncService();
+        fadeService.setCrossfadeEnabled(true);
         async.flushMicrotasks();
 
         positionController.add(const Duration(seconds: 7)); // nog 3s te gaan
@@ -101,22 +112,26 @@ void main() {
         final captured =
             verify(() => mockPlayer.setVolume(captureAny())).captured;
         expect(captured.last, closeTo(0.0, 0.01));
+        fadeService.dispose();
       });
     });
 
     test('start niet als crossfade uit staat', () {
       fakeAsync((async) {
+        final fadeService = buildFakeAsyncService();
         positionController.add(const Duration(seconds: 7));
         async.flushMicrotasks();
         async.elapse(const Duration(seconds: 3));
 
         verifyNever(() => mockPlayer.setVolume(any()));
+        fadeService.dispose();
       });
     });
 
     test('start niet zolang er meer dan crossfadeSeconds resteert', () {
       fakeAsync((async) {
-        service.setCrossfadeEnabled(true);
+        final fadeService = buildFakeAsyncService();
+        fadeService.setCrossfadeEnabled(true);
         async.flushMicrotasks();
 
         positionController.add(const Duration(seconds: 2)); // nog 8s te gaan
@@ -124,6 +139,7 @@ void main() {
         async.elapse(const Duration(seconds: 1));
 
         verifyNever(() => mockPlayer.setVolume(any()));
+        fadeService.dispose();
       });
     });
   });
@@ -131,10 +147,11 @@ void main() {
   group('fade-in bij een nieuw nummer', () {
     test('begint gedempt en faded naar volledig volume', () {
       fakeAsync((async) {
-        service.setCrossfadeEnabled(true);
+        final fadeService = buildFakeAsyncService();
+        fadeService.setCrossfadeEnabled(true);
         async.flushMicrotasks();
 
-        service.playSong(makeSong(1), [makeSong(1)], 0);
+        fadeService.playSong(makeSong(1), [makeSong(1)], 0);
         async.flushMicrotasks();
         async.elapse(const Duration(seconds: 4));
 
@@ -142,15 +159,18 @@ void main() {
             verify(() => mockPlayer.setVolume(captureAny())).captured;
         expect(captured.first, 0.0);
         expect(captured.last, closeTo(1.0, 0.01));
+        fadeService.dispose();
       });
     });
 
     test('blijft op vol volume als crossfade uit staat', () {
       fakeAsync((async) {
-        service.playSong(makeSong(1), [makeSong(1)], 0);
+        final fadeService = buildFakeAsyncService();
+        fadeService.playSong(makeSong(1), [makeSong(1)], 0);
         async.flushMicrotasks();
 
         verify(() => mockPlayer.setVolume(1)).called(greaterThanOrEqualTo(1));
+        fadeService.dispose();
       });
     });
   });
