@@ -65,6 +65,40 @@ class AppL10nEn extends AppL10n {
   String get btnAddToQueue => 'Add to queue';
 
   @override
+  String get likedSongs => 'Liked Songs';
+
+  @override
+  String get noLikedSongs => 'No liked songs yet';
+
+  @override
+  String get tooltipLike => 'Like';
+
+  @override
+  String get tooltipUnlike => 'Remove like';
+
+  @override
+  String get recentlyPlayed => 'Recently played';
+
+  @override
+  String get tooltipSleepTimer => 'Sleep timer';
+
+  @override
+  String get sleepTimerOff => 'Turn off timer';
+
+  @override
+  String get playbackSection => 'Playback';
+
+  @override
+  String get crossfade => 'Crossfade';
+
+  @override
+  String get crossfadeSubtitle =>
+      'Fade out the end of a track and fade in the next';
+
+  @override
+  String get crossfadeDuration => 'Crossfade duration';
+
+  @override
   String songAdded(String title) {
     return '$title added';
   }

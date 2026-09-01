@@ -13,6 +13,9 @@ import 'services/audio_handler.dart';
 import 'services/download_service.dart';
 import 'services/history_service.dart';
 import 'services/language_service.dart';
+import 'services/liked_songs_service.dart';
+import 'services/recently_played_service.dart';
+import 'services/search_history_service.dart';
 import 'services/player_service.dart';
 import 'services/theme_service.dart';
 import 'services/translation_service.dart';
@@ -32,6 +35,15 @@ void main() async {
 
   final downloadService = DownloadService();
   await downloadService.init();
+
+  final likedSongsService = LikedSongsService();
+  await likedSongsService.init();
+
+  final recentlyPlayedService = RecentlyPlayedService();
+  await recentlyPlayedService.init();
+
+  final searchHistoryService = SearchHistoryService();
+  await searchHistoryService.init();
 
   final apiService = ApiService();
   apiService.startDailyCacheRefresh();
@@ -60,6 +72,9 @@ void main() async {
     audioHandler: handler,
     apiService: apiService,
     downloadService: downloadService,
+    likedSongsService: likedSongsService,
+    recentlyPlayedService: recentlyPlayedService,
+    searchHistoryService: searchHistoryService,
     languageService: languageService,
     themeService: themeService,
     translationService: translationService,
@@ -72,6 +87,9 @@ class MusicPlayerApp extends StatelessWidget {
   final MusicAudioHandler audioHandler;
   final ApiService apiService;
   final DownloadService downloadService;
+  final LikedSongsService likedSongsService;
+  final RecentlyPlayedService recentlyPlayedService;
+  final SearchHistoryService searchHistoryService;
   final LanguageService languageService;
   final ThemeService themeService;
   final TranslationService translationService;
@@ -83,6 +101,9 @@ class MusicPlayerApp extends StatelessWidget {
     required this.audioHandler,
     required this.apiService,
     required this.downloadService,
+    required this.likedSongsService,
+    required this.recentlyPlayedService,
+    required this.searchHistoryService,
     required this.languageService,
     required this.themeService,
     required this.translationService,
@@ -98,6 +119,12 @@ class MusicPlayerApp extends StatelessWidget {
         ChangeNotifierProvider<ThemeService>.value(value: themeService),
         Provider<TranslationService>.value(value: translationService),
         ChangeNotifierProvider<DownloadService>.value(value: downloadService),
+        ChangeNotifierProvider<LikedSongsService>.value(
+            value: likedSongsService),
+        ChangeNotifierProvider<RecentlyPlayedService>.value(
+            value: recentlyPlayedService),
+        ChangeNotifierProvider<SearchHistoryService>.value(
+            value: searchHistoryService),
         ChangeNotifierProvider<UpdateService>.value(value: updateService),
         ChangeNotifierProvider<HistoryService>.value(value: historyService),
         Provider<ApiService>.value(value: apiService),
@@ -110,6 +137,7 @@ class MusicPlayerApp extends StatelessWidget {
             handler: audioHandler,
             downloadService: downloadService,
             historyService: historyService,
+            recentlyPlayedService: recentlyPlayedService,
           ),
         ),
         ChangeNotifierProxyProvider2<ApiService, PlayerService, StreamingService>(

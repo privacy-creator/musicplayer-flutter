@@ -29,6 +29,19 @@
   "offlineBadge": "Available offline",
   "btnAddToQueue": "Add to queue",
 
+  "likedSongs": "Liked Songs",
+  "noLikedSongs": "No liked songs yet",
+  "tooltipLike": "Like",
+  "tooltipUnlike": "Remove like",
+
+  "recentlyPlayed": "Recently played",
+  "tooltipSleepTimer": "Sleep timer",
+  "sleepTimerOff": "Turn off timer",
+  "playbackSection": "Playback",
+  "crossfade": "Crossfade",
+  "crossfadeSubtitle": "Fade out the end of a track and fade in the next",
+  "crossfadeDuration": "Crossfade duration",
+
   "songAdded": "{title} added",
   "@songAdded": {
     "placeholders": {

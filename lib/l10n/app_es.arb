@@ -24,6 +24,19 @@
   "offlineBadge": "Disponible sin conexión",
   "btnAddToQueue": "Añadir a la cola",
 
+  "likedSongs": "Me gusta",
+  "noLikedSongs": "Aún no hay canciones con me gusta",
+  "tooltipLike": "Me gusta",
+  "tooltipUnlike": "Quitar me gusta",
+
+  "recentlyPlayed": "Reproducido recientemente",
+  "tooltipSleepTimer": "Temporizador de apagado",
+  "sleepTimerOff": "Desactivar temporizador",
+  "playbackSection": "Reproducción",
+  "crossfade": "Crossfade",
+  "crossfadeSubtitle": "Atenúa el final de una canción y sube el volumen de la siguiente",
+  "crossfadeDuration": "Duración del crossfade",
+
   "songAdded": "{title} añadida",
 
   "queue": "Cola",

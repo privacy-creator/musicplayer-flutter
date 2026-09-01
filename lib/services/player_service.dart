@@ -11,13 +11,18 @@ import '../models/song.dart';
 import 'audio_handler.dart';
 import 'download_service.dart';
 import 'history_service.dart';
+import 'recently_played_service.dart';
 
 const _shuffleKey = 'shuffle_mode';
+const _crossfadeEnabledKey = 'crossfade_enabled';
+const _crossfadeSecondsKey = 'crossfade_seconds';
+const _defaultCrossfadeSeconds = 4;
 
 class PlayerService extends ChangeNotifier {
   final MusicAudioHandler _handler;
   final DownloadService? _downloadService;
   final HistoryService? _historyService;
+  final RecentlyPlayedService? _recentlyPlayedService;
   final _rng = Random();
   final _errorController = StreamController<String>.broadcast();
 
@@ -40,9 +45,23 @@ class PlayerService extends ChangeNotifier {
   final List<int> _history = [];
   static const _maxHistory = 100;
 
+  // Slaaptimer
+  Timer? _sleepTimerTicker;
+  Duration? _sleepTimerRemaining;
+
+  // Crossfade: fade-out over de laatste [crossfadeSeconds] van een nummer,
+  // fade-in over de eerste [crossfadeSeconds] van het volgende. Geen echte
+  // overlap (zie player_service.dart's enige AudioPlayer-instantie, die aan
+  // de lockscreen-notificatie gekoppeld is).
+  Timer? _fadeTicker;
+  bool _fadingOut = false;
+  bool crossfadeEnabled = false;
+  int crossfadeSeconds = _defaultCrossfadeSeconds;
+
   Song? get currentSong => _currentSong;
   bool get isPlaying => _player.playing;
   bool get shuffleMode => _shuffleMode;
+  Duration? get sleepTimerRemaining => _sleepTimerRemaining;
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
   Duration get position => _player.position;
@@ -70,9 +89,11 @@ class PlayerService extends ChangeNotifier {
     MusicAudioHandler? handler,
     DownloadService? downloadService,
     HistoryService? historyService,
+    RecentlyPlayedService? recentlyPlayedService,
   })  : _handler = handler ?? MusicAudioHandler(),
         _downloadService = downloadService,
-        _historyService = historyService {
+        _historyService = historyService,
+        _recentlyPlayedService = recentlyPlayedService {
     _handler.onSkipToNext = () => playNext();
     _handler.onSkipToPrevious = () => playPrevious();
     _handler.onSetShuffle = _applyShuffleFromSystem;
@@ -88,12 +109,14 @@ class PlayerService extends ChangeNotifier {
         unawaited(_updateHomeWidget());
       }
     });
-    _player.positionStream.listen((_) {
+    _player.positionStream.listen((position) {
       notifyListeners();
       _maybePushWidgetProgress();
       _maybeSaveHistoryPosition();
+      _maybeStartCrossfadeOut(position);
     });
     _loadShuffleMode();
+    _loadCrossfadeSettings();
     unawaited(_prepareFallbackArt());
   }
 
@@ -162,6 +185,9 @@ class PlayerService extends ChangeNotifier {
   Future<void> _loadAndPlay(Song song) async {
     _currentSong = song;
     _handler.setMediaItem(song);
+    unawaited(_recentlyPlayedService?.recordPlay(song));
+    _fadingOut = false;
+    _fadeTicker?.cancel();
     notifyListeners();
     unawaited(_historyService?.recordPlay(song.id));
     try {
@@ -171,12 +197,29 @@ class PlayerService extends ChangeNotifier {
       } else {
         await _player.setUrl(song.audioUrl);
       }
-      await _player.play();
+      if (crossfadeEnabled) {
+        await _safeSetVolume(0);
+        await _player.play();
+        _fade(from: 0, to: 1, duration: Duration(seconds: crossfadeSeconds));
+      } else {
+        await _safeSetVolume(1);
+        await _player.play();
+      }
     } catch (_) {
       _errorController.add('errorCannotLoad');
     }
     notifyListeners();
     unawaited(_updateHomeWidget());
+  }
+
+  /// Volume changes are a non-essential nicety for crossfade — if setVolume
+  /// fails (e.g. platform quirk, or not stubbed in a test double) playback
+  /// must still start, so failures here are swallowed rather than bubbling
+  /// up into the caller's try/catch and skipping play().
+  Future<void> _safeSetVolume(double volume) async {
+    try {
+      await _player.setVolume(volume);
+    } catch (_) {}
   }
 
   /// Speelt een nummer af vanuit de UI (bijv. tik op song card).
@@ -320,6 +363,112 @@ class PlayerService extends ChangeNotifier {
     unawaited(_updateHomeWidget());
   }
 
+  // ── Slaaptimer ──────────────────────────────────────────────────────────────
+
+  void startSleepTimer(Duration duration) {
+    _sleepTimerTicker?.cancel();
+    _sleepTimerRemaining = duration;
+    notifyListeners();
+    _sleepTimerTicker = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final remaining = _sleepTimerRemaining;
+      if (remaining == null) {
+        timer.cancel();
+        return;
+      }
+      final next = remaining - const Duration(seconds: 1);
+      if (next <= Duration.zero) {
+        timer.cancel();
+        _sleepTimerTicker = null;
+        _sleepTimerRemaining = null;
+        _player.pause();
+      } else {
+        _sleepTimerRemaining = next;
+      }
+      notifyListeners();
+    });
+  }
+
+  void cancelSleepTimer() {
+    _sleepTimerTicker?.cancel();
+    _sleepTimerTicker = null;
+    _sleepTimerRemaining = null;
+    notifyListeners();
+  }
+
+  // ── Crossfade ───────────────────────────────────────────────────────────────
+
+  Future<void> _loadCrossfadeSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final enabled = prefs.getBool(_crossfadeEnabledKey);
+    final seconds = prefs.getInt(_crossfadeSecondsKey);
+    var changed = false;
+    if (enabled != null && enabled != crossfadeEnabled) {
+      crossfadeEnabled = enabled;
+      changed = true;
+    }
+    if (seconds != null && seconds != crossfadeSeconds) {
+      crossfadeSeconds = seconds;
+      changed = true;
+    }
+    if (changed) notifyListeners();
+  }
+
+  Future<void> setCrossfadeEnabled(bool value) async {
+    crossfadeEnabled = value;
+    if (!value) {
+      _fadeTicker?.cancel();
+      _fadingOut = false;
+      unawaited(_safeSetVolume(1));
+    }
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_crossfadeEnabledKey, value);
+  }
+
+  Future<void> setCrossfadeSeconds(int seconds) async {
+    crossfadeSeconds = seconds;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_crossfadeSecondsKey, seconds);
+  }
+
+  /// Start het uitfaden van het huidige nummer zodra het minder dan
+  /// [crossfadeSeconds] resterende speeltijd heeft; het volgende nummer faded
+  /// vervolgens weer in vanuit `_loadAndPlay`. Geen echte overlap — zie de
+  /// toelichting bij de velden hierboven.
+  void _maybeStartCrossfadeOut(Duration position) {
+    if (!crossfadeEnabled || _fadingOut) return;
+    final total = _player.duration;
+    if (total == null) return;
+    final remaining = total - position;
+    if (remaining <= Duration.zero) return;
+    if (remaining > Duration(seconds: crossfadeSeconds)) return;
+    _fadingOut = true;
+    _fade(from: 1, to: 0, duration: remaining);
+  }
+
+  void _fade({
+    required double from,
+    required double to,
+    required Duration duration,
+  }) {
+    _fadeTicker?.cancel();
+    if (duration <= Duration.zero) {
+      unawaited(_safeSetVolume(to.clamp(0.0, 1.0).toDouble()));
+      return;
+    }
+    const steps = 20;
+    final stepMs =
+        (duration.inMilliseconds / steps).round().clamp(1, 1 << 30).toInt();
+    var i = 0;
+    _fadeTicker = Timer.periodic(Duration(milliseconds: stepMs), (timer) {
+      i++;
+      final v = from + (to - from) * (i / steps);
+      unawaited(_safeSetVolume(v.clamp(0.0, 1.0).toDouble()));
+      if (i >= steps) timer.cancel();
+    });
+  }
+
   // ── Home-screen widget ───────────────────────────────────────────────────────
 
   /// Pushes current playback state to the Android home-screen widget.
@@ -376,6 +525,8 @@ class PlayerService extends ChangeNotifier {
 
   @override
   void dispose() {
+    _sleepTimerTicker?.cancel();
+    _fadeTicker?.cancel();
     _errorController.close();
     // just_audio calls disposeAllPlayers() internally which is unimplemented on
     // Windows/Linux/macOS desktop — swallow any MissingPluginException.

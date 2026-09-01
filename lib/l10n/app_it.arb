@@ -24,6 +24,19 @@
   "offlineBadge": "Disponibile offline",
   "btnAddToQueue": "Aggiungi alla coda",
 
+  "likedSongs": "Brani che mi piacciono",
+  "noLikedSongs": "Nessun brano preferito ancora",
+  "tooltipLike": "Mi piace",
+  "tooltipUnlike": "Rimuovi mi piace",
+
+  "recentlyPlayed": "Riprodotti di recente",
+  "tooltipSleepTimer": "Timer di spegnimento",
+  "sleepTimerOff": "Disattiva timer",
+  "playbackSection": "Riproduzione",
+  "crossfade": "Crossfade",
+  "crossfadeSubtitle": "Dissolve la fine di un brano e apre il successivo in dissolvenza",
+  "crossfadeDuration": "Durata crossfade",
+
   "songAdded": "{title} aggiunto",
 
   "queue": "Coda",

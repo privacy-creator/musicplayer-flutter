@@ -65,6 +65,40 @@ class AppL10nNl extends AppL10n {
   String get btnAddToQueue => 'Aan wachtrij toevoegen';
 
   @override
+  String get likedSongs => 'Leuke nummers';
+
+  @override
+  String get noLikedSongs => 'Nog geen leuke nummers';
+
+  @override
+  String get tooltipLike => 'Leuk vinden';
+
+  @override
+  String get tooltipUnlike => 'Niet meer leuk vinden';
+
+  @override
+  String get recentlyPlayed => 'Onlangs afgespeeld';
+
+  @override
+  String get tooltipSleepTimer => 'Slaaptimer';
+
+  @override
+  String get sleepTimerOff => 'Timer uitzetten';
+
+  @override
+  String get playbackSection => 'Afspelen';
+
+  @override
+  String get crossfade => 'Crossfade';
+
+  @override
+  String get crossfadeSubtitle =>
+      'Faded het einde van een nummer uit en het volgende in';
+
+  @override
+  String get crossfadeDuration => 'Crossfade-duur';
+
+  @override
   String songAdded(String title) {
     return '$title toegevoegd';
   }

@@ -24,6 +24,19 @@
   "offlineBadge": "Offline verfügbar",
   "btnAddToQueue": "Zur Warteschlange hinzufügen",
 
+  "likedSongs": "Lieblingssongs",
+  "noLikedSongs": "Noch keine Lieblingssongs",
+  "tooltipLike": "Gefällt mir",
+  "tooltipUnlike": "Gefällt mir entfernen",
+
+  "recentlyPlayed": "Zuletzt gespielt",
+  "tooltipSleepTimer": "Einschlaftimer",
+  "sleepTimerOff": "Timer ausschalten",
+  "playbackSection": "Wiedergabe",
+  "crossfade": "Crossfade",
+  "crossfadeSubtitle": "Blendet das Ende eines Titels aus und den nächsten ein",
+  "crossfadeDuration": "Crossfade-Dauer",
+
   "songAdded": "{title} hinzugefügt",
 
   "queue": "Warteschlange",

@@ -11,8 +11,10 @@ import '../services/api_service.dart';
 import '../services/download_service.dart';
 import '../services/history_service.dart';
 import '../services/player_service.dart';
+import '../services/search_history_service.dart';
 import '../services/streaming_service.dart';
 import '../widgets/global_app_bar_actions.dart';
+import '../widgets/like_button.dart';
 import 'song_detail_screen.dart';
 
 Future<bool> _confirmLeaveStream(BuildContext context) async {
@@ -51,8 +53,10 @@ class _SongsScreenState extends State<SongsScreen> {
   bool _loading = true;
   bool _offline = false;
   final _searchCtrl = TextEditingController();
+  final _searchFocus = FocusNode();
   String _language = '';
   String _genre = '';
+  bool _searchFocused = false;
 
   static const _languages = [
     '', 'English', 'Dutch', 'Spanish', 'Italian', 'German', 'French'
@@ -63,12 +67,22 @@ class _SongsScreenState extends State<SongsScreen> {
   void initState() {
     super.initState();
     _load();
+    _searchFocus.addListener(() {
+      setState(() => _searchFocused = _searchFocus.hasFocus);
+    });
   }
 
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _searchFocus.dispose();
     super.dispose();
+  }
+
+  void _searchFor(String term) {
+    _searchCtrl.text = term;
+    _searchFocus.unfocus();
+    _load();
   }
 
   Future<bool> _hasInternet() async {
@@ -206,14 +220,22 @@ class _SongsScreenState extends State<SongsScreen> {
             ),
           _Filters(
             searchCtrl: _searchCtrl,
+            searchFocus: _searchFocus,
             language: _language,
             languages: _languages,
             genre: _genre,
             genres: _genres,
             onSearch: (_) => _load(),
+            onSearchSubmitted: (v) {
+              if (v.trim().isNotEmpty) {
+                context.read<SearchHistoryService>().add(v);
+              }
+            },
             onLanguage: (v) { setState(() => _language = v ?? ''); _load(); },
             onGenre: (v) { setState(() => _genre = v ?? ''); _load(); },
           ),
+          if (_searchFocused && _searchCtrl.text.isEmpty)
+            _SearchHistoryChips(onSelect: _searchFor),
           if (!_loading && _songs.isNotEmpty) ...[
             _HistoryRow(
               title: l10n.continueListening,
@@ -274,21 +296,25 @@ class _SongsScreenState extends State<SongsScreen> {
 
 class _Filters extends StatelessWidget {
   final TextEditingController searchCtrl;
+  final FocusNode searchFocus;
   final String language;
   final List<String> languages;
   final String genre;
   final List<String> genres;
   final ValueChanged<String> onSearch;
+  final ValueChanged<String> onSearchSubmitted;
   final ValueChanged<String?> onLanguage;
   final ValueChanged<String?> onGenre;
 
   const _Filters({
     required this.searchCtrl,
+    required this.searchFocus,
     required this.language,
     required this.languages,
     required this.genre,
     required this.genres,
     required this.onSearch,
+    required this.onSearchSubmitted,
     required this.onLanguage,
     required this.onGenre,
   });
@@ -305,7 +331,10 @@ class _Filters extends StatelessWidget {
         children: [
           TextField(
             controller: searchCtrl,
+            focusNode: searchFocus,
             onChanged: onSearch,
+            onSubmitted: onSearchSubmitted,
+            textInputAction: TextInputAction.search,
             style: TextStyle(color: colorScheme.onSurface),
             decoration: InputDecoration(
               hintText: l10n.searchHint,
@@ -504,6 +533,35 @@ class _Drop extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SearchHistoryChips extends StatelessWidget {
+  final ValueChanged<String> onSelect;
+  const _SearchHistoryChips({required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    final history = context.watch<SearchHistoryService>().history;
+    if (history.isEmpty) return const SizedBox.shrink();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      color: colorScheme.surface,
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final term in history)
+            ActionChip(
+              label: Text(term),
+              onPressed: () => onSelect(term),
+            ),
+        ],
       ),
     );
   }
@@ -793,6 +851,23 @@ class _SongCard extends StatelessWidget {
                           ),
                           child: const Icon(Icons.more_vert,
                               color: Colors.white, size: 20),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: LikeButton(
+                          song: song,
+                          size: 18,
+                          color: Colors.white,
+                          padding: const EdgeInsets.all(6),
+                          constraints: const BoxConstraints(),
                         ),
                       ),
                     ),

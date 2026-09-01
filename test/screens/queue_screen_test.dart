@@ -8,6 +8,7 @@ import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/models/song.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/player_service.dart';
+import 'package:music_player_flutter/services/recently_played_service.dart';
 import 'package:music_player_flutter/screens/queue_screen.dart';
 
 class MockAudioPlayer extends Mock implements AudioPlayer {}
@@ -26,10 +27,12 @@ Song makeSong(int id) => Song(
 void main() {
   late MockAudioPlayer mockPlayer;
   late PlayerService playerService;
+  late RecentlyPlayedService recentlyPlayedService;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     mockPlayer = MockAudioPlayer();
+    recentlyPlayedService = RecentlyPlayedService();
 
     when(() => mockPlayer.playerStateStream)
         .thenAnswer((_) => const Stream.empty());
@@ -53,8 +56,12 @@ void main() {
 
   tearDown(() => playerService.dispose());
 
-  Widget buildScreen() => ChangeNotifierProvider<PlayerService>.value(
-        value: playerService,
+  Widget buildScreen() => MultiProvider(
+        providers: [
+          ChangeNotifierProvider<PlayerService>.value(value: playerService),
+          ChangeNotifierProvider<RecentlyPlayedService>.value(
+              value: recentlyPlayedService),
+        ],
         child: MaterialApp(
           locale: const Locale('nl'),
           localizationsDelegates: AppL10n.localizationsDelegates,
@@ -167,6 +174,41 @@ void main() {
       expect(find.text('HIERNA'), findsOneWidget);
       expect(find.text('Song 2'), findsOneWidget);
       expect(find.text('Song 3'), findsOneWidget);
+    });
+
+    testWidgets('toont sectie Onlangs afgespeeld', (tester) async {
+      await recentlyPlayedService.recordPlay(makeSong(5));
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      expect(find.text('ONLANGS AFGESPEELD'), findsOneWidget);
+      expect(find.text('Song 5'), findsOneWidget);
+    });
+
+    testWidgets(
+        'toont Onlangs afgespeeld i.p.v. lege melding als wachtrij leeg is',
+        (tester) async {
+      await recentlyPlayedService.recordPlay(makeSong(5));
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      expect(find.text('Geen nummers in de wachtrij'), findsNothing);
+      expect(find.text('Song 5'), findsOneWidget);
+    });
+
+    testWidgets('tikken op onlangs afgespeeld nummer speelt het af',
+        (tester) async {
+      await recentlyPlayedService.recordPlay(makeSong(5));
+
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      await tester.tap(find.text('Song 5'));
+      await tester.pump();
+
+      expect(playerService.currentSong?.id, 5);
     });
   });
 }
