@@ -228,6 +228,21 @@ class ApiService {
     return Song.fromJson(res.data as Map<String, dynamic>);
   }
 
+  /// Saves synced (LRC) lyrics for [song]. `songs.php`'s update endpoint
+  /// replaces the full row, so the rest of the song's fields are resent
+  /// unchanged alongside the new lyrics.
+  Future<void> updateSongLyricsLrc(Song song, String lyricsLrc) async {
+    await _wait();
+    await _dio.put('/songs.php', queryParameters: {'id': song.id}, data: {
+      'title': song.title,
+      'genre': song.genre,
+      'language': song.language,
+      'year': song.year,
+      'lyrics': song.lyrics ?? '',
+      'lyrics_lrc': lyricsLrc,
+    });
+  }
+
   // ── Playlists ─────────────────────────────────────────────
 
   Future<List<Playlist>> getPlaylists() async {

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/player_service.dart';
 import '../services/streaming_service.dart';
+import '../models/chat_message.dart';
+import '../models/recent_room.dart';
 import '../models/stream_room.dart';
 
 class ListeningRoomScreen extends StatelessWidget {
@@ -20,8 +22,27 @@ class ListeningRoomScreen extends StatelessWidget {
 
 // ── Lobby ─────────────────────────────────────────────────────────────────────
 
-class _LobbyView extends StatelessWidget {
+class _LobbyView extends StatefulWidget {
   const _LobbyView();
+
+  @override
+  State<_LobbyView> createState() => _LobbyViewState();
+}
+
+class _LobbyViewState extends State<_LobbyView> {
+  late Future<List<RecentRoom>> _recentRooms;
+
+  @override
+  void initState() {
+    super.initState();
+    _recentRooms = context.read<StreamingService>().loadRecentRooms();
+  }
+
+  Future<void> _rejoin(String code) async {
+    try {
+      await context.read<StreamingService>().joinRoom(code);
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,30 +54,72 @@ class _LobbyView extends StatelessWidget {
           _BetaBanner(),
           Expanded(
             child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.people_alt_outlined,
-                      size: 72,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.6)),
-                  const SizedBox(height: 24),
-                  _LobbyCard(
-                    icon: Icons.broadcast_on_personal,
-                    label: l10n.createRoom,
-                    onTap: () => Navigator.push(
-                        context, _route(const _CreateRoomSheet())),
-                  ),
-                  const SizedBox(height: 12),
-                  _LobbyCard(
-                    icon: Icons.group_add_outlined,
-                    label: l10n.joinRoom,
-                    onTap: () => Navigator.push(
-                        context, _route(const _JoinRoomSheet())),
-                  ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 24),
+                    Icon(Icons.people_alt_outlined,
+                        size: 72,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.6)),
+                    const SizedBox(height: 24),
+                    _LobbyCard(
+                      icon: Icons.broadcast_on_personal,
+                      label: l10n.createRoom,
+                      onTap: () => Navigator.push(
+                          context, _route(const _CreateRoomSheet())),
+                    ),
+                    const SizedBox(height: 12),
+                    _LobbyCard(
+                      icon: Icons.group_add_outlined,
+                      label: l10n.joinRoom,
+                      onTap: () => Navigator.push(
+                          context, _route(const _JoinRoomSheet())),
+                    ),
+                    FutureBuilder<List<RecentRoom>>(
+                      future: _recentRooms,
+                      builder: (context, snapshot) {
+                        final rooms = snapshot.data ?? [];
+                        if (rooms.isEmpty) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(l10n.recentRooms,
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant)),
+                              const SizedBox(height: 4),
+                              for (final r in rooms)
+                                Card(
+                                  child: ListTile(
+                                    leading: const Icon(Icons.history),
+                                    title: Text(r.code,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 2)),
+                                    trailing: TextButton(
+                                      onPressed: () => _rejoin(r.code),
+                                      child: Text(l10n.rejoin),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
           ),
@@ -323,6 +386,15 @@ class _RoomView extends StatelessWidget {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline),
+            tooltip: l10n.roomChat,
+            onPressed: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (_) => const _ChatSheet(),
+            ),
+          ),
           if (streaming.isHost)
             TextButton(
               onPressed: () => _confirmEnd(context),
@@ -595,11 +667,32 @@ class _ParticipantsCard extends StatelessWidget {
               for (final p in participants)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    radius: 16,
-                    child: Text(p.name.isNotEmpty
-                        ? p.name[0].toUpperCase()
-                        : '?'),
+                  leading: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        child: Text(p.name.isNotEmpty
+                            ? p.name[0].toUpperCase()
+                            : '?'),
+                      ),
+                      if (streaming.isOnline(p.name))
+                        Positioned(
+                          right: -1,
+                          bottom: -1,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  width: 1.5),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                   title: Text(p.name,
                       maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -618,6 +711,143 @@ class _ParticipantsCard extends StatelessWidget {
                             )
                           : null),
                 ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+
+class _ChatSheet extends StatefulWidget {
+  const _ChatSheet();
+
+  @override
+  State<_ChatSheet> createState() => _ChatSheetState();
+}
+
+class _ChatSheetState extends State<_ChatSheet> {
+  final _ctrl = TextEditingController();
+  final _scrollCtrl = ScrollController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    final text = _ctrl.text;
+    if (text.trim().isEmpty) return;
+    context.read<StreamingService>().sendChatMessage(text);
+    _ctrl.clear();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollCtrl.hasClients) {
+        _scrollCtrl.animateTo(
+          _scrollCtrl.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    final messages = context.watch<StreamingService>().chatMessages;
+
+    return Padding(
+      padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(l10n.roomChat,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: messages.isEmpty
+                  ? const Center(child: Text('💬'))
+                  : ListView.builder(
+                      controller: _scrollCtrl,
+                      padding: const EdgeInsets.all(12),
+                      itemCount: messages.length,
+                      itemBuilder: (context, i) =>
+                          _ChatBubble(message: messages[i]),
+                    ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _ctrl,
+                      textInputAction: TextInputAction.send,
+                      decoration: InputDecoration(
+                        hintText: l10n.chatHint,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                      ),
+                      onSubmitted: (_) => _send(),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    tooltip: l10n.chatSend,
+                    onPressed: _send,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatBubble extends StatelessWidget {
+  final ChatMessage message;
+
+  const _ChatBubble({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Align(
+      alignment:
+          message.isMine ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.7),
+        decoration: BoxDecoration(
+          color: message.isMine
+              ? cs.primaryContainer
+              : cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!message.isMine)
+              Text(message.senderName,
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: cs.primary)),
+            Text(message.text),
           ],
         ),
       ),

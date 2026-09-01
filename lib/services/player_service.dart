@@ -10,12 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/song.dart';
 import 'audio_handler.dart';
 import 'download_service.dart';
+import 'history_service.dart';
 
 const _shuffleKey = 'shuffle_mode';
 
 class PlayerService extends ChangeNotifier {
   final MusicAudioHandler _handler;
   final DownloadService? _downloadService;
+  final HistoryService? _historyService;
   final _rng = Random();
   final _errorController = StreamController<String>.broadcast();
 
@@ -25,6 +27,7 @@ class PlayerService extends ChangeNotifier {
   bool _shuffleMode = false;
   bool _lastWidgetPlaying = false;
   DateTime _lastWidgetProgressPush = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime _lastHistoryPush = DateTime.fromMillisecondsSinceEpoch(0);
 
   // Wachtrij: songs die voor de volgende playlist-song spelen
   final List<Song> _queue = [];
@@ -63,9 +66,13 @@ class PlayerService extends ChangeNotifier {
 
   AudioPlayer get _player => _handler.player;
 
-  PlayerService({MusicAudioHandler? handler, DownloadService? downloadService})
-      : _handler = handler ?? MusicAudioHandler(),
-        _downloadService = downloadService {
+  PlayerService({
+    MusicAudioHandler? handler,
+    DownloadService? downloadService,
+    HistoryService? historyService,
+  })  : _handler = handler ?? MusicAudioHandler(),
+        _downloadService = downloadService,
+        _historyService = historyService {
     _handler.onSkipToNext = () => playNext();
     _handler.onSkipToPrevious = () => playPrevious();
     _handler.onSetShuffle = _applyShuffleFromSystem;
@@ -84,6 +91,7 @@ class PlayerService extends ChangeNotifier {
     _player.positionStream.listen((_) {
       notifyListeners();
       _maybePushWidgetProgress();
+      _maybeSaveHistoryPosition();
     });
     _loadShuffleMode();
     unawaited(_prepareFallbackArt());
@@ -115,6 +123,17 @@ class PlayerService extends ChangeNotifier {
     unawaited(_updateHomeWidget());
   }
 
+  /// Persists the resume position for the current song at most every 5s.
+  void _maybeSaveHistoryPosition() {
+    if (!_player.playing || _currentSong == null || _historyService == null) {
+      return;
+    }
+    final now = DateTime.now();
+    if (now.difference(_lastHistoryPush) < const Duration(seconds: 5)) return;
+    _lastHistoryPush = now;
+    unawaited(_historyService.updatePosition(_currentSong!.id, _player.position));
+  }
+
   Future<void> _loadShuffleMode() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getBool(_shuffleKey);
@@ -144,6 +163,7 @@ class PlayerService extends ChangeNotifier {
     _currentSong = song;
     _handler.setMediaItem(song);
     notifyListeners();
+    unawaited(_historyService?.recordPlay(song.id));
     try {
       final localPath = _downloadService?.getLocalPath(song.id);
       if (localPath != null && File(localPath).existsSync()) {

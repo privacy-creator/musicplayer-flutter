@@ -762,6 +762,84 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Update available'**
   String get updateAvailable;
+
+  /// No description provided for @roomChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get roomChat;
+
+  /// No description provided for @chatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message…'**
+  String get chatHint;
+
+  /// No description provided for @chatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get chatSend;
+
+  /// No description provided for @recentRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent rooms'**
+  String get recentRooms;
+
+  /// No description provided for @rejoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejoin'**
+  String get rejoin;
+
+  /// No description provided for @continueListening.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue listening'**
+  String get continueListening;
+
+  /// No description provided for @onThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'On this day'**
+  String get onThisDay;
+
+  /// No description provided for @editLyricsLrc.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit synced lyrics (LRC)'**
+  String get editLyricsLrc;
+
+  /// No description provided for @lyricsLrcHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste LRC-formatted lyrics here, e.g.\n[00:12.30] First line'**
+  String get lyricsLrcHint;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @shareAsImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as image'**
+  String get shareAsImage;
+
+  /// No description provided for @lyricsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Lyrics saved'**
+  String get lyricsSaved;
+
+  /// No description provided for @lyricsSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save lyrics'**
+  String get lyricsSaveError;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

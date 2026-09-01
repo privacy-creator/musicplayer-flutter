@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../constants.dart';
 import '../l10n/app_localizations.dart';
+import '../models/history_entry.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
 import '../services/download_service.dart';
+import '../services/history_service.dart';
 import '../services/player_service.dart';
 import '../services/streaming_service.dart';
 import '../widgets/global_app_bar_actions.dart';
@@ -212,6 +214,20 @@ class _SongsScreenState extends State<SongsScreen> {
             onLanguage: (v) { setState(() => _language = v ?? ''); _load(); },
             onGenre: (v) { setState(() => _genre = v ?? ''); _load(); },
           ),
+          if (!_loading && _songs.isNotEmpty) ...[
+            _HistoryRow(
+              title: l10n.continueListening,
+              entries: context.watch<HistoryService>().continueListening,
+              songs: _songs,
+              resume: true,
+            ),
+            _HistoryRow(
+              title: l10n.onThisDay,
+              entries: context.watch<HistoryService>().onThisDay(),
+              songs: _songs,
+              resume: false,
+            ),
+          ],
           Expanded(
             child: _loading
                 ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
@@ -502,6 +518,118 @@ Future<void> _shareSong(BuildContext context, Song song) async {
     sharePositionOrigin:
         box != null ? box.localToGlobal(Offset.zero) & box.size : null,
   );
+}
+
+class _HistoryRow extends StatelessWidget {
+  final String title;
+  final List<HistoryEntry> entries;
+  final List<Song> songs;
+  final bool resume;
+
+  const _HistoryRow({
+    required this.title,
+    required this.entries,
+    required this.songs,
+    required this.resume,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final items = entries
+        .map((e) {
+          final match = songs.where((s) => s.id == e.songId);
+          return match.isEmpty ? null : (song: match.first, entry: e);
+        })
+        .whereType<({Song song, HistoryEntry entry})>()
+        .take(10)
+        .toList();
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+          child: Text(title,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                  color: colorScheme.onSurfaceVariant)),
+        ),
+        SizedBox(
+          height: 132,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final item = items[i];
+              return Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: _HistoryCard(
+                  song: item.song,
+                  resumeAt: resume ? item.entry.lastPosition : null,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HistoryCard extends StatelessWidget {
+  final Song song;
+  final Duration? resumeAt;
+
+  const _HistoryCard({required this.song, this.resumeAt});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: () async {
+        final player = context.read<PlayerService>();
+        await player.playSong(song, [song], 0);
+        final resume = resumeAt;
+        if (resume != null && resume > const Duration(seconds: 5)) {
+          await player.seek(resume);
+        }
+      },
+      child: SizedBox(
+        width: 96,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 96,
+                height: 96,
+                child: song.imageUrl != null
+                    ? Image.network(song.imageUrl!, fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => _placeholder(colorScheme))
+                    : _placeholder(colorScheme),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(song.title,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _placeholder(ColorScheme cs) => Container(
+        color: cs.surfaceContainerHighest,
+        child: Icon(Icons.music_note, color: cs.primary, size: 32),
+      );
 }
 
 class _DownloadProgressBanner extends StatelessWidget {

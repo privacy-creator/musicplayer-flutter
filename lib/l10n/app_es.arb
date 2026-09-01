@@ -126,5 +126,18 @@
   "downloadingActive": "Descargando",
   "aboutSection": "Acerca de",
   "githubReleases": "GitHub Releases",
-  "updateAvailable": "Actualización disponible"
+  "updateAvailable": "Actualización disponible",
+  "roomChat": "Chat",
+  "chatHint": "Mensaje…",
+  "chatSend": "Enviar",
+  "recentRooms": "Salas recientes",
+  "rejoin": "Volver a unirse",
+  "continueListening": "Seguir escuchando",
+  "onThisDay": "Un día como hoy",
+  "editLyricsLrc": "Editar letra sincronizada (LRC)",
+  "lyricsLrcHint": "Pega aquí la letra en formato LRC, p. ej.\n[00:12.30] Primera línea",
+  "save": "Guardar",
+  "shareAsImage": "Compartir como imagen",
+  "lyricsSaved": "Letra guardada",
+  "lyricsSaveError": "No se pudo guardar la letra"
 }

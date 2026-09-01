@@ -352,4 +352,44 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get updateAvailable => 'Update available';
+
+  @override
+  String get roomChat => 'Chat';
+
+  @override
+  String get chatHint => 'Message…';
+
+  @override
+  String get chatSend => 'Send';
+
+  @override
+  String get recentRooms => 'Recent rooms';
+
+  @override
+  String get rejoin => 'Rejoin';
+
+  @override
+  String get continueListening => 'Continue listening';
+
+  @override
+  String get onThisDay => 'On this day';
+
+  @override
+  String get editLyricsLrc => 'Edit synced lyrics (LRC)';
+
+  @override
+  String get lyricsLrcHint =>
+      'Paste LRC-formatted lyrics here, e.g.\n[00:12.30] First line';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get shareAsImage => 'Share as image';
+
+  @override
+  String get lyricsSaved => 'Lyrics saved';
+
+  @override
+  String get lyricsSaveError => 'Couldn\'t save lyrics';
 }

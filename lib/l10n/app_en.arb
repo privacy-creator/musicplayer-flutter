@@ -146,5 +146,18 @@
   "downloadingActive": "Downloading",
   "aboutSection": "About",
   "githubReleases": "GitHub Releases",
-  "updateAvailable": "Update available"
+  "updateAvailable": "Update available",
+  "roomChat": "Chat",
+  "chatHint": "Message…",
+  "chatSend": "Send",
+  "recentRooms": "Recent rooms",
+  "rejoin": "Rejoin",
+  "continueListening": "Continue listening",
+  "onThisDay": "On this day",
+  "editLyricsLrc": "Edit synced lyrics (LRC)",
+  "lyricsLrcHint": "Paste LRC-formatted lyrics here, e.g.\n[00:12.30] First line",
+  "save": "Save",
+  "shareAsImage": "Share as image",
+  "lyricsSaved": "Lyrics saved",
+  "lyricsSaveError": "Couldn't save lyrics"
 }

@@ -126,5 +126,18 @@
   "downloadingActive": "Download in corso",
   "aboutSection": "Informazioni",
   "githubReleases": "GitHub Releases",
-  "updateAvailable": "Aggiornamento disponibile"
+  "updateAvailable": "Aggiornamento disponibile",
+  "roomChat": "Chat",
+  "chatHint": "Messaggio…",
+  "chatSend": "Invia",
+  "recentRooms": "Stanze recenti",
+  "rejoin": "Rientra",
+  "continueListening": "Continua ad ascoltare",
+  "onThisDay": "In questo giorno",
+  "editLyricsLrc": "Modifica testo sincronizzato (LRC)",
+  "lyricsLrcHint": "Incolla qui il testo in formato LRC, es.\n[00:12.30] Prima riga",
+  "save": "Salva",
+  "shareAsImage": "Condividi come immagine",
+  "lyricsSaved": "Testo salvato",
+  "lyricsSaveError": "Impossibile salvare il testo"
 }

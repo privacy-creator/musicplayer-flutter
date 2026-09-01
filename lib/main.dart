@@ -11,6 +11,7 @@ import 'services/api_service.dart';
 import 'services/auth_service.dart';
 import 'services/audio_handler.dart';
 import 'services/download_service.dart';
+import 'services/history_service.dart';
 import 'services/language_service.dart';
 import 'services/player_service.dart';
 import 'services/theme_service.dart';
@@ -42,6 +43,7 @@ void main() async {
   final languageService = LanguageService(prefs);
   final themeService = ThemeService(prefs);
   final translationService = TranslationService(prefs);
+  final historyService = HistoryService(prefs);
 
   final handler = await AudioService.init(
     builder: () => MusicAudioHandler(),
@@ -62,6 +64,7 @@ void main() async {
     themeService: themeService,
     translationService: translationService,
     updateService: updateService,
+    historyService: historyService,
   ));
 }
 
@@ -73,6 +76,7 @@ class MusicPlayerApp extends StatelessWidget {
   final ThemeService themeService;
   final TranslationService translationService;
   final UpdateService updateService;
+  final HistoryService historyService;
 
   const MusicPlayerApp({
     super.key,
@@ -83,6 +87,7 @@ class MusicPlayerApp extends StatelessWidget {
     required this.themeService,
     required this.translationService,
     required this.updateService,
+    required this.historyService,
   });
 
   @override
@@ -94,6 +99,7 @@ class MusicPlayerApp extends StatelessWidget {
         Provider<TranslationService>.value(value: translationService),
         ChangeNotifierProvider<DownloadService>.value(value: downloadService),
         ChangeNotifierProvider<UpdateService>.value(value: updateService),
+        ChangeNotifierProvider<HistoryService>.value(value: historyService),
         Provider<ApiService>.value(value: apiService),
         ChangeNotifierProxyProvider<ApiService, AuthService>(
           create: (ctx) => AuthService(ctx.read<ApiService>()),
@@ -103,6 +109,7 @@ class MusicPlayerApp extends StatelessWidget {
           create: (_) => PlayerService(
             handler: audioHandler,
             downloadService: downloadService,
+            historyService: historyService,
           ),
         ),
         ChangeNotifierProxyProvider2<ApiService, PlayerService, StreamingService>(

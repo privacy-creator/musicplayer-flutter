@@ -126,5 +126,18 @@
   "downloadingActive": "Bezig met downloaden",
   "aboutSection": "Over",
   "githubReleases": "GitHub Releases",
-  "updateAvailable": "Update beschikbaar"
+  "updateAvailable": "Update beschikbaar",
+  "roomChat": "Chat",
+  "chatHint": "Bericht…",
+  "chatSend": "Verstuur",
+  "recentRooms": "Recente rooms",
+  "rejoin": "Opnieuw joinen",
+  "continueListening": "Verder luisteren",
+  "onThisDay": "Op deze dag",
+  "editLyricsLrc": "Gesynchroniseerde lyrics bewerken (LRC)",
+  "lyricsLrcHint": "Plak hier LRC-lyrics, bijv.\n[00:12.30] Eerste regel",
+  "save": "Opslaan",
+  "shareAsImage": "Delen als afbeelding",
+  "lyricsSaved": "Lyrics opgeslagen",
+  "lyricsSaveError": "Opslaan van lyrics mislukt"
 }

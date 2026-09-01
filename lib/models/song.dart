@@ -11,6 +11,7 @@ class Song {
   final String audioUrl;
   final String? imageUrl;
   final String? lyrics;
+  final String? lyricsLrc;
 
   const Song({
     required this.id,
@@ -23,6 +24,7 @@ class Song {
     required this.audioUrl,
     this.imageUrl,
     this.lyrics,
+    this.lyricsLrc,
   });
 
   factory Song.fromJson(Map<String, dynamic> j) => Song(
@@ -38,6 +40,7 @@ class Song {
         ? AppConstants.fixUrl(j['image_url'] as String)
         : null,
     lyrics: j['lyrics'] as String?,
+    lyricsLrc: j['lyrics_lrc'] as String?,
   );
 
   Map<String, dynamic> toJson() => {
@@ -51,6 +54,7 @@ class Song {
     'audio_url': audioUrl,
     'image_url': imageUrl,
     'lyrics': lyrics,
+    'lyrics_lrc': lyricsLrc,
   };
 
   String get formattedDuration {

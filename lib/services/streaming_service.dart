@@ -6,9 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../constants.dart';
+import '../models/chat_message.dart';
+import '../models/recent_room.dart';
 import '../models/song.dart';
 import '../models/stream_room.dart';
 import 'player_service.dart';
+
+const _recentRoomsKey = 'recent_rooms_v1';
+const _maxRecentRooms = 5;
+const _maxChatMessages = 200;
 
 typedef WsChannelFactory = WebSocketChannel Function(Uri);
 
@@ -21,6 +27,9 @@ class StreamingService extends ChangeNotifier {
   bool _wsConnected = false;
   String? _error;
   String? _guestToken;
+  String? _nickname;
+  final List<ChatMessage> _chatMessages = [];
+  final Set<String> _onlineNames = {};
 
   // Player integration
   PlayerService? _player;
@@ -47,6 +56,12 @@ class StreamingService extends ChangeNotifier {
   bool get inRoom => _room != null;
   bool get wsConnected => _wsConnected;
   String? get error => _error;
+  List<ChatMessage> get chatMessages => List.unmodifiable(_chatMessages);
+
+  /// Whether [name] currently has an active WS connection in the room
+  /// (best-effort presence — the participants list from the poll is the
+  /// source of truth for *who's* in the room, this is just online/offline).
+  bool isOnline(String name) => _onlineNames.contains(name);
 
   // ── Player integration ───────────────────────────────────────
 
@@ -120,11 +135,13 @@ class StreamingService extends ChangeNotifier {
     _error = null;
     try {
       final hostToken = await _getGuestToken();
+      final nickname = await _getNickname();
       final resp = await _dio.post(
         '/streams.php',
         data: {
           'action': 'create',
           'host_token': hostToken,
+          'display_name': nickname,
           'track_id': trackId,
           'position': position,
           'is_playing': isPlaying,
@@ -144,8 +161,11 @@ class StreamingService extends ChangeNotifier {
           participants: [],
         );
         _isHost = true;
+        _chatMessages.clear();
+        _onlineNames.clear();
         _connectWs(streamId);
         _startPolling(streamId);
+        unawaited(_rememberRecentRoom(roomCode));
         notifyListeners();
       }
     } on DioException catch (e) {
@@ -159,12 +179,14 @@ class StreamingService extends ChangeNotifier {
     _error = null;
     try {
       final participantToken = await _getGuestToken();
+      final nickname = await _getNickname();
       final resp = await _dio.post(
         '/streams.php',
         data: {
           'action': 'join',
           'room_code': code.trim().toUpperCase(),
           'participant_token': participantToken,
+          'display_name': nickname,
         },
       );
       final data = resp.data as Map<String, dynamic>;
@@ -174,8 +196,11 @@ class StreamingService extends ChangeNotifier {
         _isHost = data['is_host'] == true;
         _error = null;
         final streamId = data['stream_id'] as int;
+        _chatMessages.clear();
+        _onlineNames.clear();
         _connectWs(streamId);
         _startPolling(streamId);
+        unawaited(_rememberRecentRoom(_room?.roomCode ?? code.trim().toUpperCase()));
         notifyListeners();
       } else {
         _error = data['message'] as String? ?? 'Room not found';
@@ -287,6 +312,74 @@ class StreamingService extends ChangeNotifier {
     return token;
   }
 
+  Future<String> _getNickname() async {
+    if (_nickname != null) return _nickname!;
+    final prefs = await SharedPreferences.getInstance();
+    var name = prefs.getString('stream_nickname');
+    if (name == null) {
+      final token = await _getGuestToken();
+      name = 'Gast${token.substring(0, 4).toUpperCase()}';
+      await prefs.setString('stream_nickname', name);
+    }
+    _nickname = name;
+    return name;
+  }
+
+  // ── Recent rooms ─────────────────────────────────────────────
+
+  Future<List<RecentRoom>> loadRecentRooms() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_recentRoomsKey);
+    if (raw == null) return [];
+    try {
+      final list = jsonDecode(raw) as List;
+      return list
+          .cast<Map<String, dynamic>>()
+          .map(RecentRoom.fromJson)
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> _rememberRecentRoom(String code) async {
+    final rooms = await loadRecentRooms();
+    rooms.removeWhere((r) => r.code == code);
+    rooms.insert(0, RecentRoom(code: code, lastJoined: DateTime.now()));
+    final capped = rooms.take(_maxRecentRooms).toList();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _recentRoomsKey,
+      jsonEncode(capped.map((r) => r.toJson()).toList()),
+    );
+  }
+
+  // ── Chat ─────────────────────────────────────────────────────
+
+  void sendChatMessage(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty || _room == null || _nickname == null) return;
+    _addChatMessage(ChatMessage(
+      senderName: _nickname!,
+      text: trimmed,
+      timestamp: DateTime.now(),
+      isMine: true,
+    ));
+    _channel?.sink.add(jsonEncode({
+      'type': 'chat',
+      'name': _nickname,
+      'text': trimmed,
+    }));
+  }
+
+  void _addChatMessage(ChatMessage message) {
+    _chatMessages.add(message);
+    if (_chatMessages.length > _maxChatMessages) {
+      _chatMessages.removeAt(0);
+    }
+    notifyListeners();
+  }
+
   // ── WebSocket ────────────────────────────────────────────────
 
   void _connectWs(int streamId) {
@@ -307,8 +400,11 @@ class StreamingService extends ChangeNotifier {
           notifyListeners();
         },
       );
-      _channel!.sink
-          .add(jsonEncode({'type': 'subscribe', 'stream_id': streamId}));
+      _channel!.sink.add(jsonEncode({
+        'type': 'subscribe',
+        'stream_id': streamId,
+        'name': _nickname,
+      }));
       _pingTimer =
           Timer.periodic(const Duration(seconds: 25), (_) {
         _channel?.sink.add(jsonEncode({'type': 'ping'}));
@@ -329,9 +425,28 @@ class StreamingService extends ChangeNotifier {
     final type = msg['type'] as String?;
     if (type == 'subscribed') {
       _wsConnected = true;
+      if (_nickname != null) _onlineNames.add(_nickname!);
       notifyListeners();
     } else if (type == 'sync' && _room != null) {
       unawaited(_applySync(msg));
+    } else if (type == 'chat' && _room != null) {
+      final text = msg['text'] as String? ?? '';
+      if (text.isEmpty) return;
+      _addChatMessage(ChatMessage(
+        senderName: msg['name'] as String? ?? '?',
+        text: text,
+        timestamp: DateTime.now(),
+        isMine: false,
+      ));
+    } else if (type == 'presence' && _room != null) {
+      final name = msg['name'] as String?;
+      if (name == null) return;
+      if (msg['event'] == 'joined') {
+        _onlineNames.add(name);
+      } else if (msg['event'] == 'left') {
+        _onlineNames.remove(name);
+      }
+      notifyListeners();
     }
   }
 
@@ -402,6 +517,8 @@ class StreamingService extends ChangeNotifier {
     _wsConnected = false;
     _lastSyncedSong = null;
     _lastSyncedIsPlaying = null;
+    _chatMessages.clear();
+    _onlineNames.clear();
     notifyListeners();
   }
 

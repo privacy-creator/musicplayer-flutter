@@ -126,5 +126,18 @@
   "downloadingActive": "Wird heruntergeladen",
   "aboutSection": "Über",
   "githubReleases": "GitHub Releases",
-  "updateAvailable": "Update verfügbar"
+  "updateAvailable": "Update verfügbar",
+  "roomChat": "Chat",
+  "chatHint": "Nachricht…",
+  "chatSend": "Senden",
+  "recentRooms": "Zuletzt verwendete Rooms",
+  "rejoin": "Erneut beitreten",
+  "continueListening": "Weiterhören",
+  "onThisDay": "An diesem Tag",
+  "editLyricsLrc": "Synchronisierten Songtext bearbeiten (LRC)",
+  "lyricsLrcHint": "Hier LRC-Songtext einfügen, z. B.\n[00:12.30] Erste Zeile",
+  "save": "Speichern",
+  "shareAsImage": "Als Bild teilen",
+  "lyricsSaved": "Songtext gespeichert",
+  "lyricsSaveError": "Songtext konnte nicht gespeichert werden"
 }
