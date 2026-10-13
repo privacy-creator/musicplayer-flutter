@@ -10,6 +10,7 @@ import 'package:music_player_flutter/services/api_service.dart';
 import 'package:music_player_flutter/services/auth_service.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/download_service.dart';
+import 'package:music_player_flutter/services/history_service.dart';
 import 'package:music_player_flutter/services/liked_songs_service.dart';
 import 'package:music_player_flutter/services/player_service.dart';
 import 'package:music_player_flutter/services/search_history_service.dart';
@@ -34,12 +35,14 @@ void main() {
   late MockAudioPlayer mockPlayer;
   late PlayerService playerService;
   late DownloadService downloadService;
+  late HistoryService historyService;
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
     mockApi = MockApiService();
     mockPlayer = MockAudioPlayer();
     downloadService = DownloadService();
+    historyService = HistoryService(await SharedPreferences.getInstance());
 
     when(() => mockPlayer.playerStateStream)
         .thenAnswer((_) => const Stream.empty());
@@ -66,6 +69,7 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<DownloadService>.value(value: downloadService),
+        ChangeNotifierProvider<HistoryService>.value(value: historyService),
         ChangeNotifierProvider<LikedSongsService>.value(
             value: LikedSongsService()),
         ChangeNotifierProvider<SearchHistoryService>.value(
