@@ -152,5 +152,15 @@
   "save": "Opslaan",
   "shareAsImage": "Delen als afbeelding",
   "lyricsSaved": "Lyrics opgeslagen",
-  "lyricsSaveError": "Opslaan van lyrics mislukt"
+  "lyricsSaveError": "Opslaan van lyrics mislukt",
+  "syncLyricsTool": "Per regel synchroniseren",
+  "syncLyricsHelp": "Speel het nummer af en tik op de knop precies wanneer elke regel begint. Tik op een regel om hem te selecteren, tik op de tijd om ernaartoe te springen.",
+  "syncSetTime": "Tijd vastleggen",
+  "syncUndo": "Ongedaan maken",
+  "syncDone": "Klaar",
+  "syncPlaySongHint": "Speel dit nummer af om mee te synchroniseren",
+  "syncPlaySong": "Nummer afspelen",
+  "syncNoLines": "Typ of plak eerst de regels van de tekst (één per regel) en open daarna de sync-tool.",
+  "syncProgress": "{done} van {total} regels gesynchroniseerd",
+  "syncClearTime": "Tijd wissen"
 }

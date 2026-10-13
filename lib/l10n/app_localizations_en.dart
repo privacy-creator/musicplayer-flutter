@@ -426,4 +426,38 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get lyricsSaveError => 'Couldn\'t save lyrics';
+
+  @override
+  String get syncLyricsTool => 'Sync line by line';
+
+  @override
+  String get syncLyricsHelp =>
+      'Play the song and tap the button exactly when each line starts. Tap a line to select it, tap its time to jump there.';
+
+  @override
+  String get syncSetTime => 'Set time';
+
+  @override
+  String get syncUndo => 'Undo';
+
+  @override
+  String get syncDone => 'Done';
+
+  @override
+  String get syncPlaySongHint => 'Play this song to sync along with it';
+
+  @override
+  String get syncPlaySong => 'Play song';
+
+  @override
+  String get syncNoLines =>
+      'Type or paste the lyric lines first (one per line), then open the sync tool.';
+
+  @override
+  String syncProgress(int done, int total) {
+    return '$done of $total lines synced';
+  }
+
+  @override
+  String get syncClearTime => 'Clear time';
 }

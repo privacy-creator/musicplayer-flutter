@@ -236,20 +236,13 @@ class _SongsScreenState extends State<SongsScreen> {
           ),
           if (_searchFocused && _searchCtrl.text.isEmpty)
             _SearchHistoryChips(onSelect: _searchFor),
-          if (!_loading && _songs.isNotEmpty) ...[
-            _HistoryRow(
-              title: l10n.continueListening,
-              entries: context.watch<HistoryService>().continueListening,
-              songs: _songs,
-              resume: true,
-            ),
+          if (!_loading && _songs.isNotEmpty)
             _HistoryRow(
               title: l10n.onThisDay,
               entries: context.watch<HistoryService>().onThisDay(),
               songs: _songs,
               resume: false,
             ),
-          ],
           Expanded(
             child: _loading
                 ? Center(child: CircularProgressIndicator(color: colorScheme.primary))

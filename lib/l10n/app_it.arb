@@ -152,5 +152,15 @@
   "save": "Salva",
   "shareAsImage": "Condividi come immagine",
   "lyricsSaved": "Testo salvato",
-  "lyricsSaveError": "Impossibile salvare il testo"
+  "lyricsSaveError": "Impossibile salvare il testo",
+  "syncLyricsTool": "Sincronizza riga per riga",
+  "syncLyricsHelp": "Riproduci il brano e tocca il pulsante esattamente quando inizia ogni riga. Tocca una riga per selezionarla, tocca il suo tempo per saltare lì.",
+  "syncSetTime": "Imposta tempo",
+  "syncUndo": "Annulla",
+  "syncDone": "Fatto",
+  "syncPlaySongHint": "Riproduci questo brano per sincronizzarti",
+  "syncPlaySong": "Riproduci brano",
+  "syncNoLines": "Scrivi o incolla prima le righe del testo (una per riga), poi apri lo strumento.",
+  "syncProgress": "{done} di {total} righe sincronizzate",
+  "syncClearTime": "Cancella tempo"
 }

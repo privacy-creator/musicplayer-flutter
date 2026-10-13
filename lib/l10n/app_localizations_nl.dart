@@ -428,4 +428,38 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get lyricsSaveError => 'Opslaan van lyrics mislukt';
+
+  @override
+  String get syncLyricsTool => 'Per regel synchroniseren';
+
+  @override
+  String get syncLyricsHelp =>
+      'Speel het nummer af en tik op de knop precies wanneer elke regel begint. Tik op een regel om hem te selecteren, tik op de tijd om ernaartoe te springen.';
+
+  @override
+  String get syncSetTime => 'Tijd vastleggen';
+
+  @override
+  String get syncUndo => 'Ongedaan maken';
+
+  @override
+  String get syncDone => 'Klaar';
+
+  @override
+  String get syncPlaySongHint => 'Speel dit nummer af om mee te synchroniseren';
+
+  @override
+  String get syncPlaySong => 'Nummer afspelen';
+
+  @override
+  String get syncNoLines =>
+      'Typ of plak eerst de regels van de tekst (één per regel) en open daarna de sync-tool.';
+
+  @override
+  String syncProgress(int done, int total) {
+    return '$done van $total regels gesynchroniseerd';
+  }
+
+  @override
+  String get syncClearTime => 'Tijd wissen';
 }

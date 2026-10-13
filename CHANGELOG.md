@@ -4,6 +4,23 @@ All release notes are written in English.
 
 ---
 
+## [2.4.0] — 2026-10-13
+
+### Added
+- **Synced (LRC) lyrics** — songs can now have time-synced lyrics. During playback the current line is highlighted and auto-scrolls; lyrics can also be shared as an image.
+- **Sync lyrics line by line** — new tap-along tool in the LRC editor: play the song and tap "Set time" as each line starts, instead of typing timestamps by hand. Tap a line to re-time it, tap a timestamp to jump there, fine-tune by ±0.1s, clear or undo. Lines that are timed out of order are highlighted in red, and unsynced lines are kept so you can finish later.
+- **Live Listening chat & presence** — rooms now have a chat, live join/leave indicators, and a list of recently joined rooms in the lobby. Nicknames are shown in the participants list.
+- **On this day** — the Songs screen shows songs you listened to on this date in earlier years (stored locally on the device).
+- **Web app polish** — improved PWA name, description, and theme color.
+
+### Changed
+- **"Continue listening" removed from the Songs screen** — it was taking up too much space above the song grid. Recently played songs remain available on the Queue screen.
+
+### Tests
+- New tests for the LRC parser, the line-by-line sync logic, the sync screen, and the LRC editor integration.
+
+---
+
 ## [2.3.1] — 2026-08-06
 
 ### Changed

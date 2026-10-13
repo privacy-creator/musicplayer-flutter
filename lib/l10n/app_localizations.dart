@@ -906,6 +906,66 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Couldn\'t save lyrics'**
   String get lyricsSaveError;
+
+  /// No description provided for @syncLyricsTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync line by line'**
+  String get syncLyricsTool;
+
+  /// No description provided for @syncLyricsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Play the song and tap the button exactly when each line starts. Tap a line to select it, tap its time to jump there.'**
+  String get syncLyricsHelp;
+
+  /// No description provided for @syncSetTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Set time'**
+  String get syncSetTime;
+
+  /// No description provided for @syncUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get syncUndo;
+
+  /// No description provided for @syncDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get syncDone;
+
+  /// No description provided for @syncPlaySongHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Play this song to sync along with it'**
+  String get syncPlaySongHint;
+
+  /// No description provided for @syncPlaySong.
+  ///
+  /// In en, this message translates to:
+  /// **'Play song'**
+  String get syncPlaySong;
+
+  /// No description provided for @syncNoLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or paste the lyric lines first (one per line), then open the sync tool.'**
+  String get syncNoLines;
+
+  /// No description provided for @syncProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} lines synced'**
+  String syncProgress(int done, int total);
+
+  /// No description provided for @syncClearTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear time'**
+  String get syncClearTime;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

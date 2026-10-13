@@ -3,11 +3,15 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/song.dart';
 import '../services/api_service.dart';
+import 'lrc_sync_screen.dart';
 
 class EditLyricsScreen extends StatefulWidget {
   final Song song;
 
-  const EditLyricsScreen({super.key, required this.song});
+  /// Overrides the player used by the sync tool (tests only).
+  final SyncPlayback? syncPlayback;
+
+  const EditLyricsScreen({super.key, required this.song, this.syncPlayback});
 
   @override
   State<EditLyricsScreen> createState() => _EditLyricsScreenState();
@@ -28,6 +32,27 @@ class _EditLyricsScreenState extends State<EditLyricsScreen> {
   void dispose() {
     _ctrl.dispose();
     super.dispose();
+  }
+
+  /// Opens the tap-along sync tool on the editor's text, falling back to the
+  /// song's plain lyrics when the editor is still empty.
+  Future<void> _openSyncTool() async {
+    final source = _ctrl.text.trim().isNotEmpty
+        ? _ctrl.text
+        : (widget.song.lyrics ?? '');
+    final result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LrcSyncScreen(
+          song: widget.song,
+          initialText: source,
+          playback: widget.syncPlayback,
+        ),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() => _ctrl.text = result);
+    }
   }
 
   Future<void> _save() async {
@@ -100,6 +125,15 @@ class _EditLyricsScreenState extends State<EditLyricsScreen> {
                     style:
                         TextStyle(color: Theme.of(context).colorScheme.error)),
               ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: FilledButton.tonalIcon(
+                key: const Key('open-sync-tool'),
+                onPressed: _saving ? null : _openSyncTool,
+                icon: const Icon(Icons.touch_app),
+                label: Text(l10n.syncLyricsTool),
+              ),
+            ),
             Expanded(
               child: TextField(
                 controller: _ctrl,

@@ -152,5 +152,15 @@
   "save": "Speichern",
   "shareAsImage": "Als Bild teilen",
   "lyricsSaved": "Songtext gespeichert",
-  "lyricsSaveError": "Songtext konnte nicht gespeichert werden"
+  "lyricsSaveError": "Songtext konnte nicht gespeichert werden",
+  "syncLyricsTool": "Zeilenweise synchronisieren",
+  "syncLyricsHelp": "Spiel den Song ab und tippe genau dann auf den Button, wenn eine Zeile beginnt. Tippe auf eine Zeile, um sie auszuwählen, und auf ihre Zeit, um dorthin zu springen.",
+  "syncSetTime": "Zeit setzen",
+  "syncUndo": "Rückgängig",
+  "syncDone": "Fertig",
+  "syncPlaySongHint": "Spiel diesen Song ab, um mitzusynchronisieren",
+  "syncPlaySong": "Song abspielen",
+  "syncNoLines": "Gib zuerst die Textzeilen ein (eine pro Zeile) und öffne dann das Sync-Tool.",
+  "syncProgress": "{done} von {total} Zeilen synchronisiert",
+  "syncClearTime": "Zeit löschen"
 }

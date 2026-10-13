@@ -172,5 +172,21 @@
   "save": "Save",
   "shareAsImage": "Share as image",
   "lyricsSaved": "Lyrics saved",
-  "lyricsSaveError": "Couldn't save lyrics"
+  "lyricsSaveError": "Couldn't save lyrics",
+  "syncLyricsTool": "Sync line by line",
+  "syncLyricsHelp": "Play the song and tap the button exactly when each line starts. Tap a line to select it, tap its time to jump there.",
+  "syncSetTime": "Set time",
+  "syncUndo": "Undo",
+  "syncDone": "Done",
+  "syncPlaySongHint": "Play this song to sync along with it",
+  "syncPlaySong": "Play song",
+  "syncNoLines": "Type or paste the lyric lines first (one per line), then open the sync tool.",
+  "syncProgress": "{done} of {total} lines synced",
+  "@syncProgress": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "syncClearTime": "Clear time"
 }

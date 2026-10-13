@@ -427,4 +427,39 @@ class AppL10nDe extends AppL10n {
 
   @override
   String get lyricsSaveError => 'Songtext konnte nicht gespeichert werden';
+
+  @override
+  String get syncLyricsTool => 'Zeilenweise synchronisieren';
+
+  @override
+  String get syncLyricsHelp =>
+      'Spiel den Song ab und tippe genau dann auf den Button, wenn eine Zeile beginnt. Tippe auf eine Zeile, um sie auszuwählen, und auf ihre Zeit, um dorthin zu springen.';
+
+  @override
+  String get syncSetTime => 'Zeit setzen';
+
+  @override
+  String get syncUndo => 'Rückgängig';
+
+  @override
+  String get syncDone => 'Fertig';
+
+  @override
+  String get syncPlaySongHint =>
+      'Spiel diesen Song ab, um mitzusynchronisieren';
+
+  @override
+  String get syncPlaySong => 'Song abspielen';
+
+  @override
+  String get syncNoLines =>
+      'Gib zuerst die Textzeilen ein (eine pro Zeile) und öffne dann das Sync-Tool.';
+
+  @override
+  String syncProgress(int done, int total) {
+    return '$done von $total Zeilen synchronisiert';
+  }
+
+  @override
+  String get syncClearTime => 'Zeit löschen';
 }

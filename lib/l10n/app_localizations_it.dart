@@ -428,4 +428,38 @@ class AppL10nIt extends AppL10n {
 
   @override
   String get lyricsSaveError => 'Impossibile salvare il testo';
+
+  @override
+  String get syncLyricsTool => 'Sincronizza riga per riga';
+
+  @override
+  String get syncLyricsHelp =>
+      'Riproduci il brano e tocca il pulsante esattamente quando inizia ogni riga. Tocca una riga per selezionarla, tocca il suo tempo per saltare lì.';
+
+  @override
+  String get syncSetTime => 'Imposta tempo';
+
+  @override
+  String get syncUndo => 'Annulla';
+
+  @override
+  String get syncDone => 'Fatto';
+
+  @override
+  String get syncPlaySongHint => 'Riproduci questo brano per sincronizzarti';
+
+  @override
+  String get syncPlaySong => 'Riproduci brano';
+
+  @override
+  String get syncNoLines =>
+      'Scrivi o incolla prima le righe del testo (una per riga), poi apri lo strumento.';
+
+  @override
+  String syncProgress(int done, int total) {
+    return '$done di $total righe sincronizzate';
+  }
+
+  @override
+  String get syncClearTime => 'Cancella tempo';
 }
