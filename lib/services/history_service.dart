@@ -53,8 +53,16 @@ class HistoryService extends ChangeNotifier {
 
   /// Records that [songId] just started playing.
   Future<void> recordPlay(int songId) async {
-    _entries.removeWhere((e) => e.songId == songId);
-    _entries.insert(0, HistoryEntry(songId: songId, playedAt: DateTime.now()));
+    final index = _entries.indexWhere((e) => e.songId == songId);
+    final previousCount = index == -1 ? 0 : _entries.removeAt(index).playCount;
+    _entries.insert(
+      0,
+      HistoryEntry(
+        songId: songId,
+        playedAt: DateTime.now(),
+        playCount: previousCount + 1,
+      ),
+    );
     if (_entries.length > _maxHistoryEntries) {
       _entries = _entries.sublist(0, _maxHistoryEntries);
     }

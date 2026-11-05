@@ -462,4 +462,42 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get syncClearTime => 'Tijd wissen';
+
+  @override
+  String get smartPlaylists => 'Voor jou gemaakt';
+
+  @override
+  String get smartMostPlayed => 'Meest gespeeld';
+
+  @override
+  String get smartMostPlayedDesc => 'De nummers die je het vaakst draait';
+
+  @override
+  String get smartForgottenFavorites => 'Vergeten favorieten';
+
+  @override
+  String get smartForgottenFavoritesDesc =>
+      'Gelikete nummers die je al een maand niet hebt gehoord';
+
+  @override
+  String get smartNeverPlayed => 'Nog nooit gespeeld';
+
+  @override
+  String get smartNeverPlayedDesc => 'Nummers die je nog niet hebt gehoord';
+
+  @override
+  String smartNewThisYear(String year) {
+    return 'Nieuw in $year';
+  }
+
+  @override
+  String get smartNewThisYearDesc => 'Nummers van dit jaar';
+
+  @override
+  String smartGenreMix(String genre) {
+    return '$genre-mix';
+  }
+
+  @override
+  String get smartGenreMixDesc => 'Alles uit je meest gespeelde genre';
 }

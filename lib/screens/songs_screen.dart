@@ -48,7 +48,8 @@ class SongsScreen extends StatefulWidget {
   State<SongsScreen> createState() => _SongsScreenState();
 }
 
-class _SongsScreenState extends State<SongsScreen> {
+class _SongsScreenState extends State<SongsScreen>
+    with WidgetsBindingObserver {
   List<Song> _songs = [];
   bool _loading = true;
   bool _offline = false;
@@ -57,6 +58,7 @@ class _SongsScreenState extends State<SongsScreen> {
   String _language = '';
   String _genre = '';
   bool _searchFocused = false;
+  bool _keyboardVisible = false;
 
   static const _languages = [
     '', 'English', 'Dutch', 'Spanish', 'Italian', 'German', 'French'
@@ -66,6 +68,7 @@ class _SongsScreenState extends State<SongsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _load();
     _searchFocus.addListener(() {
       setState(() => _searchFocused = _searchFocus.hasFocus);
@@ -73,7 +76,18 @@ class _SongsScreenState extends State<SongsScreen> {
   }
 
   @override
+  void didChangeMetrics() {
+    // Read the raw view insets: ancestor Scaffolds strip the keyboard inset
+    // from MediaQuery, so it can't be relied on here.
+    final visible = View.of(context).viewInsets.bottom > 0;
+    if (visible != _keyboardVisible) {
+      setState(() => _keyboardVisible = visible);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchCtrl.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -234,7 +248,7 @@ class _SongsScreenState extends State<SongsScreen> {
             onLanguage: (v) { setState(() => _language = v ?? ''); _load(); },
             onGenre: (v) { setState(() => _genre = v ?? ''); _load(); },
           ),
-          if (_searchFocused && _searchCtrl.text.isEmpty)
+          if (_searchFocused && _keyboardVisible && _searchCtrl.text.isEmpty)
             _SearchHistoryChips(onSelect: _searchFor),
           if (!_loading && _songs.isNotEmpty)
             _HistoryRow(

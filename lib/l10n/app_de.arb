@@ -162,5 +162,17 @@
   "syncPlaySong": "Song abspielen",
   "syncNoLines": "Gib zuerst die Textzeilen ein (eine pro Zeile) und öffne dann das Sync-Tool.",
   "syncProgress": "{done} von {total} Zeilen synchronisiert",
-  "syncClearTime": "Zeit löschen"
+  "syncClearTime": "Zeit löschen",
+
+  "smartPlaylists": "Für dich gemacht",
+  "smartMostPlayed": "Meistgehört",
+  "smartMostPlayedDesc": "Die Songs, die du am häufigsten hörst",
+  "smartForgottenFavorites": "Vergessene Favoriten",
+  "smartForgottenFavoritesDesc": "Gelikte Songs, die du seit einem Monat nicht gehört hast",
+  "smartNeverPlayed": "Noch nie gehört",
+  "smartNeverPlayedDesc": "Songs, die du noch nicht kennst",
+  "smartNewThisYear": "Neu in {year}",
+  "smartNewThisYearDesc": "Songs aus diesem Jahr",
+  "smartGenreMix": "{genre}-Mix",
+  "smartGenreMixDesc": "Alles aus deinem meistgehörten Genre"
 }

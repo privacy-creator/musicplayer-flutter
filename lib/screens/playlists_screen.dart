@@ -1,12 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/playlist.dart';
+import '../models/song.dart';
 import '../services/api_service.dart';
+import '../services/history_service.dart';
 import '../services/liked_songs_service.dart';
+import '../services/smart_playlists.dart';
 import '../widgets/global_app_bar_actions.dart';
 import 'liked_songs_screen.dart';
 import 'playlist_detail_screen.dart';
+import 'song_list_screen.dart';
 
 class PlaylistsScreen extends StatefulWidget {
   const PlaylistsScreen({super.key});
@@ -17,6 +23,7 @@ class PlaylistsScreen extends StatefulWidget {
 
 class _PlaylistsScreenState extends State<PlaylistsScreen> {
   List<Playlist> _playlists = [];
+  List<Song> _songs = [];
   bool _loading = true;
 
   @override
@@ -27,12 +34,22 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
+    final api = context.read<ApiService>();
+    unawaited(_loadSongs(api));
     try {
-      final pls = await context.read<ApiService>().getPlaylists();
+      final pls = await api.getPlaylists();
       if (mounted) setState(() { _playlists = pls; _loading = false; });
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  // Smart playlists are built from the full catalogue; failure just hides them.
+  Future<void> _loadSongs(ApiService api) async {
+    try {
+      final songs = await api.getSongs();
+      if (mounted) setState(() => _songs = songs);
+    } catch (_) {}
   }
 
   @override
@@ -47,6 +64,7 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
       ),
       body: Column(
         children: [
+          _SmartPlaylistsRow(songs: _songs),
           const Padding(
             padding: EdgeInsets.fromLTRB(12, 12, 12, 0),
             child: _LikedSongsCard(),
@@ -199,6 +217,134 @@ class _PlaylistCard extends StatelessWidget {
               ),
               Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SmartPlaylistsRow extends StatelessWidget {
+  final List<Song> songs;
+  const _SmartPlaylistsRow({required this.songs});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final playlists = buildSmartPlaylists(
+      songs: songs,
+      history: context.watch<HistoryService>().entries,
+      liked: context.watch<LikedSongsService>().likedSongs,
+    );
+    if (playlists.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+          child: Text(l10n.smartPlaylists,
+              style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16)),
+        ),
+        SizedBox(
+          height: 128,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            itemCount: playlists.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (_, i) => _SmartPlaylistCard(playlist: playlists[i]),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SmartPlaylistCard extends StatelessWidget {
+  final SmartPlaylist playlist;
+  const _SmartPlaylistCard({required this.playlist});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final (title, description, icon, color) = switch (playlist.kind) {
+      SmartPlaylistKind.mostPlayed => (
+          l10n.smartMostPlayed,
+          l10n.smartMostPlayedDesc,
+          Icons.local_fire_department,
+          Colors.orange,
+        ),
+      SmartPlaylistKind.genreMix => (
+          l10n.smartGenreMix(playlist.label),
+          l10n.smartGenreMixDesc,
+          Icons.graphic_eq,
+          Colors.purpleAccent,
+        ),
+      SmartPlaylistKind.forgottenFavorites => (
+          l10n.smartForgottenFavorites,
+          l10n.smartForgottenFavoritesDesc,
+          Icons.history,
+          Colors.red,
+        ),
+      SmartPlaylistKind.newThisYear => (
+          l10n.smartNewThisYear(playlist.label),
+          l10n.smartNewThisYearDesc,
+          Icons.new_releases_outlined,
+          Colors.lightBlue,
+        ),
+      SmartPlaylistKind.neverPlayed => (
+          l10n.smartNeverPlayed,
+          l10n.smartNeverPlayedDesc,
+          Icons.explore_outlined,
+          colorScheme.primary,
+        ),
+    };
+
+    return SizedBox(
+      width: 150,
+      child: Card(
+        margin: EdgeInsets.zero,
+        color: color.withValues(alpha: 0.15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SongListScreen(
+                title: title,
+                description: description,
+                songs: playlist.songs,
+                emptyText: l10n.noSongsInPlaylist,
+              ),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, color: color, size: 30),
+                const Spacer(),
+                Text(title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14)),
+                const SizedBox(height: 2),
+                Text(l10n.songCount(playlist.songs.length),
+                    style: TextStyle(
+                        color: colorScheme.onSurfaceVariant, fontSize: 12)),
+              ],
+            ),
           ),
         ),
       ),

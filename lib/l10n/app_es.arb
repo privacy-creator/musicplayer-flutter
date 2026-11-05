@@ -162,5 +162,17 @@
   "syncPlaySong": "Reproducir canción",
   "syncNoLines": "Escribe o pega primero las líneas de la letra (una por línea) y luego abre la herramienta.",
   "syncProgress": "{done} de {total} líneas sincronizadas",
-  "syncClearTime": "Borrar tiempo"
+  "syncClearTime": "Borrar tiempo",
+
+  "smartPlaylists": "Hecho para ti",
+  "smartMostPlayed": "Más escuchadas",
+  "smartMostPlayedDesc": "Las canciones que más escuchas",
+  "smartForgottenFavorites": "Favoritas olvidadas",
+  "smartForgottenFavoritesDesc": "Canciones que te gustan y no escuchas desde hace un mes",
+  "smartNeverPlayed": "Nunca escuchadas",
+  "smartNeverPlayedDesc": "Canciones que aún no has escuchado",
+  "smartNewThisYear": "Novedades de {year}",
+  "smartNewThisYearDesc": "Canciones de este año",
+  "smartGenreMix": "Mix de {genre}",
+  "smartGenreMixDesc": "Todo de tu género más escuchado"
 }

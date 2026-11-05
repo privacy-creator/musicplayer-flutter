@@ -966,6 +966,72 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Clear time'**
   String get syncClearTime;
+
+  /// No description provided for @smartPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for you'**
+  String get smartPlaylists;
+
+  /// No description provided for @smartMostPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Most played'**
+  String get smartMostPlayed;
+
+  /// No description provided for @smartMostPlayedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The songs you play the most'**
+  String get smartMostPlayedDesc;
+
+  /// No description provided for @smartForgottenFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgotten favorites'**
+  String get smartForgottenFavorites;
+
+  /// No description provided for @smartForgottenFavoritesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Liked songs you haven\'t played in a month'**
+  String get smartForgottenFavoritesDesc;
+
+  /// No description provided for @smartNeverPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Never played'**
+  String get smartNeverPlayed;
+
+  /// No description provided for @smartNeverPlayedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Songs you haven\'t heard yet'**
+  String get smartNeverPlayedDesc;
+
+  /// No description provided for @smartNewThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'New in {year}'**
+  String smartNewThisYear(String year);
+
+  /// No description provided for @smartNewThisYearDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Songs released this year'**
+  String get smartNewThisYearDesc;
+
+  /// No description provided for @smartGenreMix.
+  ///
+  /// In en, this message translates to:
+  /// **'{genre} mix'**
+  String smartGenreMix(String genre);
+
+  /// No description provided for @smartGenreMixDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything from your most played genre'**
+  String get smartGenreMixDesc;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -4,6 +4,25 @@ All release notes are written in English.
 
 ---
 
+## [2.5.0] — 2026-11-05
+
+### Added
+- **Smart playlists ("Made for you")** — the Playlists screen now has a row of automatically generated playlists, built from your listening history and liked songs on this device:
+  - **Most played** — the songs you play the most.
+  - **Genre mix** — every song from your most played genre.
+  - **Forgotten favorites** — liked songs you haven't played in over a month.
+  - **New in this year** — songs released this year.
+  - **Never played** — songs you haven't heard yet.
+- Listening history now keeps a play count per song (existing history counts as one play).
+
+### Changed
+- **Search history only shows while the keyboard is open** — it no longer stays visible after closing the keyboard with the back button.
+
+### Tests
+- New tests for the smart playlist rules and the history play count.
+
+---
+
 ## [2.4.0] — 2026-10-13
 
 ### Added

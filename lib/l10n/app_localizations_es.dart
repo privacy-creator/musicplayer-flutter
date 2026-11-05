@@ -463,4 +463,42 @@ class AppL10nEs extends AppL10n {
 
   @override
   String get syncClearTime => 'Borrar tiempo';
+
+  @override
+  String get smartPlaylists => 'Hecho para ti';
+
+  @override
+  String get smartMostPlayed => 'Más escuchadas';
+
+  @override
+  String get smartMostPlayedDesc => 'Las canciones que más escuchas';
+
+  @override
+  String get smartForgottenFavorites => 'Favoritas olvidadas';
+
+  @override
+  String get smartForgottenFavoritesDesc =>
+      'Canciones que te gustan y no escuchas desde hace un mes';
+
+  @override
+  String get smartNeverPlayed => 'Nunca escuchadas';
+
+  @override
+  String get smartNeverPlayedDesc => 'Canciones que aún no has escuchado';
+
+  @override
+  String smartNewThisYear(String year) {
+    return 'Novedades de $year';
+  }
+
+  @override
+  String get smartNewThisYearDesc => 'Canciones de este año';
+
+  @override
+  String smartGenreMix(String genre) {
+    return 'Mix de $genre';
+  }
+
+  @override
+  String get smartGenreMixDesc => 'Todo de tu género más escuchado';
 }

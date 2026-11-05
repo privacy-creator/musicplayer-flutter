@@ -162,5 +162,17 @@
   "syncPlaySong": "Nummer afspelen",
   "syncNoLines": "Typ of plak eerst de regels van de tekst (één per regel) en open daarna de sync-tool.",
   "syncProgress": "{done} van {total} regels gesynchroniseerd",
-  "syncClearTime": "Tijd wissen"
+  "syncClearTime": "Tijd wissen",
+
+  "smartPlaylists": "Voor jou gemaakt",
+  "smartMostPlayed": "Meest gespeeld",
+  "smartMostPlayedDesc": "De nummers die je het vaakst draait",
+  "smartForgottenFavorites": "Vergeten favorieten",
+  "smartForgottenFavoritesDesc": "Gelikete nummers die je al een maand niet hebt gehoord",
+  "smartNeverPlayed": "Nog nooit gespeeld",
+  "smartNeverPlayedDesc": "Nummers die je nog niet hebt gehoord",
+  "smartNewThisYear": "Nieuw in {year}",
+  "smartNewThisYearDesc": "Nummers van dit jaar",
+  "smartGenreMix": "{genre}-mix",
+  "smartGenreMixDesc": "Alles uit je meest gespeelde genre"
 }

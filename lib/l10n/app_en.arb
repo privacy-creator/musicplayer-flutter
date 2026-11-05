@@ -188,5 +188,27 @@
       "total": { "type": "int" }
     }
   },
-  "syncClearTime": "Clear time"
+  "syncClearTime": "Clear time",
+
+  "smartPlaylists": "Made for you",
+  "smartMostPlayed": "Most played",
+  "smartMostPlayedDesc": "The songs you play the most",
+  "smartForgottenFavorites": "Forgotten favorites",
+  "smartForgottenFavoritesDesc": "Liked songs you haven't played in a month",
+  "smartNeverPlayed": "Never played",
+  "smartNeverPlayedDesc": "Songs you haven't heard yet",
+  "smartNewThisYear": "New in {year}",
+  "@smartNewThisYear": {
+    "placeholders": {
+      "year": { "type": "String" }
+    }
+  },
+  "smartNewThisYearDesc": "Songs released this year",
+  "smartGenreMix": "{genre} mix",
+  "@smartGenreMix": {
+    "placeholders": {
+      "genre": { "type": "String" }
+    }
+  },
+  "smartGenreMixDesc": "Everything from your most played genre"
 }

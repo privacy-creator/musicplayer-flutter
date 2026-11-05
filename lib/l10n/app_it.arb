@@ -162,5 +162,17 @@
   "syncPlaySong": "Riproduci brano",
   "syncNoLines": "Scrivi o incolla prima le righe del testo (una per riga), poi apri lo strumento.",
   "syncProgress": "{done} di {total} righe sincronizzate",
-  "syncClearTime": "Cancella tempo"
+  "syncClearTime": "Cancella tempo",
+
+  "smartPlaylists": "Fatto per te",
+  "smartMostPlayed": "Più ascoltati",
+  "smartMostPlayedDesc": "I brani che ascolti di più",
+  "smartForgottenFavorites": "Preferiti dimenticati",
+  "smartForgottenFavoritesDesc": "Brani che ti piacciono e non ascolti da un mese",
+  "smartNeverPlayed": "Mai ascoltati",
+  "smartNeverPlayedDesc": "Brani che non hai ancora sentito",
+  "smartNewThisYear": "Novità del {year}",
+  "smartNewThisYearDesc": "Brani di quest'anno",
+  "smartGenreMix": "Mix {genre}",
+  "smartGenreMixDesc": "Tutto dal tuo genere più ascoltato"
 }
