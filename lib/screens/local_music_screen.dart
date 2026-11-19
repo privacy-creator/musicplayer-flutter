@@ -290,75 +290,104 @@ Future<void> showRenameTrackDialog(BuildContext context, LocalTrack track) async
   final l10n = AppL10n.of(context)!;
   final library = context.read<LocalLibraryService>();
   final messenger = ScaffoldMessenger.of(context);
-  final titleCtrl = TextEditingController(text: track.title);
-  final artistCtrl = TextEditingController(text: track.artist);
-  var renameFile = false;
 
-  final confirmed = await showDialog<bool>(
+  final result = await showDialog<_RenameResult>(
     context: context,
-    builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setState) => AlertDialog(
-        title: Text(l10n.localRename),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              key: const Key('localRenameTitle'),
-              controller: titleCtrl,
-              autofocus: true,
-              decoration: InputDecoration(labelText: l10n.localFieldTitle),
-            ),
-            TextField(
-              key: const Key('localRenameArtist'),
-              controller: artistCtrl,
-              decoration: InputDecoration(labelText: l10n.localFieldArtist),
-            ),
-            const SizedBox(height: 8),
-            CheckboxListTile(
-              key: const Key('localRenameFile'),
-              contentPadding: EdgeInsets.zero,
-              value: renameFile,
-              onChanged: (v) => setState(() => renameFile = v ?? false),
-              title: Text(l10n.localRenameFile,
-                  style: const TextStyle(fontSize: 14)),
-              subtitle: Text(track.fileName,
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l10n.localCancel),
-          ),
-          FilledButton(
-            key: const Key('localRenameSave'),
-            onPressed: () {
-              if (titleCtrl.text.trim().isEmpty) return;
-              Navigator.pop(ctx, true);
-            },
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    ),
+    builder: (_) => _RenameTrackDialog(track: track),
   );
-
-  final title = titleCtrl.text;
-  final artist = artistCtrl.text;
-  titleCtrl.dispose();
-  artistCtrl.dispose();
-  if (confirmed != true) return;
+  if (result == null) return;
 
   try {
     await library.renameTrack(track.path,
-        title: title, artist: artist, renameFile: renameFile);
+        title: result.title,
+        artist: result.artist,
+        renameFile: result.renameFile);
     messenger.showSnackBar(SnackBar(content: Text(l10n.localRenameDone)));
   } on LocalRenameException catch (e) {
     messenger.showSnackBar(SnackBar(
       content: Text(
           e.message == 'exists' ? l10n.localRenameExists : l10n.localRenameFailed),
     ));
+  }
+}
+
+typedef _RenameResult = ({String title, String artist, bool renameFile});
+
+/// Eigen State zodat de controllers pas worden opgeruimd als de dialoog
+/// (inclusief sluitanimatie) echt uit de boom is.
+class _RenameTrackDialog extends StatefulWidget {
+  final LocalTrack track;
+  const _RenameTrackDialog({required this.track});
+
+  @override
+  State<_RenameTrackDialog> createState() => _RenameTrackDialogState();
+}
+
+class _RenameTrackDialogState extends State<_RenameTrackDialog> {
+  late final _titleCtrl = TextEditingController(text: widget.track.title);
+  late final _artistCtrl = TextEditingController(text: widget.track.artist);
+  bool _renameFile = false;
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _artistCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    return AlertDialog(
+      title: Text(l10n.localRename),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              key: const Key('localRenameTitle'),
+              controller: _titleCtrl,
+              autofocus: true,
+              decoration: InputDecoration(labelText: l10n.localFieldTitle),
+            ),
+            TextField(
+              key: const Key('localRenameArtist'),
+              controller: _artistCtrl,
+              decoration: InputDecoration(labelText: l10n.localFieldArtist),
+            ),
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              key: const Key('localRenameFile'),
+              contentPadding: EdgeInsets.zero,
+              value: _renameFile,
+              onChanged: (v) => setState(() => _renameFile = v ?? false),
+              title: Text(l10n.localRenameFile,
+                  style: const TextStyle(fontSize: 14)),
+              subtitle: Text(widget.track.fileName,
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.localCancel),
+        ),
+        FilledButton(
+          key: const Key('localRenameSave'),
+          onPressed: () {
+            if (_titleCtrl.text.trim().isEmpty) return;
+            Navigator.pop<_RenameResult>(context, (
+              title: _titleCtrl.text,
+              artist: _artistCtrl.text,
+              renameFile: _renameFile,
+            ));
+          },
+          child: Text(l10n.save),
+        ),
+      ],
+    );
   }
 }
 
@@ -369,35 +398,63 @@ Future<String?> showLocalPlaylistNameDialog(
   required String confirmLabel,
   String initial = '',
 }) async {
-  final l10n = AppL10n.of(context)!;
-  final ctrl = TextEditingController(text: initial);
   final name = await showDialog<String>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(title),
+    builder: (_) => _PlaylistNameDialog(
+        title: title, confirmLabel: confirmLabel, initial: initial),
+  );
+  final clean = name?.trim() ?? '';
+  return clean.isEmpty ? null : clean;
+}
+
+class _PlaylistNameDialog extends StatefulWidget {
+  final String title;
+  final String confirmLabel;
+  final String initial;
+  const _PlaylistNameDialog({
+    required this.title,
+    required this.confirmLabel,
+    required this.initial,
+  });
+
+  @override
+  State<_PlaylistNameDialog> createState() => _PlaylistNameDialogState();
+}
+
+class _PlaylistNameDialogState extends State<_PlaylistNameDialog> {
+  late final _ctrl = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context)!;
+    return AlertDialog(
+      title: Text(widget.title),
       content: TextField(
         key: const Key('localPlaylistNameField'),
-        controller: ctrl,
+        controller: _ctrl,
         autofocus: true,
         decoration: InputDecoration(labelText: l10n.localPlaylistName),
-        onSubmitted: (v) => Navigator.pop(ctx, v),
+        onSubmitted: (v) => Navigator.pop(context, v),
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(ctx),
+          onPressed: () => Navigator.pop(context),
           child: Text(l10n.localCancel),
         ),
         FilledButton(
           key: const Key('localPlaylistNameConfirm'),
-          onPressed: () => Navigator.pop(ctx, ctrl.text),
-          child: Text(confirmLabel),
+          onPressed: () => Navigator.pop(context, _ctrl.text),
+          child: Text(widget.confirmLabel),
         ),
       ],
-    ),
-  );
-  ctrl.dispose();
-  final clean = name?.trim() ?? '';
-  return clean.isEmpty ? null : clean;
+    );
+  }
 }
 
 Future<void> showAddToLocalPlaylistSheet(
