@@ -622,4 +622,81 @@ class AppL10nEn extends AppL10n {
   @override
   String get localIosHint =>
       'Put audio files in the Music Player folder via the Files app, then scan.';
+
+  @override
+  String get localExcludeFolder => 'Exclude folder';
+
+  @override
+  String localExcludeFolderConfirm(String folder) {
+    return 'Exclude \"$folder\"? Songs in this folder and its subfolders will no longer be shown. The files stay on your device.';
+  }
+
+  @override
+  String localFolderExcluded(int count) {
+    return 'Folder excluded — $count songs hidden';
+  }
+
+  @override
+  String get localDelete => 'Delete';
+
+  @override
+  String localDeleteTitle(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String get localRemoveFromLibrary => 'Remove from library';
+
+  @override
+  String get localRemoveFromLibraryDesc => 'The file stays on your device';
+
+  @override
+  String get localDeleteFromDevice => 'Delete from device';
+
+  @override
+  String get localDeleteFromDeviceDesc => 'The file is permanently deleted';
+
+  @override
+  String get localRemovedFromLibrary => 'Removed from library';
+
+  @override
+  String get localDeletedFromDevice => 'File deleted from device';
+
+  @override
+  String get localDeleteFailed => 'The file could not be deleted';
+
+  @override
+  String get localSettingsSection => 'Local music';
+
+  @override
+  String get localFolders => 'Folders';
+
+  @override
+  String localFoldersDesc(int count) {
+    return '$count excluded';
+  }
+
+  @override
+  String get localFoldersEmpty => 'No folders yet — scan your device first';
+
+  @override
+  String get localExcludedLabel => 'Excluded';
+
+  @override
+  String get localHiddenSongs => 'Hidden songs';
+
+  @override
+  String localHiddenSongsDesc(int count) {
+    return '$count hidden';
+  }
+
+  @override
+  String get localHiddenEmpty => 'No hidden songs';
+
+  @override
+  String get localRestore => 'Restore';
+
+  @override
+  String get localRestored =>
+      'Restored — the song comes back after the next scan';
 }

@@ -18,6 +18,10 @@ class LocalScanResult {
   const LocalScanResult(this.status, {this.added = 0, this.removed = 0});
 }
 
+class LocalDeleteException implements Exception {
+  const LocalDeleteException();
+}
+
 class LocalRenameException implements Exception {
   final String message;
   const LocalRenameException(this.message);
@@ -37,6 +41,8 @@ class LocalLibraryService extends ChangeNotifier {
   static const tracksKey = 'local_tracks_v1';
   static const playlistsKey = 'local_playlists_v1';
   static const lastScanKey = 'local_last_scan_v1';
+  static const excludedFoldersKey = 'local_excluded_folders_v1';
+  static const hiddenTracksKey = 'local_hidden_tracks_v1';
 
   final PermissionRequester _requestPermission;
   final RootsProvider _roots;
@@ -45,6 +51,11 @@ class LocalLibraryService extends ChangeNotifier {
   // pad → track, in volgorde van ontdekking
   final Map<String, LocalTrack> _tracks = {};
   final List<LocalPlaylist> _playlists = [];
+  // Mappen die de gebruiker heeft uitgesloten (inclusief submappen).
+  final Set<String> _excludedFolders = {};
+  // Nummers die uit de bibliotheek zijn verwijderd maar nog op het apparaat
+  // staan; een nieuwe scan voegt ze niet opnieuw toe.
+  final Set<String> _hiddenPaths = {};
   bool _scanning = false;
   DateTime? _lastScan;
   int _idSeq = 0;
@@ -71,6 +82,49 @@ class LocalLibraryService extends ChangeNotifier {
   List<LocalPlaylist> get playlists => List.unmodifiable(_playlists);
 
   LocalTrack? trackByPath(String path) => _tracks[path];
+
+  List<String> get excludedFolders => _excludedFolders.toList()..sort();
+  List<String> get hiddenPaths => _hiddenPaths.toList()..sort();
+
+  /// Map waarin een bestand staat (zonder afsluitend scheidingsteken).
+  static String folderOf(String path) {
+    final i = path.lastIndexOf(RegExp(r'[/\\]'));
+    return i > 0 ? path.substring(0, i) : path;
+  }
+
+  static String _norm(String p) {
+    var n = p.replaceAll('\\', '/');
+    while (n.length > 1 && n.endsWith('/')) {
+      n = n.substring(0, n.length - 1);
+    }
+    return Platform.isWindows ? n.toLowerCase() : n;
+  }
+
+  /// True als [path] in een uitgesloten map (of een submap daarvan) staat.
+  bool isExcluded(String path) {
+    final p = _norm(path);
+    for (final folder in _excludedFolders) {
+      final f = _norm(folder);
+      if (p == f || p.startsWith('$f/')) return true;
+    }
+    return false;
+  }
+
+  /// Alle mappen met lokale nummers plus de uitgesloten mappen, met het
+  /// aantal nummers per map (0 voor uitgesloten mappen).
+  Map<String, int> get folders {
+    final result = <String, int>{};
+    for (final t in _tracks.values) {
+      final f = folderOf(t.path);
+      result[f] = (result[f] ?? 0) + 1;
+    }
+    for (final f in _excludedFolders) {
+      result.putIfAbsent(f, () => 0);
+    }
+    final keys = result.keys.toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    return {for (final k in keys) k: result[k]!};
+  }
 
   LocalPlaylist? playlistById(String id) {
     for (final p in _playlists) {
@@ -125,6 +179,12 @@ class LocalLibraryService extends ChangeNotifier {
         }
       } catch (_) {}
     }
+    _excludedFolders
+      ..clear()
+      ..addAll(prefs.getStringList(excludedFoldersKey) ?? const []);
+    _hiddenPaths
+      ..clear()
+      ..addAll(prefs.getStringList(hiddenTracksKey) ?? const []);
     final last = prefs.getInt(lastScanKey);
     _lastScan = last != null ? DateTime.fromMillisecondsSinceEpoch(last) : null;
     notifyListeners();
@@ -159,6 +219,7 @@ class LocalLibraryService extends ChangeNotifier {
       final foundPaths = <String>{};
       var added = 0;
       for (final f in found) {
+        if (_hiddenPaths.contains(f.path) || isExcluded(f.path)) continue;
         foundPaths.add(f.path);
         final existing = _tracks[f.path];
         if (existing != null) {
@@ -185,6 +246,88 @@ class LocalLibraryService extends ChangeNotifier {
       _scanning = false;
       notifyListeners();
     }
+  }
+
+  // ── Verwijderen ─────────────────────────────────────────────────────────────
+
+  /// Haalt een nummer uit de bibliotheek en uit alle lokale playlists. Het
+  /// bestand blijft op het apparaat staan, maar wordt bij een volgende scan
+  /// niet opnieuw toegevoegd (terug te zetten via [restoreHidden]).
+  Future<void> removeFromLibrary(String path) async {
+    _tracks.remove(path);
+    _hiddenPaths.add(path);
+    _removeFromAllPlaylists({path});
+    await _persistAll();
+    notifyListeners();
+  }
+
+  /// Verwijdert het bestand definitief van het apparaat en uit de
+  /// bibliotheek en playlists. Gooit [LocalDeleteException] als dat niet lukt.
+  Future<void> deleteFile(String path) async {
+    final file = File(path);
+    try {
+      if (file.existsSync()) await file.delete();
+    } on FileSystemException {
+      throw const LocalDeleteException();
+    }
+    _tracks.remove(path);
+    _hiddenPaths.remove(path);
+    _removeFromAllPlaylists({path});
+    await _persistAll();
+    notifyListeners();
+  }
+
+  /// Zet een verborgen nummer terug; het verschijnt weer na de volgende scan.
+  Future<void> restoreHidden(String path) async {
+    if (!_hiddenPaths.remove(path)) return;
+    await _persistAll();
+    notifyListeners();
+  }
+
+  // ── Mappen uitsluiten ───────────────────────────────────────────────────────
+
+  /// Sluit een map (en alle submappen) uit. Nummers uit die map verdwijnen
+  /// direct uit de bibliotheek en de playlists; de bestanden blijven staan.
+  /// Geeft het aantal verwijderde nummers terug.
+  Future<int> excludeFolder(String folder) async {
+    final clean = folder.trim();
+    if (clean.isEmpty) return 0;
+    _excludedFolders.add(clean);
+    final removed = _tracks.keys.where(isExcluded).toSet();
+    for (final p in removed) {
+      _tracks.remove(p);
+    }
+    _removeFromAllPlaylists(removed);
+    await _persistAll();
+    notifyListeners();
+    return removed.length;
+  }
+
+  /// Haalt een map van de uitsluitlijst; de nummers komen terug na de
+  /// volgende scan.
+  Future<void> includeFolder(String folder) async {
+    if (!_excludedFolders.remove(folder)) return;
+    await _persistAll();
+    notifyListeners();
+  }
+
+  void _removeFromAllPlaylists(Set<String> paths) {
+    if (paths.isEmpty) return;
+    for (var i = 0; i < _playlists.length; i++) {
+      final p = _playlists[i];
+      if (p.paths.any(paths.contains)) {
+        _playlists[i] = p.copyWith(
+            paths: p.paths.where((x) => !paths.contains(x)).toList());
+      }
+    }
+  }
+
+  Future<void> _persistAll() async {
+    await _persistTracks();
+    await _persistPlaylists();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(excludedFoldersKey, _excludedFolders.toList());
+    await prefs.setStringList(hiddenTracksKey, _hiddenPaths.toList());
   }
 
   // ── Hernoemen ───────────────────────────────────────────────────────────────

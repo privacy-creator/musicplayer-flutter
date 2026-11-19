@@ -624,4 +624,83 @@ class AppL10nNl extends AppL10n {
   @override
   String get localIosHint =>
       'Zet audiobestanden via de Bestanden-app in de map Music Player en scan daarna.';
+
+  @override
+  String get localExcludeFolder => 'Map uitsluiten';
+
+  @override
+  String localExcludeFolderConfirm(String folder) {
+    return '\"$folder\" uitsluiten? Nummers in deze map en submappen worden niet meer getoond. De bestanden blijven op je apparaat staan.';
+  }
+
+  @override
+  String localFolderExcluded(int count) {
+    return 'Map uitgesloten — $count nummers verborgen';
+  }
+
+  @override
+  String get localDelete => 'Verwijderen';
+
+  @override
+  String localDeleteTitle(String title) {
+    return '\"$title\" verwijderen?';
+  }
+
+  @override
+  String get localRemoveFromLibrary => 'Uit bibliotheek verwijderen';
+
+  @override
+  String get localRemoveFromLibraryDesc =>
+      'Het bestand blijft op je apparaat staan';
+
+  @override
+  String get localDeleteFromDevice => 'Van apparaat verwijderen';
+
+  @override
+  String get localDeleteFromDeviceDesc =>
+      'Het bestand wordt definitief verwijderd';
+
+  @override
+  String get localRemovedFromLibrary => 'Uit bibliotheek verwijderd';
+
+  @override
+  String get localDeletedFromDevice => 'Bestand van apparaat verwijderd';
+
+  @override
+  String get localDeleteFailed => 'Het bestand kon niet worden verwijderd';
+
+  @override
+  String get localSettingsSection => 'Lokale muziek';
+
+  @override
+  String get localFolders => 'Mappen';
+
+  @override
+  String localFoldersDesc(int count) {
+    return '$count uitgesloten';
+  }
+
+  @override
+  String get localFoldersEmpty => 'Nog geen mappen — scan eerst je apparaat';
+
+  @override
+  String get localExcludedLabel => 'Uitgesloten';
+
+  @override
+  String get localHiddenSongs => 'Verborgen nummers';
+
+  @override
+  String localHiddenSongsDesc(int count) {
+    return '$count verborgen';
+  }
+
+  @override
+  String get localHiddenEmpty => 'Geen verborgen nummers';
+
+  @override
+  String get localRestore => 'Terugzetten';
+
+  @override
+  String get localRestored =>
+      'Teruggezet — het nummer komt terug na de volgende scan';
 }

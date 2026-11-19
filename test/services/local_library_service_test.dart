@@ -241,6 +241,156 @@ void main() {
     });
   });
 
+  group('uit bibliotheek verwijderen (verbergen)', () {
+    setUp(() => service.scan());
+
+    test('verwijdert uit bibliotheek en playlists, bestand blijft', () async {
+      final p = await service.createPlaylist('A');
+      await service.addToPlaylist(p.id, '/fake/notitie.m4a');
+      await service.removeFromLibrary('/fake/notitie.m4a');
+      expect(service.trackByPath('/fake/notitie.m4a'), isNull);
+      expect(service.playlistById(p.id)!.paths, isEmpty);
+      expect(service.hiddenPaths, ['/fake/notitie.m4a']);
+    });
+
+    test('verborgen nummer komt niet terug bij opnieuw scannen', () async {
+      await service.removeFromLibrary('/fake/notitie.m4a');
+      final r = await service.scan();
+      expect(r.added, 0);
+      expect(service.trackByPath('/fake/notitie.m4a'), isNull);
+    });
+
+    test('terugzetten laat het nummer na de volgende scan terugkomen',
+        () async {
+      await service.removeFromLibrary('/fake/notitie.m4a');
+      await service.restoreHidden('/fake/notitie.m4a');
+      expect(service.hiddenPaths, isEmpty);
+      await service.scan();
+      expect(service.trackByPath('/fake/notitie.m4a'), isNotNull);
+    });
+
+    test('verborgen lijst blijft bewaard na herstart', () async {
+      await service.removeFromLibrary('/fake/notitie.m4a');
+      final fresh = makeService();
+      await fresh.init();
+      expect(fresh.hiddenPaths, ['/fake/notitie.m4a']);
+    });
+  });
+
+  group('bestand van apparaat verwijderen', () {
+    late Directory dir;
+    late LocalLibraryService fs;
+
+    setUp(() async {
+      dir = Directory.systemTemp.createTempSync('delete_test_');
+      File('${dir.path}/weg.mp3').writeAsStringSync('audio');
+      fs = LocalLibraryService(
+        requestPermission: () async => true,
+        roots: () async => [dir.path],
+        scanner: (roots) async => scanDirectoriesSync(roots, minBytes: 0),
+      );
+      await fs.init();
+      await fs.scan();
+    });
+
+    tearDown(() {
+      if (dir.existsSync()) dir.deleteSync(recursive: true);
+    });
+
+    test('wist het bestand en haalt het uit bibliotheek en playlists',
+        () async {
+      final path = fs.tracks.single.path;
+      final p = await fs.createPlaylist('A');
+      await fs.addToPlaylist(p.id, path);
+      await fs.deleteFile(path);
+      expect(File(path).existsSync(), false);
+      expect(fs.tracks, isEmpty);
+      expect(fs.playlistById(p.id)!.paths, isEmpty);
+      expect(fs.hiddenPaths, isEmpty);
+    });
+
+    test('al verdwenen bestand geeft geen fout', () async {
+      final path = fs.tracks.single.path;
+      File(path).deleteSync();
+      await fs.deleteFile(path);
+      expect(fs.tracks, isEmpty);
+    });
+  });
+
+  group('mappen uitsluiten', () {
+    setUp(() async {
+      fakeFiles = const [
+        ScannedFile('/fake/Music/a.mp3', 100),
+        ScannedFile('/fake/Music/Live/b.mp3', 100),
+        ScannedFile('/fake/WhatsApp/c.opus', 100),
+        ScannedFile('/fake/MusicExtra/d.mp3', 100),
+      ];
+      await service.scan();
+    });
+
+    test('folders telt nummers per map', () {
+      expect(service.folders, {
+        '/fake/Music': 1,
+        '/fake/Music/Live': 1,
+        '/fake/MusicExtra': 1,
+        '/fake/WhatsApp': 1,
+      });
+    });
+
+    test('sluit map en submappen uit, maar geen map met gelijk begin',
+        () async {
+      final removed = await service.excludeFolder('/fake/Music');
+      expect(removed, 2);
+      expect(service.tracks.map((t) => t.path).toList()..sort(),
+          ['/fake/MusicExtra/d.mp3', '/fake/WhatsApp/c.opus']);
+      expect(service.isExcluded('/fake/Music/Live/x.mp3'), true);
+      expect(service.isExcluded('/fake/MusicExtra/x.mp3'), false);
+    });
+
+    test('uitgesloten map blijft zichtbaar in folders met 0 nummers',
+        () async {
+      await service.excludeFolder('/fake/WhatsApp');
+      expect(service.folders['/fake/WhatsApp'], 0);
+      expect(service.excludedFolders, ['/fake/WhatsApp']);
+    });
+
+    test('uitgesloten map wordt overgeslagen bij opnieuw scannen', () async {
+      await service.excludeFolder('/fake/WhatsApp');
+      final r = await service.scan();
+      expect(r.added, 0);
+      expect(service.trackByPath('/fake/WhatsApp/c.opus'), isNull);
+    });
+
+    test('map weer meenemen voegt nummers toe na een scan', () async {
+      await service.excludeFolder('/fake/WhatsApp');
+      await service.includeFolder('/fake/WhatsApp');
+      expect(service.excludedFolders, isEmpty);
+      await service.scan();
+      expect(service.trackByPath('/fake/WhatsApp/c.opus'), isNotNull);
+    });
+
+    test('uitsluiten haalt nummers ook uit playlists', () async {
+      final p = await service.createPlaylist('A');
+      await service.addToPlaylist(p.id, '/fake/WhatsApp/c.opus');
+      await service.addToPlaylist(p.id, '/fake/Music/a.mp3');
+      await service.excludeFolder('/fake/WhatsApp');
+      expect(service.playlistById(p.id)!.paths, ['/fake/Music/a.mp3']);
+    });
+
+    test('uitgesloten mappen blijven bewaard na herstart', () async {
+      await service.excludeFolder('/fake/WhatsApp');
+      final fresh = makeService();
+      await fresh.init();
+      expect(fresh.excludedFolders, ['/fake/WhatsApp']);
+      expect(fresh.isExcluded('/fake/WhatsApp/c.opus'), true);
+    });
+
+    test('folderOf geeft de map van een bestand', () {
+      expect(LocalLibraryService.folderOf('/a/b/c.mp3'), '/a/b');
+      expect(LocalLibraryService.folderOf(r'C:\m\x.mp3'), r'C:\m');
+    });
+  });
+
   group('storageRootFromAppDir', () {
     test('hoofdgebruiker', () {
       expect(

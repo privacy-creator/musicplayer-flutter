@@ -6,7 +6,10 @@ import 'package:music_player_flutter/l10n/app_localizations.dart';
 import 'package:music_player_flutter/l10n/app_localizations_en.dart';
 import 'package:music_player_flutter/screens/local_music_screen.dart';
 import 'package:music_player_flutter/screens/local_playlist_detail_screen.dart';
+import 'package:music_player_flutter/screens/local_folders_screen.dart';
+import 'package:music_player_flutter/services/api_service.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
+import 'package:music_player_flutter/services/auth_service.dart';
 import 'package:music_player_flutter/services/local_audio_scanner.dart';
 import 'package:music_player_flutter/services/local_library_service.dart';
 import 'package:music_player_flutter/services/player_service.dart';
@@ -14,6 +17,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAudioPlayer extends Mock implements AudioPlayer {}
+
+class MockApiService extends Mock implements ApiService {}
 
 void main() {
   final l10n = AppL10nEn();
@@ -61,6 +66,8 @@ void main() {
         providers: [
           ChangeNotifierProvider<PlayerService>.value(value: player),
           ChangeNotifierProvider<LocalLibraryService>.value(value: library),
+          ChangeNotifierProvider<AuthService>(
+              create: (_) => AuthService(MockApiService())),
         ],
         child: MaterialApp(
           locale: const Locale('en'),
@@ -122,7 +129,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('localMenu_/fake/opname.m4a')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.localRename));
+    await tester.tap(find.byKey(const ValueKey('localMenuItem_rename')));
     await tester.pumpAndSettle();
 
     await tester.enterText(
@@ -165,13 +172,112 @@ void main() {
     await tester
         .tap(find.byKey(const ValueKey('localMenu_/fake/Band - Lied.mp3')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l10n.localAddToPlaylist));
+    await tester.tap(find.byKey(const ValueKey('localMenuItem_playlist')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Favoriet'));
+    await tester.tap(find.text('Favoriet (0)'));
     await tester.pumpAndSettle();
 
     expect(library.tracksForPlaylist(p.id).single.title, 'Lied');
     expect(find.text(l10n.localAddedToPlaylist('Favoriet')), findsOneWidget);
+  });
+
+  testWidgets('menu rechtsboven is het algemene app-menu met lokale acties',
+      (tester) async {
+    await library.scan();
+    await tester.pumpWidget(wrap(const LocalMusicScreen()));
+    await tester.tap(find.descendant(
+        of: find.byType(AppBar), matching: find.byIcon(Icons.more_vert)));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.navSettings), findsOneWidget);
+    expect(find.text(l10n.localScan), findsOneWidget);
+    expect(find.text(l10n.tooltipShuffleAll), findsOneWidget);
+    expect(find.text(l10n.localFolders), findsOneWidget);
+  });
+
+  testWidgets('nummer-menu is een bottom sheet met alle opties',
+      (tester) async {
+    await library.scan();
+    await tester.pumpWidget(wrap(const LocalMusicScreen()));
+    await tester.tap(find.byKey(const ValueKey('localMenu_/fake/opname.m4a')));
+    await tester.pumpAndSettle();
+    for (final v in ['queue', 'playlist', 'rename', 'exclude', 'delete']) {
+      expect(find.byKey(ValueKey('localMenuItem_$v')), findsOneWidget);
+    }
+    // "Uit afspeellijst verwijderen" alleen binnen een playlist
+    expect(find.byKey(const ValueKey('localMenuItem_remove')), findsNothing);
+  });
+
+  testWidgets('nummer uit de bibliotheek verwijderen', (tester) async {
+    await library.scan();
+    await tester.pumpWidget(wrap(const LocalMusicScreen()));
+    await tester.tap(find.byKey(const ValueKey('localMenu_/fake/opname.m4a')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('localMenuItem_delete')));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.localDeleteTitle('opname')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('localDeleteLibrary')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('opname'), findsNothing);
+    expect(library.hiddenPaths, ['/fake/opname.m4a']);
+    expect(find.text(l10n.localRemovedFromLibrary), findsOneWidget);
+  });
+
+  testWidgets('map uitsluiten via het nummer-menu', (tester) async {
+    await library.scan();
+    await tester.pumpWidget(wrap(const LocalMusicScreen()));
+    await tester.tap(find.byKey(const ValueKey('localMenu_/fake/opname.m4a')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('localMenuItem_exclude')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('localExcludeConfirm')));
+    await tester.pumpAndSettle();
+
+    expect(library.excludedFolders, ['/fake']);
+    expect(library.tracks, isEmpty);
+    expect(find.text(l10n.localFolderExcluded(2)), findsOneWidget);
+  });
+
+  group('LocalFoldersScreen', () {
+    testWidgets('toont mappen en kan een map uitsluiten en weer meenemen',
+        (tester) async {
+      await library.scan();
+      await tester.pumpWidget(wrap(const LocalFoldersScreen()));
+      expect(find.text('fake'), findsOneWidget);
+      expect(find.textContaining(l10n.songCount(2)), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('localExcludeConfirm')));
+      await tester.pumpAndSettle();
+      expect(library.excludedFolders, ['/fake']);
+      expect(find.textContaining(l10n.localExcludedLabel), findsOneWidget);
+
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      expect(library.excludedFolders, isEmpty);
+      expect(library.tracks, hasLength(2)); // opnieuw gescand
+    });
+
+    testWidgets('lege staat zonder mappen', (tester) async {
+      await tester.pumpWidget(wrap(const LocalFoldersScreen()));
+      expect(find.text(l10n.localFoldersEmpty), findsOneWidget);
+    });
+  });
+
+  group('LocalHiddenSongsScreen', () {
+    testWidgets('verborgen nummer terugzetten', (tester) async {
+      await library.scan();
+      await library.removeFromLibrary('/fake/opname.m4a');
+      await tester.pumpWidget(wrap(const LocalHiddenSongsScreen()));
+      expect(find.text('opname'), findsOneWidget);
+
+      await tester
+          .tap(find.byKey(const ValueKey('localRestore_/fake/opname.m4a')));
+      await tester.pumpAndSettle();
+      expect(library.hiddenPaths, isEmpty);
+      expect(find.text(l10n.localHiddenEmpty), findsOneWidget);
+    });
   });
 
   group('LocalPlaylistDetailScreen', () {
@@ -190,7 +296,8 @@ void main() {
       await tester
           .tap(find.byKey(const ValueKey('localMenu_/fake/Band - Lied.mp3')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.localRemoveFromPlaylist));
+      await tester
+          .tap(find.byKey(const ValueKey('localMenuItem_remove')));
       await tester.pumpAndSettle();
 
       expect(find.text(l10n.localPlaylistEmpty), findsOneWidget);

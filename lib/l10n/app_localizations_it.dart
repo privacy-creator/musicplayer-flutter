@@ -624,4 +624,83 @@ class AppL10nIt extends AppL10n {
   @override
   String get localIosHint =>
       'Metti i file audio nella cartella Music Player tramite l\'app File, poi scansiona.';
+
+  @override
+  String get localExcludeFolder => 'Escludi cartella';
+
+  @override
+  String localExcludeFolderConfirm(String folder) {
+    return 'Escludere \"$folder\"? I brani in questa cartella e nelle sottocartelle non verranno più mostrati. I file restano sul tuo dispositivo.';
+  }
+
+  @override
+  String localFolderExcluded(int count) {
+    return 'Cartella esclusa — $count brani nascosti';
+  }
+
+  @override
+  String get localDelete => 'Elimina';
+
+  @override
+  String localDeleteTitle(String title) {
+    return 'Eliminare \"$title\"?';
+  }
+
+  @override
+  String get localRemoveFromLibrary => 'Rimuovi dalla libreria';
+
+  @override
+  String get localRemoveFromLibraryDesc => 'Il file resta sul tuo dispositivo';
+
+  @override
+  String get localDeleteFromDevice => 'Elimina dal dispositivo';
+
+  @override
+  String get localDeleteFromDeviceDesc =>
+      'Il file viene eliminato definitivamente';
+
+  @override
+  String get localRemovedFromLibrary => 'Rimosso dalla libreria';
+
+  @override
+  String get localDeletedFromDevice => 'File eliminato dal dispositivo';
+
+  @override
+  String get localDeleteFailed => 'Impossibile eliminare il file';
+
+  @override
+  String get localSettingsSection => 'Musica locale';
+
+  @override
+  String get localFolders => 'Cartelle';
+
+  @override
+  String localFoldersDesc(int count) {
+    return '$count escluse';
+  }
+
+  @override
+  String get localFoldersEmpty =>
+      'Ancora nessuna cartella — prima scansiona il dispositivo';
+
+  @override
+  String get localExcludedLabel => 'Esclusa';
+
+  @override
+  String get localHiddenSongs => 'Brani nascosti';
+
+  @override
+  String localHiddenSongsDesc(int count) {
+    return '$count nascosti';
+  }
+
+  @override
+  String get localHiddenEmpty => 'Nessun brano nascosto';
+
+  @override
+  String get localRestore => 'Ripristina';
+
+  @override
+  String get localRestored =>
+      'Ripristinato — il brano torna dopo la prossima scansione';
 }

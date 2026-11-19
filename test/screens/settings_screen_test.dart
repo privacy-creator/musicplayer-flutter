@@ -11,6 +11,7 @@ import 'package:music_player_flutter/services/api_service.dart';
 import 'package:music_player_flutter/services/audio_handler.dart';
 import 'package:music_player_flutter/services/download_service.dart';
 import 'package:music_player_flutter/services/language_service.dart';
+import 'package:music_player_flutter/services/local_library_service.dart';
 import 'package:music_player_flutter/services/player_service.dart';
 import 'package:music_player_flutter/services/theme_service.dart';
 import 'package:music_player_flutter/services/translation_service.dart';
@@ -58,6 +59,8 @@ Widget _buildSettings(
       ChangeNotifierProvider<PlayerService>.value(
           value: playerService ?? _testPlayerService()),
       Provider<ApiService>(create: (_) => ApiService()),
+      ChangeNotifierProvider<LocalLibraryService>(
+          create: (_) => LocalLibraryService()),
     ],
     child: MaterialApp(
       locale: const Locale('en'),
@@ -207,7 +210,25 @@ void main() {
       await tester.pumpWidget(
           _buildSettings(theme, lang, trans, dl, update));
       await tester.pumpAndSettle();
-      expect(find.text('v1.9.0', skipOffstage: false), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('v1.9.0'), 200,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text('v1.9.0'), findsOneWidget);
+    });
+
+    testWidgets('toont blok lokale muziek met mappen en verborgen nummers',
+        (tester) async {
+      final (theme, lang, trans, dl, update) = await makeServices();
+      await tester.pumpWidget(
+          _buildSettings(theme, lang, trans, dl, update));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+          find.byKey(const Key('settingsLocalHidden')), 200,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.text('LOCAL MUSIC'), findsOneWidget);
+      expect(find.byKey(const Key('settingsLocalScan')), findsOneWidget);
+      expect(find.text('Folders'), findsOneWidget);
+      expect(find.text('0 excluded'), findsOneWidget);
+      expect(find.text('Hidden songs'), findsOneWidget);
     });
 
     testWidgets('does not show hardcoded "alfa 0.6.0" label', (tester) async {

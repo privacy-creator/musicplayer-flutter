@@ -7,6 +7,9 @@ import '../l10n/app_localizations.dart';
 import '../models/local_track.dart';
 import '../services/local_library_service.dart';
 import '../services/player_service.dart';
+import '../widgets/global_app_bar_actions.dart';
+import '../widgets/menu_sheet.dart';
+import 'local_folders_screen.dart';
 import 'local_playlist_detail_screen.dart';
 
 String formatLocalBytes(int bytes) {
@@ -30,6 +33,42 @@ class LocalMusicScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(l10n.navLocal),
           actions: [
+            // Zelfde menu als de rest van de app (instellingen, login),
+            // aangevuld met de acties voor lokale muziek.
+            GlobalAppBarActions(
+              extraItems: [
+                AppBarMenuItem(
+                  icon: Icons.manage_search,
+                  label: l10n.localScan,
+                  onTap: () {
+                    Navigator.pop(context);
+                    runLocalScan(context);
+                  },
+                ),
+                if (library.tracks.isNotEmpty)
+                  AppBarMenuItem(
+                    icon: Icons.shuffle,
+                    label: l10n.tooltipShuffleAll,
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.read<PlayerService>().shufflePlay(
+                          [for (final t in library.tracks) t.toSong()]);
+                    },
+                  ),
+                AppBarMenuItem(
+                  icon: Icons.folder_off_outlined,
+                  label: l10n.localFolders,
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const LocalFoldersScreen()),
+                    );
+                  },
+                ),
+              ],
+            ),
             if (library.isScanning)
               const Padding(
                 padding: EdgeInsets.all(14),
@@ -249,39 +288,163 @@ class LocalTrackTile extends StatelessWidget {
         final songs = [for (final t in tracks) t.toSong()];
         ctx.read<PlayerService>().playSong(songs[index], songs, index);
       },
-      trailing: PopupMenuButton<String>(
+      trailing: IconButton(
         key: ValueKey('localMenu_${track.path}'),
-        onSelected: (v) => _onMenu(ctx, v),
-        itemBuilder: (_) => [
-          PopupMenuItem(value: 'rename', child: Text(l10n.localRename)),
-          PopupMenuItem(
-              value: 'playlist', child: Text(l10n.localAddToPlaylist)),
-          PopupMenuItem(value: 'queue', child: Text(l10n.btnAddToQueue)),
-          if (playlistId != null)
-            PopupMenuItem(
-                value: 'remove', child: Text(l10n.localRemoveFromPlaylist)),
-        ],
+        icon: const Icon(Icons.more_vert),
+        onPressed: () => showLocalTrackMenu(ctx, track, playlistId: playlistId),
       ),
     );
   }
+}
 
-  Future<void> _onMenu(BuildContext ctx, String value) async {
-    final l10n = AppL10n.of(ctx)!;
-    switch (value) {
-      case 'rename':
-        await showRenameTrackDialog(ctx, track);
-      case 'playlist':
-        await showAddToLocalPlaylistSheet(ctx, track);
-      case 'queue':
-        ctx.read<PlayerService>().addToQueue(track.toSong());
-        ScaffoldMessenger.of(ctx).showSnackBar(
-            SnackBar(content: Text(l10n.addedToQueue(track.title))));
-      case 'remove':
-        await ctx
-            .read<LocalLibraryService>()
-            .removeFromPlaylist(playlistId!, track.path);
-    }
+/// Opties voor een lokaal nummer, als bottom sheet zoals het nummer-menu
+/// van de cloud-muziek.
+Future<void> showLocalTrackMenu(
+  BuildContext context,
+  LocalTrack track, {
+  String? playlistId,
+}) async {
+  final l10n = AppL10n.of(context)!;
+  final artist = track.artist.isEmpty ? l10n.localUnknownArtist : track.artist;
+  final folder = LocalLibraryService.folderOf(track.path);
+
+  final choice = await MenuSheet.show<String>(
+    context,
+    title: track.title,
+    subtitle: artist,
+    headerIcon: Icons.audio_file,
+    items: (sheetCtx) {
+      MenuSheetItem item(String value, IconData icon, String label,
+              {Color? color}) =>
+          MenuSheetItem(
+            key: ValueKey('localMenuItem_$value'),
+            icon: icon,
+            label: label,
+            color: color,
+            onTap: () => Navigator.pop(sheetCtx, value),
+          );
+      return [
+        item('queue', Icons.playlist_add_outlined, l10n.btnAddToQueue),
+        item('playlist', Icons.queue_music_outlined, l10n.localAddToPlaylist),
+        if (playlistId != null)
+          item('remove', Icons.playlist_remove_outlined,
+              l10n.localRemoveFromPlaylist),
+        item('rename', Icons.edit_outlined, l10n.localRename),
+        item('exclude', Icons.folder_off_outlined, l10n.localExcludeFolder),
+        item('delete', Icons.delete_outline, l10n.localDelete,
+            color: Colors.redAccent),
+      ];
+    },
+  );
+  if (choice == null || !context.mounted) return;
+
+  final library = context.read<LocalLibraryService>();
+  final messenger = ScaffoldMessenger.of(context);
+  switch (choice) {
+    case 'queue':
+      context.read<PlayerService>().addToQueue(track.toSong());
+      messenger.showSnackBar(
+          SnackBar(content: Text(l10n.addedToQueue(track.title))));
+    case 'playlist':
+      await showAddToLocalPlaylistSheet(context, track);
+    case 'remove':
+      await library.removeFromPlaylist(playlistId!, track.path);
+    case 'rename':
+      await showRenameTrackDialog(context, track);
+    case 'exclude':
+      await confirmExcludeFolder(context, folder);
+    case 'delete':
+      await showDeleteTrackDialog(context, track);
   }
+}
+
+enum _DeleteChoice { library, device }
+
+/// Vraagt of het nummer alleen uit de bibliotheek moet of ook van het
+/// apparaat, en voert dat uit.
+Future<void> showDeleteTrackDialog(BuildContext context, LocalTrack track) async {
+  final l10n = AppL10n.of(context)!;
+  final library = context.read<LocalLibraryService>();
+  final messenger = ScaffoldMessenger.of(context);
+
+  final choice = await showDialog<_DeleteChoice>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(l10n.localDeleteTitle(track.title)),
+      contentPadding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            key: const Key('localDeleteLibrary'),
+            leading: const Icon(Icons.remove_circle_outline),
+            title: Text(l10n.localRemoveFromLibrary),
+            subtitle: Text(l10n.localRemoveFromLibraryDesc),
+            onTap: () => Navigator.pop(ctx, _DeleteChoice.library),
+          ),
+          ListTile(
+            key: const Key('localDeleteDevice'),
+            leading:
+                const Icon(Icons.delete_forever_outlined, color: Colors.redAccent),
+            title: Text(l10n.localDeleteFromDevice,
+                style: const TextStyle(color: Colors.redAccent)),
+            subtitle: Text(l10n.localDeleteFromDeviceDesc),
+            onTap: () => Navigator.pop(ctx, _DeleteChoice.device),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(l10n.localCancel),
+        ),
+      ],
+    ),
+  );
+  if (choice == null) return;
+
+  if (choice == _DeleteChoice.library) {
+    await library.removeFromLibrary(track.path);
+    messenger.showSnackBar(
+        SnackBar(content: Text(l10n.localRemovedFromLibrary)));
+    return;
+  }
+  try {
+    await library.deleteFile(track.path);
+    messenger.showSnackBar(
+        SnackBar(content: Text(l10n.localDeletedFromDevice)));
+  } on LocalDeleteException {
+    messenger.showSnackBar(SnackBar(content: Text(l10n.localDeleteFailed)));
+  }
+}
+
+/// Bevestiging voordat een map wordt uitgesloten.
+Future<void> confirmExcludeFolder(BuildContext context, String folder) async {
+  final l10n = AppL10n.of(context)!;
+  final library = context.read<LocalLibraryService>();
+  final messenger = ScaffoldMessenger.of(context);
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(l10n.localExcludeFolder),
+      content: Text(l10n.localExcludeFolderConfirm(folder)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(l10n.localCancel),
+        ),
+        FilledButton(
+          key: const Key('localExcludeConfirm'),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(l10n.localExcludeFolder),
+        ),
+      ],
+    ),
+  );
+  if (ok != true) return;
+  final removed = await library.excludeFolder(folder);
+  messenger.showSnackBar(
+      SnackBar(content: Text(l10n.localFolderExcluded(removed))));
 }
 
 // ── Dialogen ──────────────────────────────────────────────────────────────────
@@ -463,32 +626,26 @@ Future<void> showAddToLocalPlaylistSheet(
   final library = context.read<LocalLibraryService>();
   final messenger = ScaffoldMessenger.of(context);
 
-  final choice = await showModalBottomSheet<String>(
-    context: context,
-    builder: (ctx) => SafeArea(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          ListTile(
-            title: Text(l10n.localAddToPlaylist,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          ListTile(
-            key: const Key('localSheetNewPlaylist'),
-            leading: const Icon(Icons.add),
-            title: Text(l10n.localNewPlaylist),
-            onTap: () => Navigator.pop(ctx, '__new__'),
-          ),
-          for (final p in library.playlists)
-            ListTile(
-              leading: const Icon(Icons.queue_music),
-              title: Text(p.name),
-              subtitle: Text(l10n.songCount(library.tracksForPlaylist(p.id).length)),
-              onTap: () => Navigator.pop(ctx, p.id),
-            ),
-        ],
+  final choice = await MenuSheet.show<String>(
+    context,
+    title: l10n.localAddToPlaylist,
+    subtitle: track.title,
+    headerIcon: Icons.queue_music,
+    items: (sheetCtx) => [
+      MenuSheetItem(
+        key: const Key('localSheetNewPlaylist'),
+        icon: Icons.add,
+        label: l10n.localNewPlaylist,
+        onTap: () => Navigator.pop(sheetCtx, '__new__'),
       ),
-    ),
+      for (final p in library.playlists)
+        MenuSheetItem(
+          icon: Icons.queue_music_outlined,
+          label:
+              '${p.name} (${library.tracksForPlaylist(p.id).length})',
+          onTap: () => Navigator.pop(sheetCtx, p.id),
+        ),
+    ],
   );
   if (choice == null || !context.mounted) return;
 

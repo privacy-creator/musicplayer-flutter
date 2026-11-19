@@ -45,7 +45,7 @@ Do NOT edit the generated `app_localizations*.dart` files directly — they will
 
 **Navigation shell** (`main.dart`): `_AuthWrapper` checks admin cookie on startup, then shows `_MainShell` with a `NavigationBar` (Songs / Playlists) and a persistent `PlayerBar` above it.
 
-**SharedPreferences keys**: `app_locale`, `app_theme_mode`, `shuffle_mode`, `songs_cache_v1`, `downloaded_songs_v1`, `lyrics_translation_{songId}_{lang}`, `listening_history_v1`, `recent_rooms_v1`, `stream_nickname`, `stream_guest_token`, `local_tracks_v1`, `local_playlists_v1`, `local_last_scan_v1`
+**SharedPreferences keys**: `app_locale`, `app_theme_mode`, `shuffle_mode`, `songs_cache_v1`, `downloaded_songs_v1`, `lyrics_translation_{songId}_{lang}`, `listening_history_v1`, `recent_rooms_v1`, `stream_nickname`, `stream_guest_token`, `local_tracks_v1`, `local_playlists_v1`, `local_last_scan_v1`, `local_excluded_folders_v1`, `local_hidden_tracks_v1`
 
 ## Testing conventions
 

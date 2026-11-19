@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/local_library_service.dart';
 import '../services/player_service.dart';
+import '../widgets/menu_sheet.dart';
 import 'local_music_screen.dart';
 
 /// Detailweergave van een lokale afspeellijst. Heeft bewust geen
@@ -29,9 +30,31 @@ class LocalPlaylistDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(playlist.name),
         actions: [
-          PopupMenuButton<String>(
+          IconButton(
             key: const Key('localPlaylistMenu'),
-            onSelected: (v) async {
+            icon: const Icon(Icons.more_vert),
+            iconSize: 28,
+            onPressed: () async {
+              final v = await MenuSheet.show<String>(
+                context,
+                title: playlist.name,
+                subtitle: l10n.songCount(tracks.length),
+                headerIcon: Icons.queue_music,
+                items: (sheetCtx) => [
+                  MenuSheetItem(
+                    icon: Icons.edit_outlined,
+                    label: l10n.localRenamePlaylist,
+                    onTap: () => Navigator.pop(sheetCtx, 'rename'),
+                  ),
+                  MenuSheetItem(
+                    icon: Icons.delete_outline,
+                    label: l10n.localDeletePlaylist,
+                    color: Colors.redAccent,
+                    onTap: () => Navigator.pop(sheetCtx, 'delete'),
+                  ),
+                ],
+              );
+              if (!context.mounted) return;
               if (v == 'rename') {
                 final name = await showLocalPlaylistNameDialog(
                   context,
@@ -74,12 +97,6 @@ class LocalPlaylistDetailScreen extends StatelessWidget {
                 }
               }
             },
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                  value: 'rename', child: Text(l10n.localRenamePlaylist)),
-              PopupMenuItem(
-                  value: 'delete', child: Text(l10n.localDeletePlaylist)),
-            ],
           ),
         ],
       ),

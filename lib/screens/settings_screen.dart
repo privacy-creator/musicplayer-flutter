@@ -12,6 +12,7 @@ import '../services/theme_service.dart';
 import '../services/translation_service.dart';
 import '../services/update_service.dart';
 import 'downloads_screen.dart';
+import 'local_folders_screen.dart';
 
 String _formatBytes(int bytes) {
   if (bytes == 0) return '0 B';
@@ -48,6 +49,9 @@ class SettingsScreen extends StatelessWidget {
           const Divider(height: 1, indent: 16, endIndent: 16),
           _SectionHeader(label: l10n.downloadsHeader),
           _DownloadsTile(),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          _SectionHeader(label: l10n.localSettingsSection),
+          const LocalMusicSettingsSection(),
           const Divider(height: 1, indent: 16, endIndent: 16),
           _SectionHeader(label: l10n.aboutSection),
           _GitHubTile(),

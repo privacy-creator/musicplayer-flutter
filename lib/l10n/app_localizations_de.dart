@@ -625,4 +625,82 @@ class AppL10nDe extends AppL10n {
   @override
   String get localIosHint =>
       'Lege Audiodateien über die Dateien-App im Ordner Music Player ab und scanne dann.';
+
+  @override
+  String get localExcludeFolder => 'Ordner ausschließen';
+
+  @override
+  String localExcludeFolderConfirm(String folder) {
+    return '\"$folder\" ausschließen? Titel in diesem Ordner und seinen Unterordnern werden nicht mehr angezeigt. Die Dateien bleiben auf deinem Gerät.';
+  }
+
+  @override
+  String localFolderExcluded(int count) {
+    return 'Ordner ausgeschlossen — $count Titel ausgeblendet';
+  }
+
+  @override
+  String get localDelete => 'Löschen';
+
+  @override
+  String localDeleteTitle(String title) {
+    return '\"$title\" löschen?';
+  }
+
+  @override
+  String get localRemoveFromLibrary => 'Aus der Bibliothek entfernen';
+
+  @override
+  String get localRemoveFromLibraryDesc => 'Die Datei bleibt auf deinem Gerät';
+
+  @override
+  String get localDeleteFromDevice => 'Vom Gerät löschen';
+
+  @override
+  String get localDeleteFromDeviceDesc => 'Die Datei wird endgültig gelöscht';
+
+  @override
+  String get localRemovedFromLibrary => 'Aus der Bibliothek entfernt';
+
+  @override
+  String get localDeletedFromDevice => 'Datei vom Gerät gelöscht';
+
+  @override
+  String get localDeleteFailed => 'Die Datei konnte nicht gelöscht werden';
+
+  @override
+  String get localSettingsSection => 'Lokale Musik';
+
+  @override
+  String get localFolders => 'Ordner';
+
+  @override
+  String localFoldersDesc(int count) {
+    return '$count ausgeschlossen';
+  }
+
+  @override
+  String get localFoldersEmpty =>
+      'Noch keine Ordner — scanne zuerst dein Gerät';
+
+  @override
+  String get localExcludedLabel => 'Ausgeschlossen';
+
+  @override
+  String get localHiddenSongs => 'Ausgeblendete Titel';
+
+  @override
+  String localHiddenSongsDesc(int count) {
+    return '$count ausgeblendet';
+  }
+
+  @override
+  String get localHiddenEmpty => 'Keine ausgeblendeten Titel';
+
+  @override
+  String get localRestore => 'Wiederherstellen';
+
+  @override
+  String get localRestored =>
+      'Wiederhergestellt — der Titel erscheint nach dem nächsten Scan wieder';
 }

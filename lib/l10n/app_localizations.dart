@@ -1254,6 +1254,138 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Put audio files in the Music Player folder via the Files app, then scan.'**
   String get localIosHint;
+
+  /// No description provided for @localExcludeFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclude folder'**
+  String get localExcludeFolder;
+
+  /// No description provided for @localExcludeFolderConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclude \"{folder}\"? Songs in this folder and its subfolders will no longer be shown. The files stay on your device.'**
+  String localExcludeFolderConfirm(String folder);
+
+  /// No description provided for @localFolderExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder excluded — {count} songs hidden'**
+  String localFolderExcluded(int count);
+
+  /// No description provided for @localDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get localDelete;
+
+  /// No description provided for @localDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String localDeleteTitle(String title);
+
+  /// No description provided for @localRemoveFromLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from library'**
+  String get localRemoveFromLibrary;
+
+  /// No description provided for @localRemoveFromLibraryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The file stays on your device'**
+  String get localRemoveFromLibraryDesc;
+
+  /// No description provided for @localDeleteFromDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete from device'**
+  String get localDeleteFromDevice;
+
+  /// No description provided for @localDeleteFromDeviceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is permanently deleted'**
+  String get localDeleteFromDeviceDesc;
+
+  /// No description provided for @localRemovedFromLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from library'**
+  String get localRemovedFromLibrary;
+
+  /// No description provided for @localDeletedFromDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'File deleted from device'**
+  String get localDeletedFromDevice;
+
+  /// No description provided for @localDeleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be deleted'**
+  String get localDeleteFailed;
+
+  /// No description provided for @localSettingsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Local music'**
+  String get localSettingsSection;
+
+  /// No description provided for @localFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get localFolders;
+
+  /// No description provided for @localFoldersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} excluded'**
+  String localFoldersDesc(int count);
+
+  /// No description provided for @localFoldersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No folders yet — scan your device first'**
+  String get localFoldersEmpty;
+
+  /// No description provided for @localExcludedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Excluded'**
+  String get localExcludedLabel;
+
+  /// No description provided for @localHiddenSongs.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden songs'**
+  String get localHiddenSongs;
+
+  /// No description provided for @localHiddenSongsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hidden'**
+  String localHiddenSongsDesc(int count);
+
+  /// No description provided for @localHiddenEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No hidden songs'**
+  String get localHiddenEmpty;
+
+  /// No description provided for @localRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get localRestore;
+
+  /// No description provided for @localRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored — the song comes back after the next scan'**
+  String get localRestored;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

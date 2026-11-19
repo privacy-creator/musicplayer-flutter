@@ -4,6 +4,24 @@ All release notes are written in English.
 
 ---
 
+## [2.7.0] — 2026-11-19
+
+### Added
+- **Delete local songs** — choose between **Remove from library** (the file stays on your device and won't come back on the next scan) and **Delete from device** (the file is permanently deleted). Deleted songs are also removed from your local playlists.
+- **Exclude folders** — exclude a song's folder (including subfolders) straight from its menu. Excluded folders are skipped when scanning; folders with a similar name (e.g. `/MusicExtra` next to `/Music`) are not affected.
+- **Local music in Settings** — a new section with:
+  - **Scan device**, showing the number of local songs.
+  - **Folders** — every folder with local music, with a switch to exclude it or bring it back (bringing it back rescans right away).
+  - **Hidden songs** — restore songs you removed from the library.
+
+### Changed
+- The On device tab now uses the same menus as the rest of the app: the app-wide menu at the top right (Settings, admin login) with Scan device, Shuffle all and Folders, and a bottom sheet with all options for each song. The local playlist menu and "Add to playlist" sheet use the same style.
+
+### Tests
+- New tests for hiding, restoring and deleting local songs, excluding and including folders, the folders and hidden songs screens, the new menus and the Local music section in Settings.
+
+---
+
 ## [2.6.1] — 2026-11-19
 
 ### Fixed
