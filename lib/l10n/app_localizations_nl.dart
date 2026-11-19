@@ -500,4 +500,128 @@ class AppL10nNl extends AppL10n {
 
   @override
   String get smartGenreMixDesc => 'Alles uit je meest gespeelde genre';
+
+  @override
+  String get navLocal => 'Op apparaat';
+
+  @override
+  String get localSongsTab => 'Nummers';
+
+  @override
+  String get localPlaylistsTab => 'Afspeellijsten';
+
+  @override
+  String get localScan => 'Apparaat scannen';
+
+  @override
+  String get localScanning => 'Bezig met scannen…';
+
+  @override
+  String localScanDone(int count) {
+    return '$count nieuwe nummers gevonden';
+  }
+
+  @override
+  String get localPermissionDenied =>
+      'Geen toegang tot de opslag. Sta toegang toe in de systeeminstellingen.';
+
+  @override
+  String get localScanError => 'Scannen mislukt';
+
+  @override
+  String get localEmptyTitle => 'Nog geen lokale muziek';
+
+  @override
+  String get localEmptyBody =>
+      'Scan je apparaat om audiobestanden te vinden. Ze blijven op je apparaat en staan los van de cloudmuziek.';
+
+  @override
+  String get localSearchHint => 'Zoek op apparaat…';
+
+  @override
+  String get localUnknownArtist => 'Onbekende artiest';
+
+  @override
+  String get localRename => 'Naam wijzigen';
+
+  @override
+  String get localFieldTitle => 'Titel';
+
+  @override
+  String get localFieldArtist => 'Artiest';
+
+  @override
+  String get localRenameFile => 'Ook het bestand op het apparaat hernoemen';
+
+  @override
+  String get localRenameDone => 'Naam gewijzigd';
+
+  @override
+  String get localRenameExists => 'Er bestaat al een bestand met deze naam';
+
+  @override
+  String get localRenameFailed => 'Het bestand kon niet worden hernoemd';
+
+  @override
+  String get localAddToPlaylist => 'Aan afspeellijst toevoegen';
+
+  @override
+  String get localNewPlaylist => 'Nieuwe afspeellijst';
+
+  @override
+  String get localPlaylistName => 'Naam afspeellijst';
+
+  @override
+  String get localCreate => 'Aanmaken';
+
+  @override
+  String get localCancel => 'Annuleren';
+
+  @override
+  String localAddedToPlaylist(String name) {
+    return 'Toegevoegd aan $name';
+  }
+
+  @override
+  String localAlreadyInPlaylist(String name) {
+    return 'Staat al in $name';
+  }
+
+  @override
+  String get localNoPlaylists => 'Nog geen lokale afspeellijsten';
+
+  @override
+  String get localPlaylistEmpty =>
+      'Deze afspeellijst is leeg. Voeg nummers toe via het tabblad Nummers.';
+
+  @override
+  String get localNotShareable =>
+      'Alleen op dit apparaat — lokale afspeellijsten kun je niet delen';
+
+  @override
+  String get localRenamePlaylist => 'Afspeellijst hernoemen';
+
+  @override
+  String get localDeletePlaylist => 'Afspeellijst verwijderen';
+
+  @override
+  String localDeletePlaylistConfirm(String name) {
+    return '\"$name\" verwijderen? De audiobestanden blijven op je apparaat staan.';
+  }
+
+  @override
+  String get localRemoveFromPlaylist => 'Uit afspeellijst verwijderen';
+
+  @override
+  String get localPlay => 'Afspelen';
+
+  @override
+  String get localShuffle => 'Shuffle';
+
+  @override
+  String get localOnDevice => 'Op dit apparaat';
+
+  @override
+  String get localIosHint =>
+      'Zet audiobestanden via de Bestanden-app in de map Music Player en scan daarna.';
 }

@@ -57,7 +57,8 @@ class PlayerDetailScreen extends StatelessWidget {
             ),
             onPressed: () => _showSleepTimerSheet(context, player, l10n, colorScheme),
           ),
-          LikeButton(song: song, size: 24, color: colorScheme.onSurface),
+          if (!song.isLocal)
+            LikeButton(song: song, size: 24, color: colorScheme.onSurface),
           IconButton(
             icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
             iconSize: 28,
@@ -278,7 +279,7 @@ class PlayerDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 28),
             _controls(context, song, player, locked, l10n, colorScheme),
-            LyricsSection(song: song),
+            if (!song.isLocal) LyricsSection(song: song),
             const SizedBox(height: 36),
           ],
         ),
@@ -310,7 +311,7 @@ class PlayerDetailScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                LyricsSection(song: song),
+                if (!song.isLocal) LyricsSection(song: song),
               ],
             ),
           ),
@@ -537,7 +538,9 @@ class _PlayerMenuSheet extends StatelessWidget {
             colorScheme: colorScheme,
             onTap: onQueue,
           ),
-          if (isDownloading)
+          if (song.isLocal)
+            const SizedBox.shrink()
+          else if (isDownloading)
             _PlayerSheetItem(
               icon: Icons.downloading_outlined,
               label: l10n.tooltipDownload,

@@ -288,5 +288,31 @@ void main() {
       verifyNever(() => dio.post(any(), data: any(named: 'data')));
       service.dispose();
     });
+
+    test('stuurt nooit een lokaal nummer (negatief id) naar de kamer',
+        () async {
+      final dio = _mockDio();
+      when(() => dio.post('/streams.php', data: any(named: 'data')))
+          .thenAnswer((_) async => _jsonResp(
+                {'success': true, 'stream_id': 11, 'room_code': 'ABC123'},
+              ));
+      final ws = MockWebSocketChannel();
+      final sink = MockWebSocketSink();
+      final streamCtrl = StreamController<dynamic>.broadcast();
+      when(() => ws.stream).thenAnswer((_) => streamCtrl.stream);
+      when(() => ws.sink).thenReturn(sink);
+      when(() => sink.add(any())).thenReturn(null);
+      when(() => sink.close()).thenAnswer((_) async {});
+
+      final service = StreamingService(dio, wsFactory: (_) => ws);
+      await service.createRoom();
+      expect(service.isHost, true);
+      clearInteractions(dio);
+
+      await service.updateState(trackId: -42, position: 0, isPlaying: true);
+      verifyNever(() => dio.post(any(), data: any(named: 'data')));
+      service.dispose();
+      await streamCtrl.close();
+    });
   });
 }

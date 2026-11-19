@@ -79,6 +79,7 @@ class StreamingService extends ChangeNotifier {
     if (!_isHost || _room == null || _player == null) return;
     final song = _player!.currentSong;
     final playing = _player!.isPlaying;
+    if (song != null && song.isLocal) return;
     if (song?.id == _lastSyncedSong?.id && playing == _lastSyncedIsPlaying) {
       return;
     }
@@ -219,6 +220,9 @@ class StreamingService extends ChangeNotifier {
     bool? isPlaying,
   }) async {
     if (_room == null || !_isHost) return;
+    // Lokale bestanden (negatief id) bestaan alleen op dit apparaat en
+    // worden nooit met de luisterkamer gedeeld.
+    if (trackId != null && trackId < 0) return;
     // Prevent _onPlayerChanged from firing a redundant sync
     if (_player != null) {
       _lastSyncedSong = _player!.currentSong;

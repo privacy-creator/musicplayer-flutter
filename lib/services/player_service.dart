@@ -148,7 +148,10 @@ class PlayerService extends ChangeNotifier {
 
   /// Persists the resume position for the current song at most every 5s.
   void _maybeSaveHistoryPosition() {
-    if (!_player.playing || _currentSong == null || _historyService == null) {
+    if (!_player.playing ||
+        _currentSong == null ||
+        _currentSong!.isLocal ||
+        _historyService == null) {
       return;
     }
     final now = DateTime.now();
@@ -185,14 +188,22 @@ class PlayerService extends ChangeNotifier {
   Future<void> _loadAndPlay(Song song) async {
     _currentSong = song;
     _handler.setMediaItem(song);
-    unawaited(_recentlyPlayedService?.recordPlay(song));
+    // Lokale nummers blijven gescheiden van de cloud-muziek: ze komen niet
+    // in "recent gespeeld" of de luistergeschiedenis (smart playlists).
+    if (!song.isLocal) {
+      unawaited(_recentlyPlayedService?.recordPlay(song));
+    }
     _fadingOut = false;
     _fadeTicker?.cancel();
     notifyListeners();
-    unawaited(_historyService?.recordPlay(song.id));
+    if (!song.isLocal) unawaited(_historyService?.recordPlay(song.id));
     try {
-      final localPath = _downloadService?.getLocalPath(song.id);
-      if (localPath != null && File(localPath).existsSync()) {
+      final localPath = song.isLocal
+          ? song.audioUrl
+          : _downloadService?.getLocalPath(song.id);
+      if (song.isLocal) {
+        await _player.setFilePath(localPath!);
+      } else if (localPath != null && File(localPath).existsSync()) {
         await _player.setFilePath(localPath);
       } else {
         await _player.setUrl(song.audioUrl);

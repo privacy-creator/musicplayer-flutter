@@ -498,4 +498,128 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get smartGenreMixDesc => 'Everything from your most played genre';
+
+  @override
+  String get navLocal => 'On device';
+
+  @override
+  String get localSongsTab => 'Songs';
+
+  @override
+  String get localPlaylistsTab => 'Playlists';
+
+  @override
+  String get localScan => 'Scan device';
+
+  @override
+  String get localScanning => 'Scanning…';
+
+  @override
+  String localScanDone(int count) {
+    return '$count new songs found';
+  }
+
+  @override
+  String get localPermissionDenied =>
+      'No access to storage. Allow access in the system settings.';
+
+  @override
+  String get localScanError => 'Scanning failed';
+
+  @override
+  String get localEmptyTitle => 'No local music yet';
+
+  @override
+  String get localEmptyBody =>
+      'Scan your device to find audio files. They stay on your device and are kept separate from the cloud music.';
+
+  @override
+  String get localSearchHint => 'Search on device…';
+
+  @override
+  String get localUnknownArtist => 'Unknown artist';
+
+  @override
+  String get localRename => 'Rename';
+
+  @override
+  String get localFieldTitle => 'Title';
+
+  @override
+  String get localFieldArtist => 'Artist';
+
+  @override
+  String get localRenameFile => 'Also rename the file on the device';
+
+  @override
+  String get localRenameDone => 'Name changed';
+
+  @override
+  String get localRenameExists => 'A file with this name already exists';
+
+  @override
+  String get localRenameFailed => 'The file could not be renamed';
+
+  @override
+  String get localAddToPlaylist => 'Add to playlist';
+
+  @override
+  String get localNewPlaylist => 'New playlist';
+
+  @override
+  String get localPlaylistName => 'Playlist name';
+
+  @override
+  String get localCreate => 'Create';
+
+  @override
+  String get localCancel => 'Cancel';
+
+  @override
+  String localAddedToPlaylist(String name) {
+    return 'Added to $name';
+  }
+
+  @override
+  String localAlreadyInPlaylist(String name) {
+    return 'Already in $name';
+  }
+
+  @override
+  String get localNoPlaylists => 'No local playlists yet';
+
+  @override
+  String get localPlaylistEmpty =>
+      'This playlist is empty. Add songs from the Songs tab.';
+
+  @override
+  String get localNotShareable =>
+      'Only on this device — local playlists can\'t be shared';
+
+  @override
+  String get localRenamePlaylist => 'Rename playlist';
+
+  @override
+  String get localDeletePlaylist => 'Delete playlist';
+
+  @override
+  String localDeletePlaylistConfirm(String name) {
+    return 'Delete \"$name\"? The audio files stay on your device.';
+  }
+
+  @override
+  String get localRemoveFromPlaylist => 'Remove from playlist';
+
+  @override
+  String get localPlay => 'Play';
+
+  @override
+  String get localShuffle => 'Shuffle';
+
+  @override
+  String get localOnDevice => 'On this device';
+
+  @override
+  String get localIosHint =>
+      'Put audio files in the Music Player folder via the Files app, then scan.';
 }

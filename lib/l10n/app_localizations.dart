@@ -1032,6 +1032,228 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Everything from your most played genre'**
   String get smartGenreMixDesc;
+
+  /// No description provided for @navLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'On device'**
+  String get navLocal;
+
+  /// No description provided for @localSongsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Songs'**
+  String get localSongsTab;
+
+  /// No description provided for @localPlaylistsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlists'**
+  String get localPlaylistsTab;
+
+  /// No description provided for @localScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan device'**
+  String get localScan;
+
+  /// No description provided for @localScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning…'**
+  String get localScanning;
+
+  /// No description provided for @localScanDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new songs found'**
+  String localScanDone(int count);
+
+  /// No description provided for @localPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'No access to storage. Allow access in the system settings.'**
+  String get localPermissionDenied;
+
+  /// No description provided for @localScanError.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning failed'**
+  String get localScanError;
+
+  /// No description provided for @localEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No local music yet'**
+  String get localEmptyTitle;
+
+  /// No description provided for @localEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan your device to find audio files. They stay on your device and are kept separate from the cloud music.'**
+  String get localEmptyBody;
+
+  /// No description provided for @localSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search on device…'**
+  String get localSearchHint;
+
+  /// No description provided for @localUnknownArtist.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown artist'**
+  String get localUnknownArtist;
+
+  /// No description provided for @localRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get localRename;
+
+  /// No description provided for @localFieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get localFieldTitle;
+
+  /// No description provided for @localFieldArtist.
+  ///
+  /// In en, this message translates to:
+  /// **'Artist'**
+  String get localFieldArtist;
+
+  /// No description provided for @localRenameFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Also rename the file on the device'**
+  String get localRenameFile;
+
+  /// No description provided for @localRenameDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Name changed'**
+  String get localRenameDone;
+
+  /// No description provided for @localRenameExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A file with this name already exists'**
+  String get localRenameExists;
+
+  /// No description provided for @localRenameFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be renamed'**
+  String get localRenameFailed;
+
+  /// No description provided for @localAddToPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to playlist'**
+  String get localAddToPlaylist;
+
+  /// No description provided for @localNewPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'New playlist'**
+  String get localNewPlaylist;
+
+  /// No description provided for @localPlaylistName.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist name'**
+  String get localPlaylistName;
+
+  /// No description provided for @localCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get localCreate;
+
+  /// No description provided for @localCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get localCancel;
+
+  /// No description provided for @localAddedToPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to {name}'**
+  String localAddedToPlaylist(String name);
+
+  /// No description provided for @localAlreadyInPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in {name}'**
+  String localAlreadyInPlaylist(String name);
+
+  /// No description provided for @localNoPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'No local playlists yet'**
+  String get localNoPlaylists;
+
+  /// No description provided for @localPlaylistEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This playlist is empty. Add songs from the Songs tab.'**
+  String get localPlaylistEmpty;
+
+  /// No description provided for @localNotShareable.
+  ///
+  /// In en, this message translates to:
+  /// **'Only on this device — local playlists can\'t be shared'**
+  String get localNotShareable;
+
+  /// No description provided for @localRenamePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename playlist'**
+  String get localRenamePlaylist;
+
+  /// No description provided for @localDeletePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete playlist'**
+  String get localDeletePlaylist;
+
+  /// No description provided for @localDeletePlaylistConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"? The audio files stay on your device.'**
+  String localDeletePlaylistConfirm(String name);
+
+  /// No description provided for @localRemoveFromPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from playlist'**
+  String get localRemoveFromPlaylist;
+
+  /// No description provided for @localPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get localPlay;
+
+  /// No description provided for @localShuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle'**
+  String get localShuffle;
+
+  /// No description provided for @localOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'On this device'**
+  String get localOnDevice;
+
+  /// No description provided for @localIosHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Put audio files in the Music Player folder via the Files app, then scan.'**
+  String get localIosHint;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

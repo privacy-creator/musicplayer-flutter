@@ -57,6 +57,11 @@ class Song {
     'lyrics_lrc': lyricsLrc,
   };
 
+  /// Lokale nummers (gescand op het apparaat) krijgen altijd een negatief id,
+  /// zodat ze nooit botsen met cloud-id's. Bij lokale nummers is [audioUrl]
+  /// het absolute bestandspad op het apparaat.
+  bool get isLocal => id < 0;
+
   String get formattedDuration {
     final m = duration ~/ 60;
     final s = duration % 60;

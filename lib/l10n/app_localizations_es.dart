@@ -501,4 +501,129 @@ class AppL10nEs extends AppL10n {
 
   @override
   String get smartGenreMixDesc => 'Todo de tu género más escuchado';
+
+  @override
+  String get navLocal => 'En el dispositivo';
+
+  @override
+  String get localSongsTab => 'Canciones';
+
+  @override
+  String get localPlaylistsTab => 'Listas';
+
+  @override
+  String get localScan => 'Escanear dispositivo';
+
+  @override
+  String get localScanning => 'Escaneando…';
+
+  @override
+  String localScanDone(int count) {
+    return '$count canciones nuevas encontradas';
+  }
+
+  @override
+  String get localPermissionDenied =>
+      'Sin acceso al almacenamiento. Permite el acceso en los ajustes del sistema.';
+
+  @override
+  String get localScanError => 'Error al escanear';
+
+  @override
+  String get localEmptyTitle => 'Aún no hay música local';
+
+  @override
+  String get localEmptyBody =>
+      'Escanea tu dispositivo para encontrar archivos de audio. Se quedan en tu dispositivo y separados de la música en la nube.';
+
+  @override
+  String get localSearchHint => 'Buscar en el dispositivo…';
+
+  @override
+  String get localUnknownArtist => 'Artista desconocido';
+
+  @override
+  String get localRename => 'Cambiar nombre';
+
+  @override
+  String get localFieldTitle => 'Título';
+
+  @override
+  String get localFieldArtist => 'Artista';
+
+  @override
+  String get localRenameFile =>
+      'Cambiar también el nombre del archivo en el dispositivo';
+
+  @override
+  String get localRenameDone => 'Nombre cambiado';
+
+  @override
+  String get localRenameExists => 'Ya existe un archivo con este nombre';
+
+  @override
+  String get localRenameFailed => 'No se pudo cambiar el nombre del archivo';
+
+  @override
+  String get localAddToPlaylist => 'Añadir a lista';
+
+  @override
+  String get localNewPlaylist => 'Nueva lista';
+
+  @override
+  String get localPlaylistName => 'Nombre de la lista';
+
+  @override
+  String get localCreate => 'Crear';
+
+  @override
+  String get localCancel => 'Cancelar';
+
+  @override
+  String localAddedToPlaylist(String name) {
+    return 'Añadida a $name';
+  }
+
+  @override
+  String localAlreadyInPlaylist(String name) {
+    return 'Ya está en $name';
+  }
+
+  @override
+  String get localNoPlaylists => 'Aún no hay listas locales';
+
+  @override
+  String get localPlaylistEmpty =>
+      'Esta lista está vacía. Añade canciones desde la pestaña Canciones.';
+
+  @override
+  String get localNotShareable =>
+      'Solo en este dispositivo — las listas locales no se pueden compartir';
+
+  @override
+  String get localRenamePlaylist => 'Cambiar nombre de la lista';
+
+  @override
+  String get localDeletePlaylist => 'Eliminar lista';
+
+  @override
+  String localDeletePlaylistConfirm(String name) {
+    return '¿Eliminar \"$name\"? Los archivos de audio se quedan en tu dispositivo.';
+  }
+
+  @override
+  String get localRemoveFromPlaylist => 'Quitar de la lista';
+
+  @override
+  String get localPlay => 'Reproducir';
+
+  @override
+  String get localShuffle => 'Aleatorio';
+
+  @override
+  String get localOnDevice => 'En este dispositivo';
+
+  @override
+  String get localIosHint =>
+      'Pon archivos de audio en la carpeta Music Player con la app Archivos y luego escanea.';
 }

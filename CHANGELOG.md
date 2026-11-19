@@ -4,6 +4,25 @@ All release notes are written in English.
 
 ---
 
+## [2.6.0] — 2026-11-19
+
+### Added
+- **On device** — a new tab for music stored on your device, kept completely separate from the cloud music:
+  - **Scan your device** for audio files (mp3, flac, m4a, ogg, opus, wav and more). Scanning runs in the background; hidden folders, app data and tiny system sounds are skipped. Rescanning removes files that are gone and keeps names you changed.
+  - **Play local files** directly from your device — nothing is uploaded or copied. Search, shuffle and add to queue work as usual.
+  - **Rename** a local song (title and artist), optionally also renaming the file on the device.
+  - **Local playlists** — create, rename and delete playlists of local songs. Local playlists only exist on this device and can't be shared.
+- Android: the app can request "All files access" (with a fallback to audio-only access) to find music anywhere on the device. iOS: put audio files in the Music Player folder via the Files app. macOS: your Music folder is scanned.
+
+### Changed
+- Local songs don't appear in recently played, listening history or smart playlists, and are never sent to a Listening Party.
+- The player hides like, lyrics and download options for local songs.
+
+### Tests
+- New tests for the local library (scanning, permissions, renaming files, local playlists, persistence), the file scanner, local playback and the new screens.
+
+---
+
 ## [2.5.0] — 2026-11-05
 
 ### Added

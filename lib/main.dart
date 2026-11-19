@@ -14,6 +14,7 @@ import 'services/download_service.dart';
 import 'services/history_service.dart';
 import 'services/language_service.dart';
 import 'services/liked_songs_service.dart';
+import 'services/local_library_service.dart';
 import 'services/recently_played_service.dart';
 import 'services/search_history_service.dart';
 import 'services/player_service.dart';
@@ -21,6 +22,7 @@ import 'services/theme_service.dart';
 import 'services/translation_service.dart';
 import 'services/update_service.dart';
 import 'screens/listening_room_screen.dart';
+import 'screens/local_music_screen.dart';
 import 'screens/songs_screen.dart';
 import 'screens/playlists_screen.dart';
 import 'services/streaming_service.dart';
@@ -44,6 +46,9 @@ void main() async {
 
   final searchHistoryService = SearchHistoryService();
   await searchHistoryService.init();
+
+  final localLibraryService = LocalLibraryService();
+  await localLibraryService.init();
 
   final apiService = ApiService();
   apiService.startDailyCacheRefresh();
@@ -80,6 +85,7 @@ void main() async {
     translationService: translationService,
     updateService: updateService,
     historyService: historyService,
+    localLibraryService: localLibraryService,
   ));
 }
 
@@ -95,6 +101,7 @@ class MusicPlayerApp extends StatelessWidget {
   final TranslationService translationService;
   final UpdateService updateService;
   final HistoryService historyService;
+  final LocalLibraryService localLibraryService;
 
   const MusicPlayerApp({
     super.key,
@@ -109,6 +116,7 @@ class MusicPlayerApp extends StatelessWidget {
     required this.translationService,
     required this.updateService,
     required this.historyService,
+    required this.localLibraryService,
   });
 
   @override
@@ -127,6 +135,8 @@ class MusicPlayerApp extends StatelessWidget {
             value: searchHistoryService),
         ChangeNotifierProvider<UpdateService>.value(value: updateService),
         ChangeNotifierProvider<HistoryService>.value(value: historyService),
+        ChangeNotifierProvider<LocalLibraryService>.value(
+            value: localLibraryService),
         Provider<ApiService>.value(value: apiService),
         ChangeNotifierProxyProvider<ApiService, AuthService>(
           create: (ctx) => AuthService(ctx.read<ApiService>()),
@@ -278,7 +288,12 @@ class _MainShell extends StatefulWidget {
 
 class _MainShellState extends State<_MainShell> {
   int _index = 0;
-  static const _pages = [SongsScreen(), PlaylistsScreen(), ListeningRoomScreen()];
+  static const _pages = [
+    SongsScreen(),
+    PlaylistsScreen(),
+    LocalMusicScreen(),
+    ListeningRoomScreen(),
+  ];
 
   static const _kTablet = 600.0;
 
@@ -306,6 +321,11 @@ class _MainShellState extends State<_MainShell> {
                   icon: const Icon(Icons.queue_music_outlined),
                   selectedIcon: Icon(Icons.queue_music, color: primary),
                   label: Text(l10n.navPlaylists),
+                ),
+                NavigationRailDestination(
+                  icon: const Icon(Icons.phone_android_outlined),
+                  selectedIcon: Icon(Icons.phone_android, color: primary),
+                  label: Text(l10n.navLocal),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(Icons.people_alt_outlined),
@@ -348,6 +368,11 @@ class _MainShellState extends State<_MainShell> {
                 icon: const Icon(Icons.queue_music_outlined),
                 selectedIcon: Icon(Icons.queue_music, color: primary),
                 label: l10n.navPlaylists,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.phone_android_outlined),
+                selectedIcon: Icon(Icons.phone_android, color: primary),
+                label: l10n.navLocal,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.people_alt_outlined),

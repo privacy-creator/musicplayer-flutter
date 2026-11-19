@@ -33,6 +33,7 @@ Provider pattern throughout. All services are instantiated in `main()` and injec
 - `AuthService` — cookie-based admin auth via `ChangeNotifierProxyProvider<ApiService, AuthService>`
 - `LanguageService` / `ThemeService` — persist locale (`app_locale`) and theme mode (`app_theme_mode`) in SharedPreferences; NL is default locale
 - `HistoryService` — per-device listening history (no backend; single-user app) for "Continue listening" / "On this day", persisted as JSON under `listening_history_v1`
+- `LocalLibraryService` — on-device music ("On device" tab): scans storage in an isolate (`local_audio_scanner.dart`), renames tracks (display name and optionally the file), local playlists that are never shareable. Local songs are `Song`s with a negative id (`Song.isLocal`) and `audioUrl` = file path; they are excluded from history/recently played and never synced to listening rooms
 - `StreamingService` — Live Listening rooms (WS + REST poll against `streams.php`/`ws/server.php`); also owns chat messages, presence, and recent-room codes (`recent_rooms_v1`, `stream_nickname`)
 
 **Localization**: ARB-generated via `flutter gen-l10n` (configured in `l10n.yaml`). When adding a string key, add it to the 3 ARB files in `lib/l10n/` and run `flutter analyze` to regenerate the Dart files:
@@ -44,7 +45,7 @@ Do NOT edit the generated `app_localizations*.dart` files directly — they will
 
 **Navigation shell** (`main.dart`): `_AuthWrapper` checks admin cookie on startup, then shows `_MainShell` with a `NavigationBar` (Songs / Playlists) and a persistent `PlayerBar` above it.
 
-**SharedPreferences keys**: `app_locale`, `app_theme_mode`, `shuffle_mode`, `songs_cache_v1`, `downloaded_songs_v1`, `lyrics_translation_{songId}_{lang}`, `listening_history_v1`, `recent_rooms_v1`, `stream_nickname`, `stream_guest_token`
+**SharedPreferences keys**: `app_locale`, `app_theme_mode`, `shuffle_mode`, `songs_cache_v1`, `downloaded_songs_v1`, `lyrics_translation_{songId}_{lang}`, `listening_history_v1`, `recent_rooms_v1`, `stream_nickname`, `stream_guest_token`, `local_tracks_v1`, `local_playlists_v1`, `local_last_scan_v1`
 
 ## Testing conventions
 
