@@ -241,6 +241,34 @@ void main() {
     });
   });
 
+  group('storageRootFromAppDir', () {
+    test('hoofdgebruiker', () {
+      expect(
+          LocalLibraryService.storageRootFromAppDir(
+              '/storage/emulated/0/Android/data/com.example.app/files'),
+          '/storage/emulated/0');
+    });
+
+    test('privéruimte / werkprofiel gebruikt een ander gebruikersnummer', () {
+      expect(
+          LocalLibraryService.storageRootFromAppDir(
+              '/storage/emulated/11/Android/data/com.example.app/files'),
+          '/storage/emulated/11');
+    });
+
+    test('SD-kaart', () {
+      expect(
+          LocalLibraryService.storageRootFromAppDir(
+              '/storage/1A2B-3C4D/Android/data/com.example.app/files'),
+          '/storage/1A2B-3C4D');
+    });
+
+    test('pad zonder Android-map blijft ongewijzigd', () {
+      expect(LocalLibraryService.storageRootFromAppDir('/storage/x'),
+          '/storage/x');
+    });
+  });
+
   group('sanitizeFileName', () {
     test('verwijdert verboden tekens en punten/spaties aan het eind', () {
       expect(LocalLibraryService.sanitizeFileName('a/b\\c:d*e?f"g<h>i|j. '),

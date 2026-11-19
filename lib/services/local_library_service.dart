@@ -328,18 +328,29 @@ class LocalLibraryService extends ChangeNotifier {
     return (await Permission.storage.request()).isGranted;
   }
 
+  /// Zet een app-specifieke map zoals
+  /// `/storage/emulated/11/Android/data/<pakket>/files` om naar de wortel
+  /// van dat opslagvolume (`/storage/emulated/11`).
+  static String storageRootFromAppDir(String appDir) {
+    final i = appDir.indexOf('/Android/');
+    return i > 0 ? appDir.substring(0, i) : appDir;
+  }
+
   static Future<List<String>> defaultScanRoots() async {
     if (Platform.isAndroid) {
-      final roots = <String>['/storage/emulated/0'];
-      // Externe SD-kaarten / USB-opslag
+      // Vraag de echte opslagvolumes aan Android. Het pad hangt af van de
+      // gebruiker: /storage/emulated/0 voor de hoofdgebruiker, maar bijv.
+      // /storage/emulated/11 in een privéruimte of werkprofiel. Dit levert
+      // ook SD-kaarten / USB-opslag op.
+      final roots = <String>[];
       try {
-        for (final e in Directory('/storage').listSync(followLinks: false)) {
-          final name = e.path.split('/').last;
-          if (e is Directory && name != 'emulated' && name != 'self') {
-            roots.add(e.path);
-          }
+        final dirs = await getExternalStorageDirectories() ?? const [];
+        for (final d in dirs) {
+          final root = storageRootFromAppDir(d.path);
+          if (!roots.contains(root)) roots.add(root);
         }
       } catch (_) {}
+      if (roots.isEmpty) roots.add('/storage/emulated/0');
       return roots;
     }
     if (Platform.isIOS) {

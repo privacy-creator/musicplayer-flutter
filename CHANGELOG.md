@@ -4,6 +4,16 @@ All release notes are written in English.
 
 ---
 
+## [2.6.1] — 2026-11-19
+
+### Fixed
+- **Scanning on device found nothing in a private space, work profile or secondary user** — the scan now asks Android for the correct storage location of the current user (e.g. `/storage/emulated/11` instead of `/storage/emulated/0`), including SD cards and USB storage.
+
+### Tests
+- New tests for resolving the storage root of the main user, private spaces and SD cards.
+
+---
+
 ## [2.6.0] — 2026-11-19
 
 ### Added
