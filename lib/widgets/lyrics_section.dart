@@ -179,17 +179,32 @@ class _LyricsSectionState extends State<LyricsSection> {
       );
     }
 
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 36),
+        const Divider(),
+        const SizedBox(height: 20),
+        _buildShareable(context, l10n, colorScheme, hasSyncedLyrics),
+      ],
+    );
+  }
+
+  Widget _buildShareable(
+    BuildContext context,
+    AppL10n l10n,
+    ColorScheme colorScheme,
+    bool hasSyncedLyrics,
+  ) {
+    // Paint with the page background so the block blends in on screen,
+    // while the shared PNG still gets an opaque background.
     return RepaintBoundary(
       key: _shareKey,
       child: Container(
-        color: colorScheme.surface,
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 36),
-            const Divider(),
-            const SizedBox(height: 20),
-
             // Header row: "Lyrics" label + translate / show-original + menu
             Row(
               children: [

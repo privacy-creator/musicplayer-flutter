@@ -4,6 +4,14 @@ All release notes are written in English.
 
 ---
 
+## [2.7.1] — 2026-11-25
+
+### Fixed
+- **Lyrics on the Now Playing screen** — the lyrics no longer sit in a differently coloured grey box with an empty strip and line above the header; they now blend into the screen background.
+- **Share lyrics as image** — the shared image now starts at the lyrics header, without the empty space and divider above it.
+
+---
+
 ## [2.7.0] — 2026-11-19
 
 ### Added
